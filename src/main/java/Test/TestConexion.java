@@ -9,7 +9,7 @@ public class TestConexion {
         Connection con = cn.Conexion();
 
         if (con != null) {
-            System.out.println(" Conexión exitosa a la base de datos.");
+            System.out.println(" Conexión exitosa a la base de datos. S");
         } else {
             System.out.println(" Error al conectar a la base de datos.");
         }
