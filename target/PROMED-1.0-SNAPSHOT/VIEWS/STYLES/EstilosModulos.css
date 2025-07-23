@@ -1,0 +1,69 @@
+/* Contenedor principal de la tabla */
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Permite el desplazamiento horizontal */
+    border: 1px solid #ddd; /* Borde del contenedor */
+}
+
+/* Estilo general para la tabla */
+.table {
+    width: 100%;
+    border-collapse: collapse; /* Elimina el espacio entre celdas */
+    table-layout: fixed; /* Ancho fijo para columnas */
+    margin: 0;
+}
+
+/* Encabezado de la tabla */
+.table thead {
+    display: table;
+    width: 100%;
+    table-layout: fixed; /* Asegura el mismo ancho para el encabezado */
+}
+
+.table thead th {
+    background-color: #e5e7eb; /* Fondo gris para el encabezado */
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    white-space: normal; /* Permite saltos de línea */
+    position: sticky; /* Fija el encabezado */
+    top: 0;
+    z-index: 10;
+}
+
+/* Cuerpo de la tabla con desplazamiento vertical */
+.scrollable-tbody {
+    display: block;
+    max-height: 300px; /* Altura máxima del cuerpo de la tabla */
+    overflow-y: auto; /* Permite desplazamiento vertical */
+    width: 100%;
+}
+
+.scrollable-tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed; /* Asegura el mismo ancho para las filas del body */
+}
+
+/* Celdas del cuerpo */
+.table tbody td {
+    padding: 10px;
+    text-align: center;
+    white-space: normal; /* Permite saltos de línea */
+    border: 1px solid #ddd;
+    overflow: hidden; /* Evita el desbordamiento */
+    word-wrap: break-word; /* Rompe las palabras largas */
+}
+
+/* Asegura que el ancho del encabezado y el cuerpo coincidan */
+.table thead th, .scrollable-tbody td {
+    min-width: 50px; /* Ancho mínimo para cada columna */
+    width: auto;
+}
+
+/* Estilo de las filas de la tabla al pasar el mouse */
+.scrollable-tbody tr:hover {
+    background-color: #e5e7eb; /* Cambia este color según prefieras */
+    cursor: pointer; /* Cambia el cursor para indicar que la fila es interactiva */
+}
+

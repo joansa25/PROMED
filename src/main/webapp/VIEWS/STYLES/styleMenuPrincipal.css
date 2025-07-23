@@ -1,0 +1,226 @@
+/* Paleta de colores */
+:root {
+    --primary-color: #1c3d5a; /* Un azul más oscuro y sobrio */
+    --primary-hover-color: #16334a; /* Hover del azul más oscuro */
+    --background-color: #f8f9fa; /* Fondo claro, casi blanco */
+    --text-color: #4a4a4a; /* Texto oscuro pero suave */
+    --border-color: #e5e7eb; /* Bordes claros */
+    --text-white: #fff; /* Texto blanco */
+    --secondary-color: #adb5bd; /* Color gris sutil para texto secundario */
+}
+
+/* Estilos generales */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.navbar {
+    background-color: var(--primary-color);
+    color: var(--text-white);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 1001;
+    position: relative;
+    width: 100%;
+}
+
+.navbar-brand {
+    color: var(--text-white);
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.dropdown-item {
+    font-size: 1rem;
+}
+
+/* Estilos de la barra lateral */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    height: 100%;
+    width: 250px;
+    background-color: var(--primary-color);
+    padding-top: 60px;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+.sidebar.active {
+    left: 0;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar ul li a {
+    color: var(--text-white);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Suaviza el cambio */
+    border-radius: 0; /* Asegurar que no tenga bordes redondeados */
+}
+
+.sidebar ul li a i {
+    margin-right: 10px;
+    font-size: 1.3rem;
+}
+
+.sidebar ul li a:hover {
+    background-color: var(--primary-hover-color);
+    color: var(--text-white);
+    box-shadow: inset 2px 0 0 var(--secondary-color);
+    transform: scale(1.1); /* Efecto de zoom */
+}
+
+.sidebar ul li a:focus, 
+.sidebar ul li a:active {
+    outline: none; /* Elimina el borde por defecto de enfoque */
+    background-color: var(--primary-hover-color); /* Fondo de hover */
+    box-shadow: inset 2px 0 0 var(--secondary-color);
+    border-radius: 0; /* Asegurar que no se muestre ovalado */
+}
+
+/* Submenú Empresa */
+.sidebar ul ul {
+    list-style: none;
+    padding-left: 20px;
+}
+
+.sidebar ul ul li a {
+    font-size: 0.9rem; /* Tamaño de letra menor para submenús */
+}
+
+.sidebar ul ul.collapse {
+    display: none; /* Ocultar el submenú inicialmente */
+}
+
+.sidebar ul ul.collapse.show {
+    display: block; /* Mostrar el submenú cuando se expanda */
+}
+
+/* Contenido principal */
+.content {
+    transition: margin-left 0.3s ease;
+    padding: 20px;
+    background-color: var(--text-white);
+    min-height: 100vh;
+    margin-left: 0;
+    overflow: auto;
+}
+
+.content.active {
+    margin-left: 250px;
+}
+
+/* Botón de la barra lateral */
+.sidebar-toggle {
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    background-color: var(--primary-color);
+    color: var(--text-white);
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 1100;
+    border-radius: 50%;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-toggle:hover {
+    background-color: var(--primary-hover-color);
+}
+
+/* Contenedor principal */
+.container-custom {
+    margin-top: 20px;
+    background-color: var(--text-white);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    min-height: calc(100vh - 60px);
+    overflow: hidden;
+}
+
+/* Footer */
+.footer {
+    padding: 10px;
+    text-align: right;
+    color: var(--secondary-color);
+}
+
+.footer p {
+    margin-bottom: 5px;
+}
+
+/* Barra de navegación superior */
+.navbar {
+    background-color: var(--primary-color); /* Mismo color que la barra lateral */
+    color: var(--text-white);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 1001;
+    position: relative;
+    width: 100%;
+    height: 70px; /* Altura adecuada */
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.navbar-brand {
+    color: var(--text-white);
+    font-weight: bold;
+    font-size: 1.8rem; /* Tamaño de fuente más grande */
+    letter-spacing: 1px; /* Espaciado entre letras */
+}
+
+.dropdown {
+    margin-left: auto; /* Alinea el botón del dropdown a la derecha */
+}
+
+.dropdown-toggle {
+    background-color: transparent; /* Fondo transparente */
+    border: none;
+    color: var(--text-white);
+    font-size: 1.5rem; /* Tamaño del icono del dropdown */
+    padding: 10px;
+    border-radius: 50%;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+.dropdown-toggle:hover {
+    background-color: var(--primary-hover-color); /* Cambia el fondo al hacer hover */
+}
+
+.dropdown-menu {
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+.dropdown-item {
+    font-size: 1rem; /* Ajustar tamaño de las opciones */
+    padding: 10px 20px;
+}
+
+.dropdown-item:hover {
+    background-color: var(--primary-hover-color);
+    color: var(--text-white);
+}
+    
