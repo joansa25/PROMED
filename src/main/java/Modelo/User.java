@@ -9,10 +9,13 @@ package Modelo;
  * @author joans
  */
 public class User {
+
+ 
       int ID;
     String Cod_user;
     String User_US;
     String Rol_Us;
+    String cod_empsa;
     String Psw_Us;
     String Nomb_Us;
     String Ape_Us;
@@ -22,11 +25,12 @@ public class User {
     public User() {
     }
 
-    public User(int ID, String Cod_user, String User_US, String Rol_Us, String Psw_Us, String Nomb_Us, String Ape_Us, String Corr_Us, String Esdado) {
+    public User(int ID, String Cod_user, String User_US, String Rol_Us, String cod_empsa, String Psw_Us, String Nomb_Us, String Ape_Us, String Corr_Us, String Esdado) {
         this.ID = ID;
         this.Cod_user = Cod_user;
         this.User_US = User_US;
         this.Rol_Us = Rol_Us;
+        this.cod_empsa = cod_empsa;
         this.Psw_Us = Psw_Us;
         this.Nomb_Us = Nomb_Us;
         this.Ape_Us = Ape_Us;
@@ -106,5 +110,11 @@ public class User {
         this.Esdado = Esdado;
     }
 
-    
+        public String getCod_empsa() {
+        return cod_empsa;
+    }
+
+    public void setCod_empsa(String cod_empsa) {
+        this.cod_empsa = cod_empsa;
+    }
 }

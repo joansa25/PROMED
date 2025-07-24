@@ -63,16 +63,15 @@
                         <i class="fas fa-user-cog"></i> ADMINISTRACIÓN
                     </a>
                     <ul class="collapse list-unstyled" id="empresaSubmenu">
-                        <li><a href="Controlador?menu=Asistencia&accion=Listar" target="myFrame"><i class="fas fa-users"></i> Clientes</a></li>
-                        <li><a href="Controlador?menu=Asistencia&accion=REGISTRO" target="myFrame"><i class="fas fa-user-plus"></i> Empleados</a></li>
+                        <li><a href="Controlador?menu=Clientes&accion=Listar" target="myFrame"><i class="fas fa-users"></i> Clientes</a></li>
+                        <li><a href="Controlador?menu=Empleados&accion=Listar" target="myFrame"><i class="fas fa-user-plus"></i> Empleados</a></li>
                         <!--<li><a href="Controlador?menu=Asistencia&accion=GENERARTICKET" target="myFrame"><i class="fas fa-calendar-check"></i> Asistencia listado</a></li>
   -->   
-  <li><a href="Controlador?menu=Empleados&accion=Listar" target="myFrame"><i class="fas fa-user-tie"></i> Empleo</a></li>
+  <li><a href="Controlador?menu=Empleos&accion=Listar" target="myFrame"><i class="fas fa-user-tie"></i> Empleo</a></li>
                         <li><a href="Controlador?menu=Empresa&accion=Listar" target="myFrame"><i class="fas fa-building"></i> Empresa</a></li> 
-                        <li><a href="Controlador?menu=Empresa&accion=Listar" target="myFrame"><i class="fas fa-layer-group"></i> Planes</a></li>
-                         <li><a href="Controlador?menu=Planilla" target="myFrame"><i class="fas fa-exclamation-triangle"></i> Incidencias</a></li>
-                         <li><a href="Controlador?menu=Planilla" target="myFrame"><i class="fas fa-user-cog"></i> Usuarios</a></li>
-                                                  <li><a href="Controlador?menu=Planilla" target="myFrame"><i class="fas fa-map-marked-alt"></i> Zonas</a></li>
+                        <li><a href="Controlador?menu=Planes&accion=Listar" target="myFrame"><i class="fas fa-layer-group"></i> Planes</a></li>
+                          <li><a href="Controlador?menu=Incidencias&accion=Listar" target="myFrame"><i class="fas fa-map-marked-alt"></i> Incidencias</a></li>
+                          <li><a href="Controlador?menu=Zonas&accion=Listar" target="myFrame"><i class="fas fa-map-marked-alt"></i> Zonas</a></li>
 
  -->                    </ul>
                 </li>
@@ -86,7 +85,7 @@
 
 
                 <li><a href="Controlador?menu=Reportes&accion=Listar" target="myFrame"><i class="fas fa-file-alt"></i> Reportes</a></li>
-                <li><a href="Controlador?menu=Seguridad&accion=Listar" target="myFrame"><i class="fas fa-shield-alt"></i> Seguridad</a></li>
+                <li><a href="Controlador?menu=Seguridad&accion=Listar" target="myFrame"><i class="fas fa-user-cog"></i>Seguridad</a></li>
 
 
 
