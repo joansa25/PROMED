@@ -16,9 +16,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -41,10 +43,45 @@ public class Controlador extends HttpServlet {
         String accion = request.getParameter("accion");
         System.out.println("Valor de 'menu': " + menu);
         System.out.println("Valor de 'accion': " + accion);
-        if (menu.equals("Principal")) {
+   // Verificar que menu no sea null
+if (menu != null) {
+    switch (menu) {
+        case "Principal":
             request.getRequestDispatcher("VIEWS/TEMPLATES/menuPrincipal.jsp").forward(request, response);
-        }
-
+            break;
+            
+        case "exis":
+            // Cerrar sesión - invalidar la sesión
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate(); // Elimina toda la información de la sesión
+            }
+            
+            // Limpiar cookies si las usas
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    cookie.setValue("");
+                    cookie.setPath("/");
+                    cookie.setMaxAge(0);
+                    response.addCookie(cookie);
+                }
+            }
+            
+            // Redirigir al login o página de inicio
+            response.sendRedirect("index.html"); // Cambia por tu página de login
+            return; // Importante: terminar la ejecución aquí
+            
+        default:
+            // Si el menú no coincide con ninguno conocido
+            System.out.println("Menú no reconocido: " + menu);
+            break;
+    }
+}
+        
+        
+        
+        
         /* Empresa */
         if (menu.equals("Empresa")) {
             System.out.println("Dentro de Empresa");
@@ -555,9 +592,8 @@ public class Controlador extends HttpServlet {
 
             // request.getRequestDispatcher("VIEWS/TEMPLATES/Empleos.jsp").forward(request, response);
         }
-        
-        
-         /*ZONAS*/
+
+        /*ZONAS*/
         if (menu.equals("Zonas")) {
             System.out.println("Dentro de ZONAS");
 
@@ -581,20 +617,18 @@ public class Controlador extends HttpServlet {
                     // Pasar la lista a la vista
                     request.setAttribute("empresad", listae);
                     // Pasar la lista a la vista
-                    
-                    
+
                     request.setAttribute("usuarios", listaUsuarios);
                     break;
-            
-              default:
+
+                default:
                     throw new AssertionError();
             }
 
             request.getRequestDispatcher("VIEWS/TEMPLATES/Zonas.jsp").forward(request, response);
-    }
-        
-        
-           /*INCIDENCIAS*/
+        }
+
+        /*INCIDENCIAS*/
         if (menu.equals("Incidencias")) {
             System.out.println("Dentro de INCIDENCIAS");
 
@@ -618,19 +652,18 @@ public class Controlador extends HttpServlet {
                     // Pasar la lista a la vista
                     request.setAttribute("empresad", listae);
                     // Pasar la lista a la vista
-                    
-                    
+
                     request.setAttribute("usuarios", listaUsuarios);
                     break;
-            
-              default:
+
+                default:
                     throw new AssertionError();
             }
 
             request.getRequestDispatcher("VIEWS/TEMPLATES/Incidencias.jsp").forward(request, response);
-    }
-        
-   /*PLANES*/
+        }
+
+        /*PLANES*/
         if (menu.equals("Planes")) {
             System.out.println("Dentro de Planes");
 
@@ -654,18 +687,17 @@ public class Controlador extends HttpServlet {
                     // Pasar la lista a la vista
                     request.setAttribute("empresad", listae);
                     // Pasar la lista a la vista
-                    
-                    
+
                     request.setAttribute("usuarios", listaUsuarios);
                     break;
-            
-              default:
+
+                default:
                     throw new AssertionError();
             }
 
             request.getRequestDispatcher("VIEWS/TEMPLATES/Planes.jsp").forward(request, response);
-    }
-          /*CLIENTES*/
+        }
+        /*CLIENTES*/
         if (menu.equals("Clientes")) {
             System.out.println("Dentro de Clientes");
 
@@ -689,18 +721,17 @@ public class Controlador extends HttpServlet {
                     // Pasar la lista a la vista
                     request.setAttribute("empresad", listae);
                     // Pasar la lista a la vista
-                    
-                    
+
                     request.setAttribute("usuarios", listaUsuarios);
                     break;
-            
-              default:
+
+                default:
                     throw new AssertionError();
             }
 
             request.getRequestDispatcher("VIEWS/TEMPLATES/Clientes.jsp").forward(request, response);
-    }
-        
+        }
+
         /*Seguridad*/
         if (menu.equals("Seguridad")) {
             System.out.println("Dentro de Seguridad");
@@ -725,8 +756,7 @@ public class Controlador extends HttpServlet {
                     // Pasar la lista a la vista
                     request.setAttribute("empresad", listae);
                     // Pasar la lista a la vista
-                    
-                    
+
                     request.setAttribute("usuarios", listaUsuarios);
                     break;
 
@@ -921,17 +951,19 @@ public class Controlador extends HttpServlet {
                     return;
 
                 case "agregar":
-                    String dpi = request.getParameter("txtDpi");
+                    String cod = request.getParameter("txtCod");
+                    long dpi = Long.parseLong(request.getParameter("txtDpi"));
                     String nom = request.getParameter("txtNombres");
                     String ape = request.getParameter("txtApellidos");
-                    int igss = Integer.parseInt(request.getParameter("txtIgss"));
+                    long igss = Long.parseLong(request.getParameter("txtIgss"));
                     int nit = Integer.parseInt(request.getParameter("txtNit"));
                     String cod_emp = request.getParameter("txtCod_emp");
                     String Cod_empsa = request.getParameter("txtCod_empsa");
                     int Celular = Integer.parseInt(request.getParameter("txtCelular"));
                     String Correo = request.getParameter("txtCorreo");
 
-                    emp.setCOC_EMPD(dpi);
+                    emp.setCOC_EMPD(cod);
+                    emp.setDPI(dpi);
                     emp.setNOMBRES(nom);
                     emp.setAPELLIDOS(ape);
                     emp.setN_IGSS(igss);
@@ -968,10 +1000,11 @@ public class Controlador extends HttpServlet {
 
                 case "Actualizar":
                     // Obtener los datos del formulario
-                    String dpiActualizar = request.getParameter("txtDpi");
+                    String CodActualizar = request.getParameter("txtCod");
+                    long dpiActualizar = Long.parseLong(request.getParameter("txtDpi"));
                     String nombresActualizar = request.getParameter("txtNombres");
                     String apellidosActualizar = request.getParameter("txtApellidos");
-                    int igssActualizar = Integer.parseInt(request.getParameter("txtIgss"));
+                    long igssActualizar = Long.parseLong(request.getParameter("txtIgss"));
                     int nitActualizar = Integer.parseInt(request.getParameter("txtNit"));
                     String codEmpActualizar = request.getParameter("txtCod_emp");
                     String codEmpsaActualizar = request.getParameter("txtCod_empsa");
@@ -979,8 +1012,9 @@ public class Controlador extends HttpServlet {
                     String correoActualizar = request.getParameter("txtCorreo");
                     String estadoActualizar = request.getParameter("txtEstado");
 
-                    // Asignar los valores al objeto empleado
-                    emp.setCOC_EMPD(dpiActualizar);
+// Asignar los valores al objeto empleado
+                    emp.setCOC_EMPD(CodActualizar);
+                    emp.setDPI(dpiActualizar);
                     emp.setNOMBRES(nombresActualizar);
                     emp.setAPELLIDOS(apellidosActualizar);
                     emp.setN_IGSS(igssActualizar);
@@ -1004,179 +1038,185 @@ public class Controlador extends HttpServlet {
                     // Redirigir a la lista de empleados
                     request.getRequestDispatcher("Controlador?menu=Empleados&accion=Listar").forward(request, response);
                     return;
-                case "BuscarPorCodigo":
-                    String codigo = request.getParameter("codigo");
-                    EmpleadoDao empleadoDao = new EmpleadoDao();
-                    List<Empleado> empleadosPorCodigo = empleadoDao.buscarPorCodigo(codigo);
+          case "BuscarPorCodigo":
+    String codigo = request.getParameter("codigo");
+    EmpleadoDao empleadoDao = new EmpleadoDao();
+    List<Empleado> empleadosPorCodigo = empleadoDao.buscarPorCodigo(codigo);
 
-                    // Construir la respuesta HTML
-                    StringBuilder htmlResponse = new StringBuilder();
-                    for (Empleado em : empleadosPorCodigo) {
-                        htmlResponse.append("<tr>")
-                                .append("<td>").append(em.getId()).append("</td>")
-                                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                                .append("<td>").append(em.getNOMBRES()).append("</td>")
-                                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
-                                .append("<td>").append(em.getN_IGSS()).append("</td>")
-                                .append("<td>").append(em.getNIT()).append("</td>")
-                                .append("<td>").append(em.getCOD_EMP()).append("</td>")
-                                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
-                                .append("<td>").append(em.getCELULAR()).append("</td>")
-                                .append("<td>").append(em.getCorreo()).append("</td>")
-                                .append("<td>").append(em.getEstado()).append("</td>")
-                                .append("<td>")
-                                .append("<a class='btn btn-warning btn-sm' ")
-                                .append("href='Controlador?menu=Empleados&accion=Editar&empCod=").append(em.getCOC_EMPD()).append("' ")
-                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
-                                .append("</td>")
-                                .append("</tr>");
-                    }
+    // Construir la respuesta HTML
+    StringBuilder htmlResponse = new StringBuilder();
+    for (Empleado em : empleadosPorCodigo) {
+        htmlResponse.append("<tr>")
+                .append("<td>").append(em.getId()).append("</td>")
+                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
+                .append("<td>").append(em.getDPI()).append("</td>")              // ✅ DPI agregado
+                .append("<td>").append(em.getNOMBRES()).append("</td>")
+                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
+                .append("<td>").append(em.getN_IGSS()).append("</td>")
+                .append("<td>").append(em.getNIT()).append("</td>")
+                .append("<td>").append(em.getCOD_EMP()).append("</td>")
+                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
+                .append("<td>").append(em.getCELULAR()).append("</td>")
+                .append("<td>").append(em.getCorreo()).append("</td>")
+                .append("<td>").append(em.getEstado()).append("</td>")
+                .append("<td>")
+                .append("<a class='btn btn-warning btn-sm' ")
+                .append("href='Controlador?menu=Empleados&accion=Editar&empCod=").append(em.getCOC_EMPD()).append("' ")
+                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                .append("</td>")
+                .append("</tr>");
+    }
 
-                    response.setContentType("text/html");
-                    response.getWriter().write(htmlResponse.toString());
-                    return;
+    response.setContentType("text/html");
+    response.getWriter().write(htmlResponse.toString());
+    return;
 
-                case "BuscarPorNombre":
-                    String nombre = request.getParameter("nombre");
-                    empleadoDao = new EmpleadoDao();
-                    List<Empleado> empleadosPorNombre = empleadoDao.buscarPorNombre(nombre);
+case "BuscarPorNombre":
+    String nombre = request.getParameter("nombre");
+    empleadoDao = new EmpleadoDao();
+    List<Empleado> empleadosPorNombre = empleadoDao.buscarPorNombre(nombre);
 
-                    htmlResponse = new StringBuilder();
-                    for (Empleado em : empleadosPorNombre) {
-                        htmlResponse.append("<tr>")
-                                .append("<td>").append(em.getId()).append("</td>")
-                                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                                .append("<td>").append(em.getNOMBRES()).append("</td>")
-                                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
-                                .append("<td>").append(em.getN_IGSS()).append("</td>")
-                                .append("<td>").append(em.getNIT()).append("</td>")
-                                .append("<td>").append(em.getCOD_EMP()).append("</td>")
-                                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
-                                .append("<td>").append(em.getCELULAR()).append("</td>")
-                                .append("<td>").append(em.getCorreo()).append("</td>")
-                                .append("<td>").append(em.getEstado()).append("</td>")
-                                .append("<td>")
-                                .append("<a class='btn btn-warning btn-sm' ")
-                                .append("href='Controlador?menu=Empleados&accion=Editar&empCod=").append(em.getCOC_EMPD()).append("' ")
-                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
-                                .append("</td>")
-                                .append("</tr>");
-                    }
+    htmlResponse = new StringBuilder();
+    for (Empleado em : empleadosPorNombre) {
+        htmlResponse.append("<tr>")
+                .append("<td>").append(em.getId()).append("</td>")
+                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
+                .append("<td>").append(em.getDPI()).append("</td>")              // ✅ DPI agregado
+                .append("<td>").append(em.getNOMBRES()).append("</td>")
+                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
+                .append("<td>").append(em.getN_IGSS()).append("</td>")
+                .append("<td>").append(em.getNIT()).append("</td>")
+                .append("<td>").append(em.getCOD_EMP()).append("</td>")
+                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
+                .append("<td>").append(em.getCELULAR()).append("</td>")
+                .append("<td>").append(em.getCorreo()).append("</td>")
+                .append("<td>").append(em.getEstado()).append("</td>")
+                .append("<td>")
+                .append("<a class='btn btn-warning btn-sm' ")
+                .append("href='Controlador?menu=Empleados&accion=Editar&empCod=").append(em.getCOC_EMPD()).append("' ")
+                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                .append("</td>")
+                .append("</tr>");
+    }
 
-                    response.setContentType("text/html");
-                    response.getWriter().write(htmlResponse.toString());
-                    return;
+    response.setContentType("text/html");
+    response.getWriter().write(htmlResponse.toString());
+    return;
 
-                case "FiltrarPorEstado":
-                    String estado = request.getParameter("estado");
-                    empleadoDao = new EmpleadoDao();
-                    List<Empleado> empleadosPorEstado = empleadoDao.filtrarPorEstado(estado);
+case "FiltrarPorEstado":
+    String estado = request.getParameter("estado");
+    empleadoDao = new EmpleadoDao();
+    List<Empleado> empleadosPorEstado = empleadoDao.filtrarPorEstado(estado);
 
-                    htmlResponse = new StringBuilder();
-                    for (Empleado em : empleadosPorEstado) {
-                        htmlResponse.append("<tr>")
-                                .append("<td>").append(em.getId()).append("</td>")
-                                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                                .append("<td>").append(em.getNOMBRES()).append("</td>")
-                                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
-                                .append("<td>").append(em.getN_IGSS()).append("</td>")
-                                .append("<td>").append(em.getNIT()).append("</td>")
-                                .append("<td>").append(em.getCOD_EMP()).append("</td>")
-                                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
-                                .append("<td>").append(em.getCELULAR()).append("</td>")
-                                .append("<td>").append(em.getCorreo()).append("</td>")
-                                .append("<td>").append(em.getEstado()).append("</td>")
-                                .append("<td>")
-                                .append("<a class='btn btn-warning btn-sm' ")
-                                .append("href='Controlador?menu=Empleados&accion=Editar&empCod=").append(em.getCOC_EMPD()).append("' ")
-                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
-                                .append("</td>")
-                                .append("</tr>");
-                    }
+    htmlResponse = new StringBuilder();
+    for (Empleado em : empleadosPorEstado) {
+        htmlResponse.append("<tr>")
+                .append("<td>").append(em.getId()).append("</td>")
+                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
+                .append("<td>").append(em.getDPI()).append("</td>")              // ✅ DPI agregado
+                .append("<td>").append(em.getNOMBRES()).append("</td>")
+                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
+                .append("<td>").append(em.getN_IGSS()).append("</td>")
+                .append("<td>").append(em.getNIT()).append("</td>")
+                .append("<td>").append(em.getCOD_EMP()).append("</td>")
+                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
+                .append("<td>").append(em.getCELULAR()).append("</td>")
+                .append("<td>").append(em.getCorreo()).append("</td>")
+                .append("<td>").append(em.getEstado()).append("</td>")
+                .append("<td>")
+                .append("<a class='btn btn-warning btn-sm' ")
+                .append("href='Controlador?menu=Empleados&accion=Editar&empCod=").append(em.getCOC_EMPD()).append("' ")
+                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                .append("</td>")
+                .append("</tr>");
+    }
 
-                    response.setContentType("text/html");
-                    response.getWriter().write(htmlResponse.toString());
-                    return;
+    response.setContentType("text/html");
+    response.getWriter().write(htmlResponse.toString());
+    return;
 
-                // FILTROS DE REPORTERIA
-                case "BuscarPorCodigoRE":
-                    codigo = request.getParameter("codigo");
-                    empleadoDao = new EmpleadoDao();
-                    empleadosPorCodigo = empleadoDao.buscarPorCodigo(codigo);
+// FILTROS DE REPORTERIA
+case "BuscarPorCodigoRE":
+    codigo = request.getParameter("codigo");
+    empleadoDao = new EmpleadoDao();
+    empleadosPorCodigo = empleadoDao.buscarPorCodigo(codigo);
 
-                    // Construir la respuesta HTML
-                    htmlResponse = new StringBuilder();
-                    for (Empleado em : empleadosPorCodigo) {
-                        htmlResponse.append("<tr>")
-                                .append("<td>").append(em.getId()).append("</td>")
-                                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                                .append("<td>").append(em.getNOMBRES()).append("</td>")
-                                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
-                                .append("<td>").append(em.getN_IGSS()).append("</td>")
-                                .append("<td>").append(em.getNIT()).append("</td>")
-                                .append("<td>").append(em.getCOD_EMP()).append("</td>")
-                                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
-                                .append("<td>").append(em.getCELULAR()).append("</td>")
-                                .append("<td>").append(em.getCorreo()).append("</td>")
-                                .append("<td>").append(em.getEstado()).append("</td>")
-                                .append("</tr>");
-                    }
+    // Construir la respuesta HTML
+    htmlResponse = new StringBuilder();
+    for (Empleado em : empleadosPorCodigo) {
+        htmlResponse.append("<tr>")
+                .append("<td>").append(em.getId()).append("</td>")
+                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
+                .append("<td>").append(em.getDPI()).append("</td>")              // ✅ DPI agregado
+                .append("<td>").append(em.getNOMBRES()).append("</td>")
+                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
+                .append("<td>").append(em.getN_IGSS()).append("</td>")
+                .append("<td>").append(em.getNIT()).append("</td>")
+                .append("<td>").append(em.getCOD_EMP()).append("</td>")
+                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
+                .append("<td>").append(em.getCELULAR()).append("</td>")
+                .append("<td>").append(em.getCorreo()).append("</td>")
+                .append("<td>").append(em.getEstado()).append("</td>")
+                .append("</tr>");
+    }
 
-                    response.setContentType("text/html");
-                    response.getWriter().write(htmlResponse.toString());
-                    return;
+    response.setContentType("text/html");
+    response.getWriter().write(htmlResponse.toString());
+    return;
 
-                case "BuscarPorNombreRE":
-                    nombre = request.getParameter("nombre");
-                    empleadoDao = new EmpleadoDao();
-                    empleadosPorNombre = empleadoDao.buscarPorNombre(nombre);
+case "BuscarPorNombreRE":
+    nombre = request.getParameter("nombre");
+    empleadoDao = new EmpleadoDao();
+    empleadosPorNombre = empleadoDao.buscarPorNombre(nombre);
 
-                    htmlResponse = new StringBuilder();
-                    for (Empleado em : empleadosPorNombre) {
-                        htmlResponse.append("<tr>")
-                                .append("<td>").append(em.getId()).append("</td>")
-                                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                                .append("<td>").append(em.getNOMBRES()).append("</td>")
-                                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
-                                .append("<td>").append(em.getN_IGSS()).append("</td>")
-                                .append("<td>").append(em.getNIT()).append("</td>")
-                                .append("<td>").append(em.getCOD_EMP()).append("</td>")
-                                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
-                                .append("<td>").append(em.getCELULAR()).append("</td>")
-                                .append("<td>").append(em.getCorreo()).append("</td>")
-                                .append("<td>").append(em.getEstado()).append("</td>")
-                                .append("</tr>");
-                    }
+    htmlResponse = new StringBuilder();
+    for (Empleado em : empleadosPorNombre) {
+        htmlResponse.append("<tr>")
+                .append("<td>").append(em.getId()).append("</td>")
+                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
+                .append("<td>").append(em.getDPI()).append("</td>")              // ✅ DPI agregado
+                .append("<td>").append(em.getNOMBRES()).append("</td>")
+                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
+                .append("<td>").append(em.getN_IGSS()).append("</td>")
+                .append("<td>").append(em.getNIT()).append("</td>")
+                .append("<td>").append(em.getCOD_EMP()).append("</td>")
+                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
+                .append("<td>").append(em.getCELULAR()).append("</td>")
+                .append("<td>").append(em.getCorreo()).append("</td>")
+                .append("<td>").append(em.getEstado()).append("</td>")
+                .append("</tr>");
+    }
 
-                    response.setContentType("text/html");
-                    response.getWriter().write(htmlResponse.toString());
-                    return;
+    response.setContentType("text/html");
+    response.getWriter().write(htmlResponse.toString());
+    return;
 
-                case "FiltrarPorEstadoRE":
-                    estado = request.getParameter("estado");
-                    empleadoDao = new EmpleadoDao();
-                    empleadosPorEstado = empleadoDao.filtrarPorEstado(estado);
+case "FiltrarPorEstadoRE":
+    estado = request.getParameter("estado");
+    empleadoDao = new EmpleadoDao();
+    empleadosPorEstado = empleadoDao.filtrarPorEstado(estado);
 
-                    htmlResponse = new StringBuilder();
-                    for (Empleado em : empleadosPorEstado) {
-                        htmlResponse.append("<tr>")
-                                .append("<td>").append(em.getId()).append("</td>")
-                                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                                .append("<td>").append(em.getNOMBRES()).append("</td>")
-                                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
-                                .append("<td>").append(em.getN_IGSS()).append("</td>")
-                                .append("<td>").append(em.getNIT()).append("</td>")
-                                .append("<td>").append(em.getCOD_EMP()).append("</td>")
-                                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
-                                .append("<td>").append(em.getCELULAR()).append("</td>")
-                                .append("<td>").append(em.getCorreo()).append("</td>")
-                                .append("<td>").append(em.getEstado()).append("</td>")
-                                .append("</tr>");
-                    }
+    htmlResponse = new StringBuilder();
+    for (Empleado em : empleadosPorEstado) {
+        htmlResponse.append("<tr>")
+                .append("<td>").append(em.getId()).append("</td>")
+                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
+                .append("<td>").append(em.getDPI()).append("</td>")              // ✅ DPI agregado
+                .append("<td>").append(em.getNOMBRES()).append("</td>")
+                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
+                .append("<td>").append(em.getN_IGSS()).append("</td>")
+                .append("<td>").append(em.getNIT()).append("</td>")
+                .append("<td>").append(em.getCOD_EMP()).append("</td>")
+                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
+                .append("<td>").append(em.getCELULAR()).append("</td>")
+                .append("<td>").append(em.getCorreo()).append("</td>")
+                .append("<td>").append(em.getEstado()).append("</td>")
+                .append("</tr>");
+    }
 
-                    response.setContentType("text/html");
-                    response.getWriter().write(htmlResponse.toString());
-                    return;
+    response.setContentType("text/html");
+    response.getWriter().write(htmlResponse.toString());
+    return;
 
                 default:
                     throw new AssertionError();

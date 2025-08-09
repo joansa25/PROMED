@@ -34,8 +34,8 @@ public class EmpleadoDao {
             while (rs.next()) {
                 Empleado em = new Empleado();
                 em.setCOC_EMPD(rs.getString(1));
-                em.setDPI(rs.getInt(2));
-                em.setN_IGSS(rs.getInt(3));
+                em.setDPI(rs.getLong(2));         // ✅ Cambiado de getInt a getLong
+                em.setN_IGSS(rs.getLong(3));      // ✅ Cambiado de getInt a getLong
                 em.setNIT(rs.getInt(4));
                 em.setNOMBRES(rs.getString(5));
                 em.setAPELLIDOS(rs.getString(6));
@@ -60,21 +60,22 @@ public class EmpleadoDao {
     }
 
     public int agregar(Empleado em) {
-        String sql = "insert into PM_EMPLEADOS(COD_EMPD,NOMBRES,APELLIDOS,N_IGSS,NIT,COD_EMP,COD_EMPSA,CELULAR,CORREO) values(?,?,?,?,?,?,?,?,?)";
+        String sql = "insert into PM_EMPLEADOS(COD_EMPD,DPI_EM,NOMBRES,APELLIDOS,N_IGSS,NIT,COD_EMP,COD_EMPSA,CELULAR,CORREO) values(?,?,?,?,?,?,?,?,?,?)";
         int resultado = 0; // Variable para determinar el éxito o fallo
         try {
             con = cn.Conexion();
             ps = con.prepareStatement(sql);
 
             ps.setString(1, em.getCOC_EMPD());
-            ps.setString(2, em.getNOMBRES());
-            ps.setString(3, em.getAPELLIDOS());
-            ps.setInt(4, em.getN_IGSS());
-            ps.setInt(5, em.getNIT());
-            ps.setString(6, em.getCOD_EMP());
-            ps.setString(7, em.getCOD_EMPSA());
-            ps.setInt(8, em.getCELULAR());
-            ps.setString(9, em.getCorreo());
+            ps.setLong(2,em.getDPI() );
+            ps.setString(3, em.getNOMBRES());
+            ps.setString(4, em.getAPELLIDOS());
+            ps.setLong(5, em.getN_IGSS());
+            ps.setInt(6, em.getNIT());
+            ps.setString(7, em.getCOD_EMP());
+            ps.setString(8, em.getCOD_EMPSA());
+            ps.setInt(9, em.getCELULAR());
+            ps.setString(10, em.getCorreo());
 
             resultado = ps.executeUpdate(); // Ejecuta y guarda el número de filas afectadas
 
@@ -84,13 +85,13 @@ public class EmpleadoDao {
             System.out.println("Error al insertar el NUEVO EMPLEADO: !!!!!!!!!!!!!!!!!!!!!!!!!!!! " + e.getMessage());
             return resultado;
         }
-        System.out.println("se inserto con exito!!!!!!!!!!!!!!!!!!!!!!!");
+        System.out.println("se inserto con exito!!!!!!!!!!!!!!!!!!!!");
         return resultado; // Devuelve el resultado, 1 si fue exitoso, 0 si no
     }
 
     public Empleado ListarId(String codEmp) {
         Empleado em = null;
-        String sql = "select COD_EMPD,N_IGSS,NIT, NOMBRES, APELLIDOS, COD_EMP, COD_EMPSA, CELULAR, CORREO, ESTADO from pm_empleados WHERE COD_EMPD = ?";
+        String sql = "select COD_EMPD,DPI_EM,N_IGSS,NIT, NOMBRES, APELLIDOS, COD_EMP, COD_EMPSA, CELULAR, CORREO, ESTADO from pm_empleados WHERE COD_EMPD = ?";
         try {
             con = cn.Conexion();
             ps = con.prepareStatement(sql);
@@ -101,15 +102,16 @@ public class EmpleadoDao {
                 em = new Empleado();
 
                 em.setCOC_EMPD(rs.getString(1));
-                em.setN_IGSS(rs.getInt(2));
-                em.setNIT(rs.getInt(3));
-                em.setNOMBRES(rs.getString(4));
-                em.setAPELLIDOS(rs.getString(5));
-                em.setCOD_EMP(rs.getString(6));
-                em.setCOD_EMPSA(rs.getString(7));
-                em.setCELULAR(rs.getInt(8));  // Asegúrate de que es INT en la BD
-                em.setCorreo(rs.getString(9)); // Debe ser getString()
-                em.setEstado(rs.getString(10));
+                em.setDPI(rs.getLong(2));         // ✅ Cambiado de getInt a getLong
+                em.setN_IGSS(rs.getLong(3));      // ✅ Cambiado de getInt a getLong
+                em.setNIT(rs.getInt(4));
+                em.setNOMBRES(rs.getString(5));
+                em.setAPELLIDOS(rs.getString(6));
+                em.setCOD_EMP(rs.getString(7));
+                em.setCOD_EMPSA(rs.getString(8));
+                em.setCELULAR(rs.getInt(9));  // Asegúrate de que es INT en la BD
+                em.setCorreo(rs.getString(10)); // Debe ser getString()
+                em.setEstado(rs.getString(11));
                 String d = em.getCOC_EMPD();
                 System.out.println("edksd ----- " + d);
             }
@@ -125,23 +127,25 @@ public class EmpleadoDao {
     
     public int actualizar(Empleado empleado) {
     int resultado = 0;
-    String sql = "UPDATE pm_empleados SET NOMBRES = ?, APELLIDOS = ?, N_IGSS = ?, NIT = ?, COD_EMP = ?, COD_EMPSA = ?, CELULAR = ?, CORREO = ?, ESTADO = ? WHERE COD_EMPD = ?";
+    String sql = "UPDATE pm_empleados SET DPI_EM = ?, NOMBRES = ?, APELLIDOS = ?, N_IGSS = ?, NIT = ?, COD_EMP = ?, COD_EMPSA = ?, CELULAR = ?, CORREO = ?, ESTADO = ? WHERE COD_EMPD = ?";
 
     try {
         con = cn.Conexion();
         ps = con.prepareStatement(sql);
 
         // Asignar los parámetros
-        ps.setString(1, empleado.getNOMBRES());
-        ps.setString(2, empleado.getAPELLIDOS());
-        ps.setInt(3, empleado.getN_IGSS());
-        ps.setInt(4, empleado.getNIT());
-        ps.setString(5, empleado.getCOD_EMP());
-        ps.setString(6, empleado.getCOD_EMPSA());
-        ps.setInt(7, empleado.getCELULAR());
-        ps.setString(8, empleado.getCorreo());
-        ps.setString(9, empleado.getEstado());
-        ps.setString(10, empleado.getCOC_EMPD()); // WHERE condition
+        
+        ps.setLong(1, empleado.getDPI());
+        ps.setString(2, empleado.getNOMBRES());
+        ps.setString(3, empleado.getAPELLIDOS());
+        ps.setLong(4,empleado.getN_IGSS());
+        ps.setInt(5, empleado.getNIT());
+        ps.setString(6, empleado.getCOD_EMP());
+        ps.setString(7, empleado.getCOD_EMPSA());
+        ps.setInt(8, empleado.getCELULAR());
+        ps.setString(9, empleado.getCorreo());
+        ps.setString(10, empleado.getEstado());
+        ps.setString(11, empleado.getCOC_EMPD()); // WHERE condition
 
         // Ejecutar la actualización
         resultado = ps.executeUpdate();
@@ -166,9 +170,10 @@ public class EmpleadoDao {
             Empleado em = new Empleado();
             em.setId(rs.getInt("ID"));
             em.setCOC_EMPD(rs.getString("COD_EMPD"));
+            em.setDPI(rs.getLong("DPI_EM"));      // ✅ Cambiado de getInt a getLong
             em.setNOMBRES(rs.getString("NOMBRES"));
             em.setAPELLIDOS(rs.getString("APELLIDOS"));
-            em.setN_IGSS(rs.getInt("N_IGSS"));
+            em.setN_IGSS(rs.getLong("N_IGSS"));   // ✅ Cambiado de getInt a getLong
             em.setNIT(rs.getInt("NIT"));
             em.setCOD_EMP(rs.getString("COD_EMP"));
             em.setCOD_EMPSA(rs.getString("COD_EMPSA"));
@@ -195,9 +200,10 @@ public List<Empleado> buscarPorNombre(String nombre) {
             Empleado em = new Empleado();
             em.setId(rs.getInt("ID"));
             em.setCOC_EMPD(rs.getString("COD_EMPD"));
+            em.setDPI(rs.getLong("DPI_EM"));      // ✅ Cambiado de getInt a getLong
             em.setNOMBRES(rs.getString("NOMBRES"));
             em.setAPELLIDOS(rs.getString("APELLIDOS"));
-            em.setN_IGSS(rs.getInt("N_IGSS"));
+            em.setN_IGSS(rs.getLong("N_IGSS"));   // ✅ Cambiado de getInt a getLong
             em.setNIT(rs.getInt("NIT"));
             em.setCOD_EMP(rs.getString("COD_EMP"));
             em.setCOD_EMPSA(rs.getString("COD_EMPSA"));
@@ -223,10 +229,11 @@ public List<Empleado> filtrarPorEstado(String estado) {
         while (rs.next()) {
             Empleado em = new Empleado();
             em.setId(rs.getInt("ID"));
+            em.setDPI(rs.getLong("DPI_EM"));      // ✅ Cambiado de getInt a getLong
             em.setCOC_EMPD(rs.getString("COD_EMPD"));
             em.setNOMBRES(rs.getString("NOMBRES"));
             em.setAPELLIDOS(rs.getString("APELLIDOS"));
-            em.setN_IGSS(rs.getInt("N_IGSS"));
+            em.setN_IGSS(rs.getLong("N_IGSS"));   // ✅ Cambiado de getInt a getLong
             em.setNIT(rs.getInt("NIT"));
             em.setCOD_EMP(rs.getString("COD_EMP"));
             em.setCOD_EMPSA(rs.getString("COD_EMPSA"));
@@ -254,8 +261,8 @@ public List<Empleado> filtrarPorEstado(String estado) {
             while (rs.next()) {
                 Empleado em = new Empleado();
                 em.setCOC_EMPD(rs.getString(1));
-                em.setDPI(rs.getInt(2));
-                em.setN_IGSS(rs.getInt(3));
+                em.setDPI(rs.getLong(2));         // ✅ Cambiado de getInt a getLong
+                em.setN_IGSS(rs.getLong(3));      // ✅ Cambiado de getInt a getLong
                 em.setNIT(rs.getInt(4));
                 em.setNOMBRES(rs.getString(5));
                 em.setAPELLIDOS(rs.getString(6));

@@ -9,44 +9,209 @@
 
     </head>
     <body>
+  <!-- Encabezado con logo y menú hamburguesa -->
+  <header>
+<div class="logo">
+      <img src="VIEWS/IMAGENES/logo.jpg" alt="Soluciones.com - Internet de Alta Velocidad" id="logo-img">
+    </div>    <div class="menu-toggle" id="menu-toggle">☰</div>
+    <nav class="dropdown-menu" id="dropdown-menu">
+      <ul>
+        <li><a href="#" onclick="mostrarLogin('Administrador')">Login Administrador</a></li>
+        <li><a href="#" onclick="mostrarLogin('Cobrador')">Login Cobrador</a></li>
+        <li><a href="#" onclick="mostrarLogin('Usuario')">Login Usuario</a></li>
+      </ul>
+    </nav>
+  </header>
 
-        <div class="logo">BIENVENIDO</div> <!-- Coloca el logo fuera del contenedor -->
+   <!-- Contenido principal -->
+  <div class="main-content">
+    <!-- Sección de planes -->
+    <section class="planes">
+      <div class="plan" onclick="mostrarMenu(this, 'Plan 1')">
+        <h3>Plan 1</h3>
+        <p>15 Megas por Q150 mensual</p>
+      </div>
+      <div class="plan" onclick="mostrarMenu(this, 'Plan 2')">
+        <h3>Plan 2</h3>
+        <p>20 Megas por Q200 mensual</p>
+      </div>
+      <div class="plan" onclick="mostrarMenu(this, 'Plan 3')">
+        <h3>Plan 3</h3>
+        <p>25 Megas por Q250 mensual</p>
+      </div>
+      <div class="plan" onclick="mostrarMenu(this, 'Plan 4')">
+        <h3>Plan 4</h3>
+        <p>IPTV por Q50 mensual</p>
+      </div>
+    </section>
 
-        <div class="container">
-            <div class="contenido">
-                <div class="imagen-fondo"></div>
-                <div class="login-container">
-                    <form class="login-form" id="login-Form" action="Validars" method="POST">
-                        <h2>Inicia sesion en tu cuenta </h2> <!-- Mueve esto dentro del formulario si quieres que esté alineado con los campos -->
+    <!-- Sección para mostrar menús dinámicamente -->
+    <div id="opciones-container"></div>
+  </div>
 
-                        <div class="mb-3">
-                            <label for="usuario" class="form-label" >USUARIO</label>
-                            <input type="text" name="txtuser" class="form-control" id="usuario" placeholder="Ingresa tu Usuario"  required>
-                        </div>
+  <!-- Icono de asistente (lado derecho) -->
+  <div class="asistente derecha">
+    <button onclick="mostrarPreguntas()">🤖</button>
+    <div id="preguntas-frecuentes" style="display: none;">
+      <p><strong>¿Cuáles son los medios de pago?</strong><br />Puede pagar por Tigo Money, depósitos o en nuestras oficinas.</p>
+      <p><strong>¿Cuánto tarda la instalación?</strong><br />Máximo 48 horas después de solicitarlo.</p>
+      <p><strong>¿Tienen soporte técnico?</strong><br />Sí, 24/7 vía WhatsApp y teléfono.</p>
+    </div>
+  </div>
 
-                        <div class="mb-3">
-                            <label for="contraseña" class="form-label">CONTRASEÑA</label>
-                            <div class="password-container">
-                                <input type="password" name="txtpass" class="form-control" id="contraseña" placeholder="Ingresa tu contraseña" required>
-                                <span class="toggle-password">
-                                    <i class="fas fa-eye"></i> <!-- Icono de ojo -->
-                                </span>
-                            </div>
-                        </div>
+  <!-- Pie de página con la información de la empresa -->
+  <footer>
+    <h4>Sobre Soluciones.com</h4>
+    <p>Brindamos servicios de Internet e IPTV confiables en el área de TIQUISATE. Cobertura tanto en las áreas rurales como urbanas del municipio.</p>
+  </footer>
 
-                        <button type="submit" name="accion" value="ingresar">Ingresar</button>
-
-                        <div class="texto-formulario">
-                            <p>Desarrollado por Medfor</p>
-                            <p>(+502)  4124-6558</p>
-                        </div>
-                    </form>
-                </div>
-            </div>
+  <!-- Script para mostrar/ocultar menús y formularios -->
+  <script>
+    // Mostrar menú de opciones del plan
+    function mostrarMenu(element, plan) {
+      const contenedor = document.getElementById("opciones-container");
+      contenedor.innerHTML = `
+        <div class="menu-plan">
+          <button class="btn-cerrar" onclick="cerrarMenu()" title="Cerrar">×</button>
+          <h4>${plan}</h4>
+          <button onclick="mostrarFormularioAdquirir('${plan}')">Adquirir Plan</button>
+          <button onclick="mostrarFormularioCambio('${plan}')">Cambiar a este Plan</button>
         </div>
+      `;
+    }
 
-        <script src="VIEWS/SCRIPTS/togglePassword.js"></script>
+    // Formulario de adquirir plan
+    function mostrarFormularioAdquirir(plan) {
+      document.getElementById("opciones-container").innerHTML = `
+        <form>
+          <button class="btn-cerrar" onclick="cerrarMenu()" title="Cerrar">×</button>
+          <h4>Formulario de adquisición - ${plan}</h4>
+          <input type="text" placeholder="Nombre completo" required />
+          <input type="text" placeholder="DPI" required />
+          <input type="text" placeholder="Dirección" required />
+          <input type="tel" placeholder="Teléfono" required />
+          <button type="submit">Solicitar</button>
+        </form>
+      `;
+    }
 
-    </body>
+    // Formulario de cambiar plan
+    function mostrarFormularioCambio(plan) {
+      document.getElementById("opciones-container").innerHTML = `
+        <form>
+          <button class="btn-cerrar" onclick="cerrarMenu()" title="Cerrar">×</button>
+          <h4>Cambiar a ${plan}</h4>
+          <input type="text" placeholder="Nombre del usuario" required />
+          <input type="text" placeholder="DPI" required />
+          <input type="text" placeholder="Código de cliente" required />
+          <input type="text" placeholder="Plan actual" required />
+          <button type="submit">Solicitar</button>
+        </form>
+      `;
+    }
 
+    // Mostrar formulario de login
+    function mostrarLogin(tipo) {
+      // Cierra el menú hamburguesa
+      document.getElementById('dropdown-menu').classList.remove('active');
+      
+      if (tipo === 'Administrador') {
+        // Mostrar el login del sistema Java
+        mostrarLoginSistema();
+      } else {
+        // Mostrar el formulario simple para otros tipos
+        document.getElementById("opciones-container").innerHTML = `
+          <form class="login-form">
+            <button class="btn-cerrar" onclick="cerrarMenu()" title="Cerrar">×</button>
+            <h4>Login ${tipo}</h4>
+            <input type="text" placeholder="Usuario" required />
+            <input type="password" placeholder="Contraseña" required />
+            <button type="submit">Ingresar</button>
+          </form>
+        `;
+      }
+    }
+
+    // Función para mostrar el login del sistema Java
+    function mostrarLoginSistema() {
+      const loginHtml = `
+        <div class="sistema-login" id="sistema-login">
+          <button class="btn-cerrar" onclick="cerrarLoginSistema()" title="Cerrar">×</button>
+          <div class="logo">
+            <img src="VIEWS/IMAGENES/logo.jpg" alt="Soluciones.com">
+          </div>
+          <div class="container">
+            <div class="contenido">
+              <div class="login-container">
+                <form class="login-form" id="login-Form" action="Validars" method="POST">
+                  <h2>Inicia sesión en tu cuenta</h2>
+                  <div class="mb-3">
+                    <label for="usuario" class="form-label">USUARIO</label>
+                    <input type="text" name="txtuser" class="form-control" id="usuario" placeholder="Ingresa tu Usuario" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="contraseña" class="form-label">CONTRASEÑA</label>
+                    <div class="password-container">
+                      <input type="password" name="txtpass" class="form-control" id="contraseña" placeholder="Ingresa tu contraseña" required>
+                      <span class="toggle-password" onclick="togglePassword()">
+                        <i class="fas fa-eye" id="toggle-icon"></i>
+                      </span>
+                    </div>
+                  </div>
+                  <button type="submit" name="accion" value="ingresar">Ingresar</button>
+                  <div class="texto-formulario">
+                    <p>Desarrollado por Medford</p>
+                    <p>502 47251542</p>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', loginHtml);
+    }
+
+    // Función para cerrar el login del sistema
+    function cerrarLoginSistema() {
+      const loginSistema = document.getElementById('sistema-login');
+      if (loginSistema) {
+        loginSistema.remove();
+      }
+    }
+
+    // Función para toggle del password (como en tu sistema original)
+    function togglePassword() {
+      const passwordInput = document.getElementById('contraseña');
+      const toggleIcon = document.getElementById('toggle-icon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+      }
+    }
+
+    // Función para cerrar cualquier menú o formulario
+    function cerrarMenu() {
+      document.getElementById("opciones-container").innerHTML = '';
+    }
+
+    // Mostrar/ocultar preguntas frecuentes
+    function mostrarPreguntas() {
+      const box = document.getElementById("preguntas-frecuentes");
+      box.style.display = box.style.display === "none" ? "block" : "none";
+    }
+
+    // Mostrar/ocultar menú hamburguesa
+    document.getElementById('menu-toggle').onclick = function () {
+      document.getElementById('dropdown-menu').classList.toggle('active');
+    };
+  </script>
+</body>
 </html>

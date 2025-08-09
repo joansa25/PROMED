@@ -11,8 +11,8 @@ package Modelo;
 public class Empleado {
     int id;
     String COC_EMPD ;
-    int DPI ;
-    int N_IGSS;
+    long DPI ;
+    long N_IGSS;
     int NIT;
     String NOMBRES;
     String APELLIDOS;
@@ -26,7 +26,7 @@ public class Empleado {
     public Empleado() {
     }
 
-    public Empleado(int id, String COC_EMPD, int DPI, int N_IGSS, int NIT, String NOMBRES, String APELLIDOS, String COD_EMP, String COD_EMPSA, int CELULAR, String Correo, String Estado) {
+    public Empleado(int id, String COC_EMPD, long DPI, long N_IGSS, int NIT, String NOMBRES, String APELLIDOS, String COD_EMP, String COD_EMPSA, int CELULAR, String Correo, String Estado) {
         this.id = id;
         this.COC_EMPD = COC_EMPD;
         this.DPI = DPI;
@@ -57,19 +57,19 @@ public class Empleado {
         this.COC_EMPD = COC_EMPD;
     }
 
-    public int getDPI() {
+    public long getDPI() {
         return DPI;
     }
 
-    public void setDPI(int DPI) {
+    public void setDPI(long DPI) {
         this.DPI = DPI;
     }
 
-    public int getN_IGSS() {
+    public long getN_IGSS() {
         return N_IGSS;
     }
 
-    public void setN_IGSS(int N_IGSS) {
+    public void setN_IGSS(long N_IGSS) {
         this.N_IGSS = N_IGSS;
     }
 
@@ -138,6 +138,4 @@ public class Empleado {
     }
 
    
-  
-    
 }

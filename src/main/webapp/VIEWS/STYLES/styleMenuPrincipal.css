@@ -26,16 +26,133 @@ html, body {
     z-index: 1001;
     position: relative;
     width: 100%;
+    height: 70px; /* Altura adecuada */
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    /* IMPORTANTE: Evitar overflow en el navbar */
+    overflow: visible !important;
 }
 
 .navbar-brand {
     color: var(--text-white);
     font-weight: bold;
     font-size: 1.5rem;
+    letter-spacing: 1px; /* Espaciado entre letras */
+}
+
+/* CORRECCIÓN PRINCIPAL: Estilos del dropdown */
+.dropdown {
+    margin-left: auto; /* Alinea el botón del dropdown a la derecha */
+    position: relative;
+}
+
+.dropdown-toggle {
+  /*  background-color: #6f42c1 !important; /* Color púrpura */
+   /* border: 1px solid #6f42c1 !important;*/
+    color: var(--text-white) !important;
+    font-size: 1.2rem;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.dropdown-toggle:hover {
+    background-color: var(--primary-hover-color) !important;
+    border-color: var(--primary-hover-color) !important;
+    color: var(--text-white) !important;
+    transform: scale(1.05);
+}
+
+.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem rgba(22, 51, 74, 0.25);
+}
+
+.dropdown-toggle::after {
+    margin-left: 0.5em;
+    vertical-align: 0.125em;
+}
+
+/* SOLUCIÓN AL PROBLEMA: Posicionamiento correcto del dropdown-menu */
+.dropdown-menu {
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    left: auto !important;
+    z-index: 1050 !important;
+    display: none;
+    min-width: 220px;
+    padding: 0.5rem 0;
+    margin: 0.125rem 0 0;
+    font-size: 1rem;
+    color: #212529;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transform: none !important;
+    will-change: auto !important;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+/* Clase específica para alinear a la derecha */
+.dropdown-menu-end {
+    --bs-position: end;
+    right: 0 !important;
+    left: auto !important;
 }
 
 .dropdown-item {
-    font-size: 1rem;
+    display: block;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    clear: both;
+    font-weight: 400;
+    color: #212529;
+    text-align: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    color: #1e2125;
+    background-color: #f8f9fa;
+}
+
+.dropdown-item:focus {
+    color: #1e2125;
+    background-color: #f8f9fa;
+}
+
+.dropdown-item.text-danger {
+    color: #dc3545 !important;
+}
+
+.dropdown-item.text-danger:hover {
+    color: #fff !important;
+    background-color: #dc3545 !important;
+}
+
+.dropdown-divider {
+    height: 0;
+    margin: 0.5rem 0;
+    overflow: hidden;
+    border-top: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+/* Asegurar que el contenedor padre no tenga overflow */
+.container-fluid {
+    position: relative;
+    overflow: visible !important;
 }
 
 /* Estilos de la barra lateral */
@@ -143,10 +260,10 @@ html, body {
     border-radius: 50%;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 }
-
+/*
 .sidebar-toggle:hover {
     background-color: var(--primary-hover-color);
-}
+}*/
 
 /* Contenedor principal */
 .container-custom {
@@ -170,57 +287,28 @@ html, body {
     margin-bottom: 5px;
 }
 
-/* Barra de navegación superior */
-.navbar {
-    background-color: var(--primary-color); /* Mismo color que la barra lateral */
-    color: var(--text-white);
-    border-bottom: 1px solid var(--border-color);
-    z-index: 1001;
-    position: relative;
-    width: 100%;
-    height: 70px; /* Altura adecuada */
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
+/* Clases adicionales para mejorar la imagen del usuario */
+.rounded-circle {
+    border-radius: 50% !important;
 }
 
-.navbar-brand {
-    color: var(--text-white);
-    font-weight: bold;
-    font-size: 1.8rem; /* Tamaño de fuente más grande */
-    letter-spacing: 1px; /* Espaciado entre letras */
+.my-2 {
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
 }
 
-.dropdown {
-    margin-left: auto; /* Alinea el botón del dropdown a la derecha */
+.me-2 {
+    margin-right: 0.5rem !important;
 }
 
-.dropdown-toggle {
-    background-color: transparent; /* Fondo transparente */
-    border: none;
-    color: var(--text-white);
-    font-size: 1.5rem; /* Tamaño del icono del dropdown */
-    padding: 10px;
-    border-radius: 50%;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-}
-
-.dropdown-toggle:hover {
-    background-color: var(--primary-hover-color); /* Cambia el fondo al hacer hover */
-}
-
-.dropdown-menu {
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-}
-
-.dropdown-item {
-    font-size: 1rem; /* Ajustar tamaño de las opciones */
-    padding: 10px 20px;
-}
-
-.dropdown-item:hover {
-    background-color: var(--primary-hover-color);
-    color: var(--text-white);
-}
+/* Responsive para el dropdown */
+@media (max-width: 768px) {
+    .dropdown-menu {
+        min-width: 200px;
+        right: 10px !important;
+    }
     
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+}

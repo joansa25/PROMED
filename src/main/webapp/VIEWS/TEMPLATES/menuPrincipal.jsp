@@ -18,36 +18,47 @@
     </head>
     <body>
 
-        <!-- Barra de navegación -->
-        <nav class="navbar navbar-expand-lg navbar-dark">
-            <div class="container-fluid">
-                <span class="navbar-brand mb-0 h1">.   Bienvenido ${usuario.nomb_Us} ${usuario.ape_Us}  <i class="fas fa-check"></i> </span>
-
-                <div class="dropdown">
-                    <button class="btn btn-purple dropdown-toggle btn-outline-light" type="button" id="dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    </button>
-                    <ul class="dropdown-menu text-center">
-                        <li>
-                            <a class="dropdown-item" href="#"><img src="PAGES/img/usuario.png" alt="Usuario" width="60"></a>
-                        </li>
-                        <li><a class="dropdown-item">Opción 1</a></li>
-                        <li><a class="dropdown-item">Opción 2</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <form action="Validar" method="POST">
-                                <button name="accion" value="Salir" class="dropdown-item">Salir</button>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
+  <!-- Barra de navegación -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">.     Bienvenido ${usuario.nomb_Us} ${usuario.ape_Us} <i class="fas fa-check"></i></span>
+        
+        <!-- Botón Menú -->
+        <div class="d-flex align-items-center">
+            <form action="Controlador" method="POST" style="margin: 0;">
+                <button name="menu" value="Principal" class="btn btn-outline-light me-3">
+                    <i class="fas fa-home me-2"></i>Menú
+                </button>
+            </form>
+            
+            <div class="dropdown">
+                <button class="btn btn-purple dropdown-toggle btn-outline-light" type="button" id="dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li class="text-center">
+                        <img src="PAGES/img/usuario.png" alt="Usuario" width="60" class="rounded-circle my-2">
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit me-2"></i>Mi Perfil</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Configuración</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                         <form action="Controlador" method="POST" style="margin: 0;">
+                            <button name="menu" value="exis" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                            </button>
+                        </form>
+                    </li>
+                </ul>
             </div>
-        </nav>
+        </div>
+    </div>
+</nav>
+
+        <!-- Iframe con dashboard por defecto -->
         <div class="m-4" style="height: 630px;">
-
-            <iframe name="myFrame"  style="height: 100%; width: 100%">
-
-
-
+            <iframe name="myFrame" src="VIEWS/TEMPLATES/dashboard.jsp" style="height: 100%; width: 100%; border: none; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             </iframe>
         </div>
 
@@ -57,7 +68,9 @@
         <!-- Barra lateral -->
         <div class="sidebar" id="sidebar">
             <ul>
-
+                <!-- Opción para volver al dashboard 
+                <li><a href="VIEWS/TEMPLATES/dashboard.jsp" target="myFrame"><i class="fas fa-chart-bar"></i> Dashboard</a></li>-->
+                
                 <li>
                     <a href="#empresaSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
                         <i class="fas fa-user-cog"></i> ADMINISTRACIÓN
@@ -65,30 +78,16 @@
                     <ul class="collapse list-unstyled" id="empresaSubmenu">
                         <li><a href="Controlador?menu=Clientes&accion=Listar" target="myFrame"><i class="fas fa-users"></i> Clientes</a></li>
                         <li><a href="Controlador?menu=Empleados&accion=Listar" target="myFrame"><i class="fas fa-user-plus"></i> Empleados</a></li>
-                        <!--<li><a href="Controlador?menu=Asistencia&accion=GENERARTICKET" target="myFrame"><i class="fas fa-calendar-check"></i> Asistencia listado</a></li>
-  -->   
-  <li><a href="Controlador?menu=Empleos&accion=Listar" target="myFrame"><i class="fas fa-user-tie"></i> Empleo</a></li>
+                        <li><a href="Controlador?menu=Empleos&accion=Listar" target="myFrame"><i class="fas fa-user-tie"></i> Empleo</a></li>
                         <li><a href="Controlador?menu=Empresa&accion=Listar" target="myFrame"><i class="fas fa-building"></i> Empresa</a></li> 
                         <li><a href="Controlador?menu=Planes&accion=Listar" target="myFrame"><i class="fas fa-layer-group"></i> Planes</a></li>
-                          <li><a href="Controlador?menu=Incidencias&accion=Listar" target="myFrame"><i class="fas fa-map-marked-alt"></i> Incidencias</a></li>
-                          <li><a href="Controlador?menu=Zonas&accion=Listar" target="myFrame"><i class="fas fa-map-marked-alt"></i> Zonas</a></li>
-
- -->                    </ul>
+                        <li><a href="Controlador?menu=Incidencias&accion=Listar" target="myFrame"><i class="fas fa-exclamation-triangle"></i> Incidencias</a></li>
+                        <li><a href="Controlador?menu=Zonas&accion=Listar" target="myFrame"><i class="fas fa-map-marked-alt"></i> Zonas</a></li>
+                    </ul>
                 </li>
-
-              
-
-
-                </li>
-
-
-
 
                 <li><a href="Controlador?menu=Reportes&accion=Listar" target="myFrame"><i class="fas fa-file-alt"></i> Reportes</a></li>
-                <li><a href="Controlador?menu=Seguridad&accion=Listar" target="myFrame"><i class="fas fa-user-cog"></i>Seguridad</a></li>
-
-
-
+                <li><a href="Controlador?menu=Seguridad&accion=Listar" target="myFrame"><i class="fas fa-user-cog"></i> Seguridad</a></li>
             </ul>
         </div>
 

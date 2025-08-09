@@ -77,7 +77,9 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>DPI</th>
+                <th>CODIGO</th>
+                                <th>DPI</th>
+
                 <th>NOMBRES</th>
                 <th>APELLIDOS</th>
                 <th>NO. IGSS</th>
@@ -95,6 +97,7 @@
                 <tr>
                     <td>${em.getId()}</td>
                     <td>${em.getCOC_EMPD()}</td>
+                    <td>${em.getDPI()}</td>
                     <td>${em.getNOMBRES()}</td>
                     <td>${em.getAPELLIDOS()}</td>
                     <td>${em.getN_IGSS()}</td>
@@ -117,6 +120,7 @@
 </div>
 
         <!-- Modal Crear-->
+        
         <div class="modal fade" id="empleadoModal" tabindex="-1" aria-labelledby="empleadoModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg"> <!-- Cambié a modal-lg para que el modal sea más ancho -->
                 <div class="modal-content">
@@ -131,8 +135,12 @@
                                 <!-- Primera columna -->
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
+                                        <label>CODIGO</label>
+                                        <input type="text" value="${empleado.getCOC_EMPD()}" name="txtCod" class="form-control">
+                                    </div>
+                                     <div class="form-group mb-3">
                                         <label>DPI</label>
-                                        <input type="text" value="${empleado.getCOC_EMPD()}" name="txtDpi" class="form-control">
+                                        <input type="text" value="${empleado.getDPI()}" name="txtDpi" class="form-control">
                                     </div>
                                     <div class="form-group mb-3">
                                         <label>NOMBRES</label>
@@ -232,9 +240,13 @@
                             <div class="row">
                                 <!-- Primera columna -->
                                 <div class="col-md-6">
+                                     <div class="form-group mb-3">
+                                        <label>CODIGO</label>
+                                        <input type="text" value="${empleadoe.getCOC_EMPD()}" name="txtCod" class="form-control">
+                                    </div>
                                     <div class="form-group mb-3">
                                         <label>DPI</label>
-                                        <input type="text" value="${empleadoe.getCOC_EMPD()}" name="txtDpi" class="form-control">
+                                        <input type="text" value="${empleadoe.getDPI()}" name="txtDpi" class="form-control">
                                     </div>
                                     <div class="form-group mb-3">
                                         <label>NOMBRES</label>
