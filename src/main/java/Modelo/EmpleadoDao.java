@@ -286,6 +286,40 @@ public List<Empleado> filtrarPorEstado(String estado) {
         return lista;
     }
 
+// Agregar este método en tu EmpleadoDao.java
 
+public int contarEmpleadosActivos() {
+    int count = 0;
+    String sql = "SELECT COUNT(*) FROM pm_empleados WHERE ESTADO = 'A'";
+    try {
+        con = cn.Conexion();
+        ps = con.prepareStatement(sql);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            count = rs.getInt(1);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.out.println("Error al contar empleados activos: " + e.getMessage());
+    }
+    return count;
+}
+
+// También puedes agregar otros conteos útiles
+public int contarTotalEmpleados() {
+    int count = 0;
+    String sql = "SELECT COUNT(*) FROM pm_empleados";
+    try {
+        con = cn.Conexion();
+        ps = con.prepareStatement(sql);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            count = rs.getInt(1);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return count;
+}
 
 }

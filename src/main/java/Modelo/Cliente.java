@@ -10,43 +10,45 @@ package Modelo;
  */
 public class Cliente {
     
-    int ID;
-    String COD_CLI;
-    String DPI_CLI;
-    String NOM_CLI;
-    String APE_CLI;
-    int    TEL_CLI;
-    String COR_CLI;
-    String DIR_CLI;
-    int    NIT_CLI;
-    String COD_PLAN;
-    String COD_ZON;
-    String COD_USER;
+  int id;
+  String COD_CLI;
+  long DPI;
+  String NOMBRES;
+  String APELLIDOS;
+  int CELULAR;
+  String CORREO;
+  String DIRECCION;
+  int NIT;
+  String COD_PLAN;
+  String COD_ZONA;
+  String COD_USER;
+  String ESTADO;
 
     public Cliente() {
     }
 
-    public Cliente(int ID, String COD_CLI, String DPI_CLI, String NOM_CLI, String APE_CLI, int TEL_CLI, String COR_CLI, String DIR_CLI, int NIT_CLI, String COD_PLAN, String COD_ZON, String COD_USER) {
-        this.ID = ID;
+    public Cliente(int id, String COD_CLI, long DPI, String NOMBRES, String APELLIDOS, int CELULAR, String CORREO, String DIRECCION, int NIT, String COD_PLAN, String COD_ZONA, String COD_USER, String ESTADO) {
+        this.id = id;
         this.COD_CLI = COD_CLI;
-        this.DPI_CLI = DPI_CLI;
-        this.NOM_CLI = NOM_CLI;
-        this.APE_CLI = APE_CLI;
-        this.TEL_CLI = TEL_CLI;
-        this.COR_CLI = COR_CLI;
-        this.DIR_CLI = DIR_CLI;
-        this.NIT_CLI = NIT_CLI;
+        this.DPI = DPI;
+        this.NOMBRES = NOMBRES;
+        this.APELLIDOS = APELLIDOS;
+        this.CELULAR = CELULAR;
+        this.CORREO = CORREO;
+        this.DIRECCION = DIRECCION;
+        this.NIT = NIT;
         this.COD_PLAN = COD_PLAN;
-        this.COD_ZON = COD_ZON;
+        this.COD_ZONA = COD_ZONA;
         this.COD_USER = COD_USER;
+        this.ESTADO = ESTADO;
     }
 
-    public int getID() {
-        return ID;
+    public int getId() {
+        return id;
     }
 
-    public void setID(int ID) {
-        this.ID = ID;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getCOD_CLI() {
@@ -57,60 +59,60 @@ public class Cliente {
         this.COD_CLI = COD_CLI;
     }
 
-    public String getDPI_CLI() {
-        return DPI_CLI;
+    public long getDPI() {
+        return DPI;
     }
 
-    public void setDPI_CLI(String DPI_CLI) {
-        this.DPI_CLI = DPI_CLI;
+    public void setDPI(long DPI) {
+        this.DPI = DPI;
     }
 
-    public String getNOM_CLI() {
-        return NOM_CLI;
+    public String getNOMBRES() {
+        return NOMBRES;
     }
 
-    public void setNOM_CLI(String NOM_CLI) {
-        this.NOM_CLI = NOM_CLI;
+    public void setNOMBRES(String NOMBRES) {
+        this.NOMBRES = NOMBRES;
     }
 
-    public String getAPE_CLI() {
-        return APE_CLI;
+    public String getAPELLIDOS() {
+        return APELLIDOS;
     }
 
-    public void setAPE_CLI(String APE_CLI) {
-        this.APE_CLI = APE_CLI;
+    public void setAPELLIDOS(String APELLIDOS) {
+        this.APELLIDOS = APELLIDOS;
     }
 
-    public int getTEL_CLI() {
-        return TEL_CLI;
+    public int getCELULAR() {
+        return CELULAR;
     }
 
-    public void setTEL_CLI(int TEL_CLI) {
-        this.TEL_CLI = TEL_CLI;
+    public void setCELULAR(int CELULAR) {
+        this.CELULAR = CELULAR;
     }
 
-    public String getCOR_CLI() {
-        return COR_CLI;
+    public String getCORREO() {
+        return CORREO;
     }
 
-    public void setCOR_CLI(String COR_CLI) {
-        this.COR_CLI = COR_CLI;
+    public void setCORREO(String CORREO) {
+        this.CORREO = CORREO;
     }
 
-    public String getDIR_CLI() {
-        return DIR_CLI;
+    public String getDIRECCION() {
+        return DIRECCION;
     }
 
-    public void setDIR_CLI(String DIR_CLI) {
-        this.DIR_CLI = DIR_CLI;
+    public void setDIRECCION(String DIRECCION) {
+        this.DIRECCION = DIRECCION;
     }
 
-    public int getNIT_CLI() {
-        return NIT_CLI;
+    public int getNIT() {
+        return NIT;
     }
 
-    public void setNIT_CLI(int NIT_CLI) {
-        this.NIT_CLI = NIT_CLI;
+    public void setNIT(int NIT) {
+        this.NIT = NIT;
     }
 
     public String getCOD_PLAN() {
@@ -121,12 +123,12 @@ public class Cliente {
         this.COD_PLAN = COD_PLAN;
     }
 
-    public String getCOD_ZON() {
-        return COD_ZON;
+    public String getCOD_ZONA() {
+        return COD_ZONA;
     }
 
-    public void setCOD_ZON(String COD_ZON) {
-        this.COD_ZON = COD_ZON;
+    public void setCOD_ZONA(String COD_ZONA) {
+        this.COD_ZONA = COD_ZONA;
     }
 
     public String getCOD_USER() {
@@ -136,7 +138,16 @@ public class Cliente {
     public void setCOD_USER(String COD_USER) {
         this.COD_USER = COD_USER;
     }
-    
-    
-    
+
+    public String getESTADO() {
+        return ESTADO;
+    }
+
+    public void setESTADO(String ESTADO) {
+        this.ESTADO = ESTADO;
+    }
+  
+  
+  
+  
 }

@@ -27,7 +27,7 @@
             <!-- Botón de registrar asistencia alineado a la izquierda -->
 
 
-           
+
 
 
 
@@ -41,18 +41,18 @@
             </button>
         </div>-->
         <!-- Botón de Regresar -->
-<div class="d-flex justify-content-start mb-3">
-<button class="btn btn-secondary btn-regresar" onclick="regresarPagina()">
-        <i class="fas fa-arrow-left"></i> Regresar
-    </button>
-</div>
+        <div class="d-flex justify-content-start mb-3">
+            <button class="btn btn-secondary btn-regresar" onclick="regresarPagina()">
+                <i class="fas fa-arrow-left"></i> Regresar
+            </button>
+        </div>
 
         <!-- Título estilizado -->
         <h1 class="text-center mb-4" style="font-weight: bold; color: #1c3d5a;">Clientes</h1>
-<!-- Botón que abre el modal -->
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#empleadoModal">
-                Crear
-            </button>
+        <!-- Botón que abre el modal -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#empleadoModal">
+            Crear
+        </button>
         <!-- Inputs de búsqueda  -->
         <div class="d-flex justify-content-center mb-4">
             <input type="text" id="searchInputCodigo" class="form-control me-2" 
@@ -60,7 +60,7 @@
             <input type="text" id="searchInputNombre" class="form-control" 
                    placeholder="Buscar por nombre" style="max-width: 300px;">
         </div>
- 
+
         <!-- Dropdown para filtrar por estado -->
         <select id="filterEstado" class="form-control ms-2" style="max-width: 150px;">
             <option value="A">Activo (A)</option>
@@ -72,43 +72,48 @@
         <hr>
 
         <!-- Tabla estilizada de datos-->
-<div class="table-container">
+        <div class="table-container">
     <table class="table">
         <thead>
             <tr>
                 <th>ID</th>
+                <th>CODIGO</th>
                 <th>DPI</th>
                 <th>NOMBRES</th>
                 <th>APELLIDOS</th>
-                <th>NO. IGSS</th>
-                <th>NIT</th>
-                <th>COD EMPLEO</th>
-                <th>COD EMPSA</th>
                 <th>CELULAR</th>
                 <th>CORREO</th>
+                <th>DIRECCION</th>
+                <th>NIT</th>
+                <th>PLAN</th>
+                <th>ZONA</th>
+                <th>CODIGO USUARIO</th>
                 <th>ESTADO</th>
                 <th>ACCIONES</th>
             </tr>
         </thead>
         <tbody class="scrollable-tbody" id="clientesTable">
-            <c:forEach var="em" items="${empleados}">
+            <!-- ✅ CORREGIDO: var="cli" items="${clientes}" -->
+            <c:forEach var="cli" items="${clientes}">
                 <tr>
-                    <td>${em.getId()}</td>
-                    <td>${em.getCOC_EMPD()}</td>
-                    <td>${em.getNOMBRES()}</td>
-                    <td>${em.getAPELLIDOS()}</td>
-                    <td>${em.getN_IGSS()}</td>
-                    <td>${em.getNIT()}</td>
-                    <td>${em.getCOD_EMP()}</td>
-                    <td>${em.getCOD_EMPSA()}</td>
-                    <td>${em.getCELULAR()}</td>
-                    <td>${em.getCorreo()}</td>
-                    <td>${em.getEstado()}</td>
+                    <td>${cli.getId()}</td>
+                    <td>${cli.getCOD_CLI()}</td>
+                    <td>${cli.getDPI()}</td>
+                    <td>${cli.getNOMBRES()}</td>
+                    <td>${cli.getAPELLIDOS()}</td>
+                    <td>${cli.getCELULAR()}</td>
+                    <td>${cli.getCORREO()}</td>
+                    <td>${cli.getDIRECCION()}</td>
+                    <td>${cli.getNIT()}</td>
+                    <td>${cli.getCOD_PLAN()}</td>
+                    <td>${cli.getCOD_ZONA()}</td>
+                    <td>${cli.getCOD_USER()}</td>
+                    <td>${cli.getESTADO()}</td>
                     <td>
-                        <a class="btn btn-warning btn-sm" href="Controlador?menu=Empleados&accion=Editar&empCod=${em.getCOC_EMPD()}" title="Editar">
+                        <!-- ✅ CORREGIDO: cliCod en lugar de cod_cli -->
+                        <a class="btn btn-warning btn-sm" href="Controlador?menu=Clientes&accion=Editar&cliCod=${cli.getCOD_CLI()}" title="Editar">
                             <i class="fas fa-edit"></i>
                         </a>
-                             
                     </td>
                 </tr>
             </c:forEach>
@@ -205,7 +210,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="submit" name="accion" value="agregar" class="btn btn-info">Agregar</button>
-                               
+
                             </div>
                         </form>
                     </div>
@@ -256,7 +261,7 @@
 
                                 <!-- Segunda columna -->
                                 <div class="col-md-6">
-                                         <div class="form-group">
+                                    <div class="form-group">
 
                                         <label>EMPLEO</label>
                                         <select name="txtCod_emp" class="form-control">
@@ -268,7 +273,7 @@
 
                                     </div>
 
-                                  
+
                                     <div class="form-group">
 
                                         <label>EMPRESA</label>
@@ -338,43 +343,43 @@
 
 
         <script>
-            // Verificar si existe el atributo "resultado" para mostrar la alerta
+    // Verificar si existe el atributo "resultado" para mostrar la alerta
             <% if (request.getAttribute("resultado") != null) {%>
-            let resultado = "<%= request.getAttribute("resultado")%>";
+    let resultado = "<%= request.getAttribute("resultado")%>";
 
-            if (resultado === "1") {
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Empleado agregado!',
-                    text: 'El empleado se ha agregado correctamente.'
-                });
-            } else if (resultado === "0") {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Hubo un problema al agregar el empleado. Inténtalo de nuevo.'
-                });
-            }
+    if (resultado === "1") {
+        Swal.fire({
+            icon: 'success',
+            title: '¡Empleado agregado!',
+            text: 'El empleado se ha agregado correctamente.'
+        });
+    } else if (resultado === "0") {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Hubo un problema al agregar el empleado. Inténtalo de nuevo.'
+        });
+    }
             <% } %>
 
 
-            // Verificar si existe el atributo "resultado" para mostrar la alerta
+    // Verificar si existe el atributo "resultado" para mostrar la alerta
             <% if (request.getAttribute("resultadoUpdate") != null) {%>
-            let resultado = "<%= request.getAttribute("resultadoUpdate")%>";
+    let resultado = "<%= request.getAttribute("resultadoUpdate")%>";
 
-            if (resultado === "1") {
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Empleado Actualizado!',
-                    text: 'El empleado se ha Actualizado correctamente.'
-                });
-            } else if (resultado === "0") {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Hubo un problema al actualizar el empleado. ¡Inténtalo de nuevo.!'
-                });
-            }
+    if (resultado === "1") {
+        Swal.fire({
+            icon: 'success',
+            title: '¡Empleado Actualizado!',
+            text: 'El empleado se ha Actualizado correctamente.'
+        });
+    } else if (resultado === "0") {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Hubo un problema al actualizar el empleado. ¡Inténtalo de nuevo.!'
+        });
+    }
             <% } %>
 
         </script>
@@ -461,12 +466,12 @@
             });
 
         </script>
-        
+
         <script>
-    function regresarPagina() {
-        window.history.back();
-    }
-</script>
+            function regresarPagina() {
+                window.history.back();
+            }
+        </script>
 
     </body>
 </html>

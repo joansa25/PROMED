@@ -253,14 +253,18 @@
       position: relative;
     }
 
-    /* Estilos para el login del sistema Java */
+    /* ========================================
+       ESTILOS PARA EL LOGIN DEL SISTEMA JAVA
+       CON COLORES DE LA PANTALLA PRINCIPAL
+       ======================================== */
     .sistema-login {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      /* Cambio: fondo azul como solicitado */
+      background: linear-gradient(135deg, #184d8c 0%, #1e5a96 100%);
       z-index: 9999;
       display: flex;
       align-items: center;
@@ -301,9 +305,11 @@
       background: rgba(255, 255, 255, 0.95);
       border-radius: 20px;
       padding: 40px 30px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 15px 35px rgba(24, 77, 140, 0.3);
       backdrop-filter: blur(10px);
       position: relative;
+      /* Cambio: borde sutil con color principal */
+      border: 2px solid rgba(255, 217, 58, 0.3);
     }
 
     .sistema-login .login-container {
@@ -325,7 +331,8 @@
     .sistema-login .login-form h2 {
       text-align: center;
       margin-bottom: 30px;
-      color: #333;
+      /* Cambio: color principal en lugar de gris */
+      color: #184d8c;
       font-size: 1.5rem;
       font-weight: 600;
     }
@@ -337,7 +344,8 @@
     .sistema-login .form-label {
       display: block;
       margin-bottom: 8px;
-      color: #555;
+      /* Cambio: color principal */
+      color: #184d8c;
       font-weight: 500;
       font-size: 0.9rem;
       text-transform: uppercase;
@@ -347,7 +355,8 @@
     .sistema-login .form-control {
       width: 100%;
       padding: 12px 15px;
-      border: 2px solid #e1e5e9;
+      /* Cambio: borde con color principal */
+      border: 2px solid #c7e0fa;
       border-radius: 8px;
       font-size: 1rem;
       transition: all 0.3s;
@@ -356,8 +365,9 @@
 
     .sistema-login .form-control:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      /* Cambio: color de foco con el verde de la pantalla principal */
+      border-color: #29eaaa;
+      box-shadow: 0 0 0 3px rgba(41, 234, 170, 0.1);
     }
 
     .sistema-login .password-container {
@@ -370,17 +380,20 @@
       top: 50%;
       transform: translateY(-50%);
       cursor: pointer;
-      color: #666;
+      /* Cambio: color principal */
+      color: #184d8c;
       transition: color 0.3s;
     }
 
     .sistema-login .toggle-password:hover {
-      color: #667eea;
+      /* Cambio: hover con verde */
+      color: #29eaaa;
     }
 
     .sistema-login button[type="submit"] {
       width: 100%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      /* Cambio: gradiente con colores de la pantalla principal */
+      background: linear-gradient(135deg, #184d8c 0%, #29eaaa 100%);
       color: #fff;
       border: none;
       padding: 15px;
@@ -390,23 +403,30 @@
       cursor: pointer;
       transition: all 0.3s;
       margin-top: 10px;
+      /* Cambio: sombra con colores principales */
+      box-shadow: 0 4px 15px rgba(24, 77, 140, 0.2);
     }
 
     .sistema-login button[type="submit"]:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      /* Cambio: sombra hover con verde */
+      box-shadow: 0 10px 25px rgba(41, 234, 170, 0.3);
+      /* Cambio: gradiente invertido en hover */
+      background: linear-gradient(135deg, #29eaaa 0%, #184d8c 100%);
     }
 
     .sistema-login .texto-formulario {
       text-align: center;
       margin-top: 25px;
       padding-top: 20px;
-      border-top: 1px solid #eee;
+      /* Cambio: borde con color suave del principal */
+      border-top: 1px solid rgba(24, 77, 140, 0.2);
     }
 
     .sistema-login .texto-formulario p {
       margin: 5px 0;
-      color: #666;
+      /* Cambio: color principal más suave */
+      color: #184d8c;
       font-size: 0.85rem;
     }
 
@@ -414,10 +434,11 @@
       position: absolute;
       top: 15px;
       right: 20px;
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.9);
       border: none;
       font-size: 1.5rem;
-      color: #666;
+      /* Cambio: color principal */
+      color: #184d8c;
       cursor: pointer;
       padding: 8px;
       border-radius: 50%;
@@ -428,11 +449,14 @@
       justify-content: center;
       transition: all 0.2s;
       z-index: 10001;
+      /* Cambio: borde sutil con amarillo */
+      border: 1px solid rgba(255, 217, 58, 0.3);
     }
 
     .sistema-login .btn-cerrar:hover {
-      background: rgba(255, 255, 255, 1);
-      color: #333;
+      background: rgba(255, 217, 58, 0.2);
+      /* Cambio: hover con verde */
+      color: #29eaaa;
       transform: scale(1.1);
     }
 

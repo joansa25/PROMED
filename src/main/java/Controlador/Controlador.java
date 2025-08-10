@@ -4,16 +4,26 @@
  */
 package Controlador;
 
+import Modelo.Cliente;
+import Modelo.ClienteDao;
+import Modelo.DashboardData;
 import Modelo.Empleado;
 import Modelo.EmpleadoDao;
 import Modelo.Empleo;
 import Modelo.EmpleoDao;
 import Modelo.Empresa;
 import Modelo.EmpresaDao;
+import Modelo.IncidenciaDao;
+import Modelo.Plan;
+import Modelo.PlanDao;
 import Modelo.User;
 import Modelo.UserDao;
+import Modelo.Zona;
+import Modelo.ZonaDao;
+
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -36,6 +46,14 @@ public class Controlador extends HttpServlet {
     EmpleadoDao empdao = new EmpleadoDao();
     Empresa empsa = new Empresa();
     EmpresaDao empsadao = new EmpresaDao();
+    ClienteDao clidao = new ClienteDao();
+    PlanDao plandao = new PlanDao();
+    Plan plan = new Plan();
+
+    ZonaDao zonadao = new ZonaDao();
+    Zona zona = new Zona();
+
+    Cliente cli = new Cliente();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -43,45 +61,90 @@ public class Controlador extends HttpServlet {
         String accion = request.getParameter("accion");
         System.out.println("Valor de 'menu': " + menu);
         System.out.println("Valor de 'accion': " + accion);
-   // Verificar que menu no sea null
-if (menu != null) {
-    switch (menu) {
-        case "Principal":
-            request.getRequestDispatcher("VIEWS/TEMPLATES/menuPrincipal.jsp").forward(request, response);
-            break;
-            
-        case "exis":
-            // Cerrar sesión - invalidar la sesión
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                session.invalidate(); // Elimina toda la información de la sesión
+        // Verificar que menu no sea null
+        if (menu != null) {
+            switch (menu) {
+                case "Principal":
+                    System.out.println("dentro de Principal");
+
+                    try {
+                        // Crear instancias de los DAOs
+                        EmpleadoDao empleadoDao = new EmpleadoDao();
+                        ClienteDao clienteDao = new ClienteDao();
+                        PlanDao planDao = new PlanDao();
+
+                        // Obtener los datos reales de la base de datos
+                        int empleadosActivos = empleadoDao.contarEmpleadosActivos();
+                        int clientesActivos = clienteDao.contarClientesActivos();
+                        int planesActivos = planDao.contarPlanesActivos();
+
+                        // Crear el objeto DashboardData con los datos obtenidos
+                        DashboardData dashboardData = new DashboardData(
+                                empleadosActivos,
+                                clientesActivos,
+                                planesActivos
+                                
+                        );
+
+                        // Guardar en sesión para que el iframe pueda acceder
+                        HttpSession session = request.getSession();
+                        session.setAttribute("dashboardData", dashboardData);
+
+                        // También puedes guardar datos individuales por si los necesitas separados
+                        session.setAttribute("empleadosActivos", empleadosActivos);
+                        session.setAttribute("clientesActivos", clientesActivos);
+                        session.setAttribute("planesActivos", planesActivos);
+
+                        System.out.println("Datos del dashboard cargados: "
+                                + "Empleados=" + empleadosActivos
+                                + ", Clientes=" + clientesActivos
+                                + ", Planes=" + planesActivos
+                         );
+
+                    } catch (Exception e) {
+                        System.err.println("Error al cargar datos del dashboard: " + e.getMessage());
+                        e.printStackTrace();
+
+                        // En caso de error, usar datos por defecto o mostrar mensaje
+                        DashboardData defaultData = new DashboardData(0, 0, 0, 0);
+                        request.getSession().setAttribute("dashboardData", defaultData);
+                    }
+
+                    // Redirigir al menú principal
+                    request.getRequestDispatcher("VIEWS/TEMPLATES/menuPrincipal.jsp").forward(request, response);
+                    return;
+
+                case "exis":
+                    // Cerrar sesión - invalidar la sesión
+                    HttpSession session = request.getSession(false);
+                    if (session != null) {
+                        session.invalidate(); // Elimina toda la información de la sesión
+                    }
+
+                    // Limpiar cookies si las usas
+                    Cookie[] cookies = request.getCookies();
+                    if (cookies != null) {
+                        for (Cookie cookie : cookies) {
+                            cookie.setValue("");
+                            cookie.setPath("/");
+                            cookie.setMaxAge(0);
+                            response.addCookie(cookie);
+                        }
+                    }
+
+                    // Redirigir al login o página de inicio
+                    response.sendRedirect("index.html"); // Cambia por tu página de login
+                    return; // Importante: terminar la ejecución aquí
+
+                default:
+                    // Si el menú no coincide con ninguno conocido
+                    System.out.println("Menú no reconocido: " + menu);
+                    break;
+
             }
-            
-            // Limpiar cookies si las usas
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    response.addCookie(cookie);
-                }
-            }
-            
-            // Redirigir al login o página de inicio
-            response.sendRedirect("index.html"); // Cambia por tu página de login
-            return; // Importante: terminar la ejecución aquí
-            
-        default:
-            // Si el menú no coincide con ninguno conocido
-            System.out.println("Menú no reconocido: " + menu);
-            break;
-    }
-}
-        
-        
-        
-        
+
+        }
+
         /* Empresa */
         if (menu.equals("Empresa")) {
             System.out.println("Dentro de Empresa");
@@ -593,41 +656,254 @@ if (menu != null) {
             // request.getRequestDispatcher("VIEWS/TEMPLATES/Empleos.jsp").forward(request, response);
         }
 
-        /*ZONAS*/
         if (menu.equals("Zonas")) {
-            System.out.println("Dentro de ZONAS");
+            System.out.println("dentro de Zonas");
 
             switch (accion) {
                 case "Listar":
+                    System.out.println("dentro de Zonas LISTAR");
 
-                    // Obtener la lista de empresas
-                    List<Empresa> listaEmpresas = empsadao.listar();
-                    List<User> listaUsuarios = usdao.listar();
+                    // Obtener la lista de zonas
+                    List<Zona> lista = zonadao.listar();
 
-                    if (listaUsuarios == null || listaUsuarios.isEmpty()) {
-                        System.out.println("La lista de usuarios está vacía");
+                    if (lista == null || lista.isEmpty()) {
+                        System.out.println("La lista de zonas está vacía");
                     } else {
-                        for (User usuario : listaUsuarios) {
-                            System.out.println(usuario.getUser_US());
+                        for (Zona zona : lista) {
+                            System.out.println(zona.getCOD_ZON());
                         }
                     }
 
-                    List<Empresa> listae = empsadao.listar();
-                    listae = empsadao.listar();
                     // Pasar la lista a la vista
-                    request.setAttribute("empresad", listae);
-                    // Pasar la lista a la vista
+                    request.setAttribute("zonas", lista);
 
-                    request.setAttribute("usuarios", listaUsuarios);
+                    request.getRequestDispatcher("VIEWS/TEMPLATES/Zonas.jsp").forward(request, response);
                     break;
 
+                case "ListarRE":
+                    System.out.println("dentro de Zonas LISTAR REPORTES");
+
+                    // Obtener la lista de zonas activas
+                    lista = zonadao.listarActivos();
+
+                    if (lista == null || lista.isEmpty()) {
+                        System.out.println("La lista de zonas está vacía");
+                    } else {
+                        for (Zona zona : lista) {
+                            System.out.println(zona.getCOD_ZON());
+                        }
+                    }
+
+                    // Pasar la lista a la vista
+                    request.setAttribute("zonas", lista);
+                    request.getRequestDispatcher("VIEWS/TEMPLATES/REPORTES/Zonas.jsp").forward(request, response);
+                    return;
+
+                case "agregar":
+                    String cod = request.getParameter("txtCod");
+                    String nombre = request.getParameter("txtNombre");
+                    String descripcion = request.getParameter("txtDescripcion");
+
+                    zona.setCOD_ZON(cod);
+                    zona.setCOD_NOMB(nombre);
+                    zona.setCOD_DESC(descripcion);
+
+                    int resultado = zonadao.agregar(zona);
+
+                    // Agregar atributo según si fue éxito o error
+                    if (resultado > 0) {
+                        request.setAttribute("resultado", 1);
+                    } else {
+                        request.setAttribute("resultado", 0);
+                    }
+
+                    request.getRequestDispatcher("Controlador?menu=Zonas&accion=Listar").forward(request, response);
+                    return;
+
+                case "Editar":
+                    System.out.println("dentro de editar zona");
+                    String zona_cod = request.getParameter("zonaCod"); // Obtener código desde la URL
+                    System.out.println("el cod a editar es : " + zona_cod);
+                    System.out.println("-------------------------------------");
+
+                    Zona z = zonadao.ListarId(zona_cod); // Llamar al método listarId en el DAO
+
+                    request.setAttribute("zonae", z);
+
+                    // Redirigir al JSP para que se muestre la modal con los datos de la zona
+                    request.getRequestDispatcher("Controlador?menu=Zonas&accion=Listar").forward(request, response);
+                    return;
+
+                case "Actualizar":
+                    // Obtener los datos del formulario
+                    String CodActualizar = request.getParameter("txtCod");
+                    String nombreActualizar = request.getParameter("txtNombre");
+                    String descripcionActualizar = request.getParameter("txtDescripcion");
+                    String estadoActualizar = request.getParameter("txtEstado");
+
+                    // Asignar los valores al objeto zona
+                    zona.setCOD_ZON(CodActualizar);
+                    zona.setCOD_NOMB(nombreActualizar);
+                    zona.setCOD_DESC(descripcionActualizar);
+                    zona.setESTADO(estadoActualizar);
+
+                    // Llamar al DAO para actualizar la zona en la base de datos
+                    int resultadoActualizar = zonadao.actualizar(zona);
+
+                    // Verificar si la actualización fue exitosa
+                    if (resultadoActualizar > 0) {
+                        request.setAttribute("resultadoUpdate", 1); // Éxito
+                    } else {
+                        request.setAttribute("resultadoUpdate", 0); // Error
+                    }
+
+                    // Redirigir a la lista de zonas
+                    request.getRequestDispatcher("Controlador?menu=Zonas&accion=Listar").forward(request, response);
+                    return;
+
+                case "BuscarPorCodigo":
+                    String codigo = request.getParameter("codigo");
+                    ZonaDao zonaDao = new ZonaDao();
+                    List<Zona> zonasPorCodigo = zonaDao.buscarPorCodigo(codigo);
+
+                    // Construir la respuesta HTML
+                    StringBuilder htmlResponse = new StringBuilder();
+                    for (Zona zn : zonasPorCodigo) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(zn.getId()).append("</td>")
+                                .append("<td>").append(zn.getCOD_ZON()).append("</td>")
+                                .append("<td>").append(zn.getCOD_NOMB()).append("</td>")
+                                .append("<td>").append(zn.getCOD_DESC()).append("</td>")
+                                .append("<td>").append(zn.getESTADO()).append("</td>")
+                                .append("<td>")
+                                .append("<a class='btn btn-warning btn-sm' ")
+                                .append("href='Controlador?menu=Zonas&accion=Editar&zonaCod=").append(zn.getCOD_ZON()).append("' ")
+                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                                .append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
+                case "BuscarPorNombre":
+                    String nombre_buscar = request.getParameter("nombre");
+                    zonaDao = new ZonaDao();
+                    List<Zona> zonasPorNombre = zonaDao.buscarPorNombre(nombre_buscar);
+
+                    htmlResponse = new StringBuilder();
+                    for (Zona zn : zonasPorNombre) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(zn.getId()).append("</td>")
+                                .append("<td>").append(zn.getCOD_ZON()).append("</td>")
+                                .append("<td>").append(zn.getCOD_NOMB()).append("</td>")
+                                .append("<td>").append(zn.getCOD_DESC()).append("</td>")
+                                .append("<td>").append(zn.getESTADO()).append("</td>")
+                                .append("<td>")
+                                .append("<a class='btn btn-warning btn-sm' ")
+                                .append("href='Controlador?menu=Zonas&accion=Editar&zonaCod=").append(zn.getCOD_ZON()).append("' ")
+                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                                .append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
+                case "FiltrarPorEstado":
+                    String estado = request.getParameter("estado");
+                    zonaDao = new ZonaDao();
+                    List<Zona> zonasPorEstado = zonaDao.filtrarPorEstado(estado);
+
+                    htmlResponse = new StringBuilder();
+                    for (Zona zn : zonasPorEstado) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(zn.getId()).append("</td>")
+                                .append("<td>").append(zn.getCOD_ZON()).append("</td>")
+                                .append("<td>").append(zn.getCOD_NOMB()).append("</td>")
+                                .append("<td>").append(zn.getCOD_DESC()).append("</td>")
+                                .append("<td>").append(zn.getESTADO()).append("</td>")
+                                .append("<td>")
+                                .append("<a class='btn btn-warning btn-sm' ")
+                                .append("href='Controlador?menu=Zonas&accion=Editar&zonaCod=").append(zn.getCOD_ZON()).append("' ")
+                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                                .append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
+                // FILTROS DE REPORTERIA
+                case "BuscarPorCodigoRE":
+                    codigo = request.getParameter("codigo");
+                    zonaDao = new ZonaDao();
+                    zonasPorCodigo = zonaDao.buscarPorCodigo(codigo);
+
+                    // Construir la respuesta HTML
+                    htmlResponse = new StringBuilder();
+                    for (Zona zn : zonasPorCodigo) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(zn.getId()).append("</td>")
+                                .append("<td>").append(zn.getCOD_ZON()).append("</td>")
+                                .append("<td>").append(zn.getCOD_NOMB()).append("</td>")
+                                .append("<td>").append(zn.getCOD_DESC()).append("</td>")
+                                .append("<td>").append(zn.getESTADO()).append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
+                case "BuscarPorNombreRE":
+                    nombre_buscar = request.getParameter("nombre");
+                    zonaDao = new ZonaDao();
+                    zonasPorNombre = zonaDao.buscarPorNombre(nombre_buscar);
+
+                    htmlResponse = new StringBuilder();
+                    for (Zona zn : zonasPorNombre) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(zn.getId()).append("</td>")
+                                .append("<td>").append(zn.getCOD_ZON()).append("</td>")
+                                .append("<td>").append(zn.getCOD_NOMB()).append("</td>")
+                                .append("<td>").append(zn.getCOD_DESC()).append("</td>")
+                                .append("<td>").append(zn.getESTADO()).append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
+                case "FiltrarPorEstadoRE":
+                    estado = request.getParameter("estado");
+                    zonaDao = new ZonaDao();
+                    zonasPorEstado = zonaDao.filtrarPorEstado(estado);
+
+                    htmlResponse = new StringBuilder();
+                    for (Zona zn : zonasPorEstado) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(zn.getId()).append("</td>")
+                                .append("<td>").append(zn.getCOD_ZON()).append("</td>")
+                                .append("<td>").append(zn.getCOD_NOMB()).append("</td>")
+                                .append("<td>").append(zn.getCOD_DESC()).append("</td>")
+                                .append("<td>").append(zn.getESTADO()).append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
                 default:
-                    throw new AssertionError();
+                    System.out.println("Acción no reconocida en Zonas: " + accion);
+                    break;
             }
-
-            request.getRequestDispatcher("VIEWS/TEMPLATES/Zonas.jsp").forward(request, response);
         }
-
         /*INCIDENCIAS*/
         if (menu.equals("Incidencias")) {
             System.out.println("Dentro de INCIDENCIAS");
@@ -663,73 +939,489 @@ if (menu != null) {
             request.getRequestDispatcher("VIEWS/TEMPLATES/Incidencias.jsp").forward(request, response);
         }
 
-        /*PLANES*/
         if (menu.equals("Planes")) {
-            System.out.println("Dentro de Planes");
+            System.out.println("dentro de Planes");
 
             switch (accion) {
                 case "Listar":
+                    System.out.println("dentro de Planes LISTAR");
 
-                    // Obtener la lista de empresas
-                    List<Empresa> listaEmpresas = empsadao.listar();
-                    List<User> listaUsuarios = usdao.listar();
+                    // Obtener la lista de planes
+                    List<Plan> lista = plandao.listar();
 
-                    if (listaUsuarios == null || listaUsuarios.isEmpty()) {
-                        System.out.println("La lista de usuarios está vacía");
+                    if (lista == null || lista.isEmpty()) {
+                        System.out.println("La lista de planes está vacía");
                     } else {
-                        for (User usuario : listaUsuarios) {
-                            System.out.println(usuario.getUser_US());
+                        for (Plan plan : lista) {
+                            System.out.println(plan.getCOD_PLAN());
                         }
                     }
 
-                    List<Empresa> listae = empsadao.listar();
-                    listae = empsadao.listar();
                     // Pasar la lista a la vista
-                    request.setAttribute("empresad", listae);
-                    // Pasar la lista a la vista
+                    request.setAttribute("planes", lista);
 
-                    request.setAttribute("usuarios", listaUsuarios);
+                    request.getRequestDispatcher("VIEWS/TEMPLATES/Planes.jsp").forward(request, response);
                     break;
 
-                default:
-                    throw new AssertionError();
-            }
+                case "ListarRE":
+                    System.out.println("dentro de Planes LISTAR REPORTES");
 
-            request.getRequestDispatcher("VIEWS/TEMPLATES/Planes.jsp").forward(request, response);
+                    // Obtener la lista de planes activos
+                    lista = plandao.listarActivos();
+
+                    if (lista == null || lista.isEmpty()) {
+                        System.out.println("La lista de planes está vacía");
+                    } else {
+                        for (Plan plan : lista) {
+                            System.out.println(plan.getCOD_PLAN());
+                        }
+                    }
+
+                    // Pasar la lista a la vista
+                    request.setAttribute("planes", lista);
+                    request.getRequestDispatcher("VIEWS/TEMPLATES/REPORTES/Planes.jsp").forward(request, response);
+                    return;
+
+                case "agregar":
+                    String cod = request.getParameter("txtCod");
+                    String nombre = request.getParameter("txtNombre");
+                    String descripcion = request.getParameter("txtDescripcion");
+
+                    plan.setCOD_PLAN(cod);
+                    plan.setCOD_NOMB(nombre);
+                    plan.setCOD_DESC(descripcion);
+
+                    int resultado = plandao.agregar(plan);
+
+                    // Agregar atributo según si fue éxito o error
+                    if (resultado > 0) {
+                        request.setAttribute("resultado", 1);
+                    } else {
+                        request.setAttribute("resultado", 0);
+                    }
+
+                    request.getRequestDispatcher("Controlador?menu=Planes&accion=Listar").forward(request, response);
+                    return;
+
+                case "Editar":
+                    System.out.println("dentro de editar plan");
+                    String plan_cod = request.getParameter("planCod"); // Obtener código desde la URL
+                    System.out.println("el cod a editar es : " + plan_cod);
+                    System.out.println("-------------------------------------");
+
+                    Plan p = plandao.ListarId(plan_cod); // Llamar al método listarId en el DAO
+
+                    request.setAttribute("plane", p);
+
+                    // Redirigir al JSP para que se muestre la modal con los datos del plan
+                    request.getRequestDispatcher("Controlador?menu=Planes&accion=Listar").forward(request, response);
+                    return;
+
+                case "Actualizar":
+                    // Obtener los datos del formulario
+                    String CodActualizar = request.getParameter("txtCod");
+                    String nombreActualizar = request.getParameter("txtNombre");
+                    String descripcionActualizar = request.getParameter("txtDescripcion");
+                    String estadoActualizar = request.getParameter("txtEstado");
+
+                    // Asignar los valores al objeto plan
+                    plan.setCOD_PLAN(CodActualizar);
+                    plan.setCOD_NOMB(nombreActualizar);
+                    plan.setCOD_DESC(descripcionActualizar);
+                    plan.setEstado(estadoActualizar);
+
+                    // Llamar al DAO para actualizar el plan en la base de datos
+                    int resultadoActualizar = plandao.actualizar(plan);
+
+                    // Verificar si la actualización fue exitosa
+                    if (resultadoActualizar > 0) {
+                        request.setAttribute("resultadoUpdate", 1); // Éxito
+                    } else {
+                        request.setAttribute("resultadoUpdate", 0); // Error
+                    }
+
+                    // Redirigir a la lista de planes
+                    request.getRequestDispatcher("Controlador?menu=Planes&accion=Listar").forward(request, response);
+                    return;
+
+                case "BuscarPorCodigo":
+                    String codigo = request.getParameter("codigo");
+                    PlanDao planDao = new PlanDao();
+                    List<Plan> planesPorCodigo = planDao.buscarPorCodigo(codigo);
+
+                    // Construir la respuesta HTML
+                    StringBuilder htmlResponse = new StringBuilder();
+                    for (Plan pl : planesPorCodigo) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(pl.getId()).append("</td>")
+                                .append("<td>").append(pl.getCOD_PLAN()).append("</td>")
+                                .append("<td>").append(pl.getCOD_NOMB()).append("</td>")
+                                .append("<td>").append(pl.getCOD_DESC()).append("</td>")
+                                .append("<td>").append(pl.getEstado()).append("</td>")
+                                .append("<td>")
+                                .append("<a class='btn btn-warning btn-sm' ")
+                                .append("href='Controlador?menu=Planes&accion=Editar&planCod=").append(pl.getCOD_PLAN()).append("' ")
+                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                                .append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
+                case "BuscarPorNombre":
+                    String nombre_buscar = request.getParameter("nombre");
+                    planDao = new PlanDao();
+                    List<Plan> planesPorNombre = planDao.buscarPorNombre(nombre_buscar);
+
+                    htmlResponse = new StringBuilder();
+                    for (Plan pl : planesPorNombre) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(pl.getId()).append("</td>")
+                                .append("<td>").append(pl.getCOD_PLAN()).append("</td>")
+                                .append("<td>").append(pl.getCOD_NOMB()).append("</td>")
+                                .append("<td>").append(pl.getCOD_DESC()).append("</td>")
+                                .append("<td>").append(pl.getEstado()).append("</td>")
+                                .append("<td>")
+                                .append("<a class='btn btn-warning btn-sm' ")
+                                .append("href='Controlador?menu=Planes&accion=Editar&planCod=").append(pl.getCOD_PLAN()).append("' ")
+                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                                .append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
+                case "FiltrarPorEstado":
+                    String estado = request.getParameter("estado");
+                    planDao = new PlanDao();
+                    List<Plan> planesPorEstado = planDao.filtrarPorEstado(estado);
+
+                    htmlResponse = new StringBuilder();
+                    for (Plan pl : planesPorEstado) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(pl.getId()).append("</td>")
+                                .append("<td>").append(pl.getCOD_PLAN()).append("</td>")
+                                .append("<td>").append(pl.getCOD_NOMB()).append("</td>")
+                                .append("<td>").append(pl.getCOD_DESC()).append("</td>")
+                                .append("<td>").append(pl.getEstado()).append("</td>")
+                                .append("<td>")
+                                .append("<a class='btn btn-warning btn-sm' ")
+                                .append("href='Controlador?menu=Planes&accion=Editar&planCod=").append(pl.getCOD_PLAN()).append("' ")
+                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                                .append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
+                // FILTROS DE REPORTERIA
+                case "BuscarPorCodigoRE":
+                    codigo = request.getParameter("codigo");
+                    planDao = new PlanDao();
+                    planesPorCodigo = planDao.buscarPorCodigo(codigo);
+
+                    // Construir la respuesta HTML
+                    htmlResponse = new StringBuilder();
+                    for (Plan pl : planesPorCodigo) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(pl.getId()).append("</td>")
+                                .append("<td>").append(pl.getCOD_PLAN()).append("</td>")
+                                .append("<td>").append(pl.getCOD_NOMB()).append("</td>")
+                                .append("<td>").append(pl.getCOD_DESC()).append("</td>")
+                                .append("<td>").append(pl.getEstado()).append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
+                case "BuscarPorNombreRE":
+                    nombre_buscar = request.getParameter("nombre");
+                    planDao = new PlanDao();
+                    planesPorNombre = planDao.buscarPorNombre(nombre_buscar);
+
+                    htmlResponse = new StringBuilder();
+                    for (Plan pl : planesPorNombre) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(pl.getId()).append("</td>")
+                                .append("<td>").append(pl.getCOD_PLAN()).append("</td>")
+                                .append("<td>").append(pl.getCOD_NOMB()).append("</td>")
+                                .append("<td>").append(pl.getCOD_DESC()).append("</td>")
+                                .append("<td>").append(pl.getEstado()).append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
+                case "FiltrarPorEstadoRE":
+                    estado = request.getParameter("estado");
+                    planDao = new PlanDao();
+                    planesPorEstado = planDao.filtrarPorEstado(estado);
+
+                    htmlResponse = new StringBuilder();
+                    for (Plan pl : planesPorEstado) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(pl.getId()).append("</td>")
+                                .append("<td>").append(pl.getCOD_PLAN()).append("</td>")
+                                .append("<td>").append(pl.getCOD_NOMB()).append("</td>")
+                                .append("<td>").append(pl.getCOD_DESC()).append("</td>")
+                                .append("<td>").append(pl.getEstado()).append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
+                default:
+                    System.out.println("Acción no reconocida en Planes: " + accion);
+                    break;
+            }
         }
+
         /*CLIENTES*/
         if (menu.equals("Clientes")) {
-            System.out.println("Dentro de Clientes");
+            System.out.println("dentro de Clientes");
 
             switch (accion) {
                 case "Listar":
+                    System.out.println("dentro de Clientes LISTAR");
 
-                    // Obtener la lista de empresas
-                    List<Empresa> listaEmpresas = empsadao.listar();
-                    List<User> listaUsuarios = usdao.listar();
+                    // Obtener la lista de clientes
+                    List<Cliente> lista = clidao.listar();
 
-                    if (listaUsuarios == null || listaUsuarios.isEmpty()) {
-                        System.out.println("La lista de usuarios está vacía");
+                    if (lista == null || lista.isEmpty()) {
+                        System.out.println("La lista de clientes está vacía");
                     } else {
-                        for (User usuario : listaUsuarios) {
-                            System.out.println(usuario.getUser_US());
+                        for (Cliente cliente : lista) {
+                            System.out.println(cliente.getCOD_CLI());
                         }
                     }
 
-                    List<Empresa> listae = empsadao.listar();
-                    listae = empsadao.listar();
                     // Pasar la lista a la vista
-                    request.setAttribute("empresad", listae);
-                    // Pasar la lista a la vista
+                    request.setAttribute("clientes", lista);
 
-                    request.setAttribute("usuarios", listaUsuarios);
+                    // Obtener lista de planes para los dropdowns
+                    List<Plan> listaPlanes = plandao.listar();
+                    request.setAttribute("planesd", listaPlanes);
+
+                    // Obtener lista de zonas para los dropdowns
+                    List<Zona> listaZonas = zonadao.listar();
+                    request.setAttribute("zonasd", listaZonas);
+
+                    // Obtener lista de usuarios para los dropdowns
+                    List<User> listaUsuarios = usdao.listar();
+                    request.setAttribute("usuariosd", listaUsuarios);
+
+                    request.getRequestDispatcher("VIEWS/TEMPLATES/Clientes.jsp").forward(request, response);
                     break;
+
+                case "agregar":
+                    String cod = request.getParameter("txtCod");
+                    long dpi = Long.parseLong(request.getParameter("txtDpi"));
+                    String nom = request.getParameter("txtNombres");
+                    String ape = request.getParameter("txtApellidos");
+                    int cel = Integer.parseInt(request.getParameter("txtCelular"));
+                    String correo = request.getParameter("txtCorreo");
+                    String direccion = request.getParameter("txtDireccion");
+                    int nit = Integer.parseInt(request.getParameter("txtNit"));
+                    String cod_plan = request.getParameter("txtCod_plan");
+                    String cod_zona = request.getParameter("txtCod_zona");
+                    String cod_user = request.getParameter("txtCod_user");
+
+                    cli.setCOD_CLI(cod);
+                    cli.setDPI(dpi);
+                    cli.setNOMBRES(nom);
+                    cli.setAPELLIDOS(ape);
+                    cli.setCELULAR(cel);
+                    cli.setCORREO(correo);
+                    cli.setDIRECCION(direccion);
+                    cli.setNIT(nit);
+                    cli.setCOD_PLAN(cod_plan);
+                    cli.setCOD_ZONA(cod_zona);
+                    cli.setCOD_USER(cod_user);
+
+                    int resultado = clidao.agregar(cli);
+
+                    // Agregar atributo según si fue éxito o error
+                    if (resultado > 0) {
+                        request.setAttribute("resultado", 1);
+                    } else {
+                        request.setAttribute("resultado", 0);
+                    }
+
+                    request.getRequestDispatcher("Controlador?menu=Clientes&accion=Listar").forward(request, response);
+                    return;
+
+                case "Editar":
+                    System.out.println("dentro de editar cliente");
+                    String cli_cod = request.getParameter("cliCod"); // Obtener ID desde la URL
+                    System.out.println("el cod a editar es : " + cli_cod);
+                    System.out.println("-------------------------------------");
+
+                    Cliente c = clidao.ListarId(cli_cod); // Llamar al método listarId en el DAO
+
+                    request.setAttribute("clientee", c);
+
+                    // Redirigir al JSP para que se muestre la modal con los datos del cliente
+                    request.getRequestDispatcher("Controlador?menu=Clientes&accion=Listar").forward(request, response);
+                    return;
+
+                case "Actualizar":
+                    // Obtener los datos del formulario
+                    String CodActualizar = request.getParameter("txtCod");
+                    long dpiActualizar = Long.parseLong(request.getParameter("txtDpi"));
+                    String nombresActualizar = request.getParameter("txtNombres");
+                    String apellidosActualizar = request.getParameter("txtApellidos");
+                    int celularActualizar = Integer.parseInt(request.getParameter("txtCelular"));
+                    String correoActualizar = request.getParameter("txtCorreo");
+                    String direccionActualizar = request.getParameter("txtDireccion");
+                    int nitActualizar = Integer.parseInt(request.getParameter("txtNit"));
+                    String codPlanActualizar = request.getParameter("txtCod_plan");
+                    String codZonaActualizar = request.getParameter("txtCod_zona");
+                    String codUserActualizar = request.getParameter("txtCod_user");
+                    String estadoActualizar = request.getParameter("txtEstado");
+
+                    // Asignar los valores al objeto cliente
+                    cli.setCOD_CLI(CodActualizar);
+                    cli.setDPI(dpiActualizar);
+                    cli.setNOMBRES(nombresActualizar);
+                    cli.setAPELLIDOS(apellidosActualizar);
+                    cli.setCELULAR(celularActualizar);
+                    cli.setCORREO(correoActualizar);
+                    cli.setDIRECCION(direccionActualizar);
+                    cli.setNIT(nitActualizar);
+                    cli.setCOD_PLAN(codPlanActualizar);
+                    cli.setCOD_ZONA(codZonaActualizar);
+                    cli.setCOD_USER(codUserActualizar);
+                    cli.setESTADO(estadoActualizar);
+
+                    // Llamar al DAO para actualizar el cliente en la base de datos
+                    int resultadoActualizar = clidao.actualizar(cli);
+
+                    // Verificar si la actualización fue exitosa
+                    if (resultadoActualizar > 0) {
+                        request.setAttribute("resultadoUpdate", 1); // Éxito
+                    } else {
+                        request.setAttribute("resultadoUpdate", 0); // Error
+                    }
+
+                    // Redirigir a la lista de clientes
+                    request.getRequestDispatcher("Controlador?menu=Clientes&accion=Listar").forward(request, response);
+                    return;
+
+                case "BuscarPorCodigo":
+                    String codigo = request.getParameter("codigo");
+                    ClienteDao clienteDao = new ClienteDao();
+                    List<Cliente> clientesPorCodigo = clienteDao.buscarPorCodigo(codigo);
+
+                    // Construir la respuesta HTML
+                    StringBuilder htmlResponse = new StringBuilder();
+                    for (Cliente cl : clientesPorCodigo) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(cl.getId()).append("</td>")
+                                .append("<td>").append(cl.getCOD_CLI()).append("</td>")
+                                .append("<td>").append(cl.getDPI()).append("</td>")
+                                .append("<td>").append(cl.getNOMBRES()).append("</td>")
+                                .append("<td>").append(cl.getAPELLIDOS()).append("</td>")
+                                .append("<td>").append(cl.getCELULAR()).append("</td>")
+                                .append("<td>").append(cl.getCORREO()).append("</td>")
+                                .append("<td>").append(cl.getDIRECCION()).append("</td>")
+                                .append("<td>").append(cl.getNIT()).append("</td>")
+                                .append("<td>").append(cl.getCOD_PLAN()).append("</td>")
+                                .append("<td>").append(cl.getCOD_ZONA()).append("</td>")
+                                .append("<td>").append(cl.getCOD_USER()).append("</td>")
+                                .append("<td>").append(cl.getESTADO()).append("</td>")
+                                .append("<td>")
+                                .append("<a class='btn btn-warning btn-sm' ")
+                                .append("href='Controlador?menu=Clientes&accion=Editar&cliCod=").append(cl.getCOD_CLI()).append("' ")
+                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                                .append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
+                case "BuscarPorNombre":
+                    String nombre = request.getParameter("nombre");
+                    clienteDao = new ClienteDao();
+                    List<Cliente> clientesPorNombre = clienteDao.buscarPorNombre(nombre);
+
+                    htmlResponse = new StringBuilder();
+                    for (Cliente cl : clientesPorNombre) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(cl.getId()).append("</td>")
+                                .append("<td>").append(cl.getCOD_CLI()).append("</td>")
+                                .append("<td>").append(cl.getDPI()).append("</td>")
+                                .append("<td>").append(cl.getNOMBRES()).append("</td>")
+                                .append("<td>").append(cl.getAPELLIDOS()).append("</td>")
+                                .append("<td>").append(cl.getCELULAR()).append("</td>")
+                                .append("<td>").append(cl.getCORREO()).append("</td>")
+                                .append("<td>").append(cl.getDIRECCION()).append("</td>")
+                                .append("<td>").append(cl.getNIT()).append("</td>")
+                                .append("<td>").append(cl.getCOD_PLAN()).append("</td>")
+                                .append("<td>").append(cl.getCOD_ZONA()).append("</td>")
+                                .append("<td>").append(cl.getCOD_USER()).append("</td>")
+                                .append("<td>").append(cl.getESTADO()).append("</td>")
+                                .append("<td>")
+                                .append("<a class='btn btn-warning btn-sm' ")
+                                .append("href='Controlador?menu=Clientes&accion=Editar&cliCod=").append(cl.getCOD_CLI()).append("' ")
+                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                                .append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
+
+                case "FiltrarPorEstado":
+                    String estado = request.getParameter("estado");
+                    clienteDao = new ClienteDao();
+                    List<Cliente> clientesPorEstado = clienteDao.filtrarPorEstado(estado);
+
+                    htmlResponse = new StringBuilder();
+                    for (Cliente cl : clientesPorEstado) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(cl.getId()).append("</td>")
+                                .append("<td>").append(cl.getCOD_CLI()).append("</td>")
+                                .append("<td>").append(cl.getDPI()).append("</td>")
+                                .append("<td>").append(cl.getNOMBRES()).append("</td>")
+                                .append("<td>").append(cl.getAPELLIDOS()).append("</td>")
+                                .append("<td>").append(cl.getCELULAR()).append("</td>")
+                                .append("<td>").append(cl.getCORREO()).append("</td>")
+                                .append("<td>").append(cl.getDIRECCION()).append("</td>")
+                                .append("<td>").append(cl.getNIT()).append("</td>")
+                                .append("<td>").append(cl.getCOD_PLAN()).append("</td>")
+                                .append("<td>").append(cl.getCOD_ZONA()).append("</td>")
+                                .append("<td>").append(cl.getCOD_USER()).append("</td>")
+                                .append("<td>").append(cl.getESTADO()).append("</td>")
+                                .append("<td>")
+                                .append("<a class='btn btn-warning btn-sm' ")
+                                .append("href='Controlador?menu=Clientes&accion=Editar&cliCod=").append(cl.getCOD_CLI()).append("' ")
+                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                                .append("</td>")
+                                .append("</tr>");
+                    }
+
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
 
                 default:
                     throw new AssertionError();
             }
-
-            request.getRequestDispatcher("VIEWS/TEMPLATES/Clientes.jsp").forward(request, response);
         }
 
         /*Seguridad*/
@@ -1038,185 +1730,185 @@ if (menu != null) {
                     // Redirigir a la lista de empleados
                     request.getRequestDispatcher("Controlador?menu=Empleados&accion=Listar").forward(request, response);
                     return;
-          case "BuscarPorCodigo":
-    String codigo = request.getParameter("codigo");
-    EmpleadoDao empleadoDao = new EmpleadoDao();
-    List<Empleado> empleadosPorCodigo = empleadoDao.buscarPorCodigo(codigo);
+                case "BuscarPorCodigo":
+                    String codigo = request.getParameter("codigo");
+                    EmpleadoDao empleadoDao = new EmpleadoDao();
+                    List<Empleado> empleadosPorCodigo = empleadoDao.buscarPorCodigo(codigo);
 
-    // Construir la respuesta HTML
-    StringBuilder htmlResponse = new StringBuilder();
-    for (Empleado em : empleadosPorCodigo) {
-        htmlResponse.append("<tr>")
-                .append("<td>").append(em.getId()).append("</td>")
-                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                .append("<td>").append(em.getDPI()).append("</td>")              // ✅ DPI agregado
-                .append("<td>").append(em.getNOMBRES()).append("</td>")
-                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
-                .append("<td>").append(em.getN_IGSS()).append("</td>")
-                .append("<td>").append(em.getNIT()).append("</td>")
-                .append("<td>").append(em.getCOD_EMP()).append("</td>")
-                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
-                .append("<td>").append(em.getCELULAR()).append("</td>")
-                .append("<td>").append(em.getCorreo()).append("</td>")
-                .append("<td>").append(em.getEstado()).append("</td>")
-                .append("<td>")
-                .append("<a class='btn btn-warning btn-sm' ")
-                .append("href='Controlador?menu=Empleados&accion=Editar&empCod=").append(em.getCOC_EMPD()).append("' ")
-                .append("title='Editar'><i class='fas fa-edit'></i></a>")
-                .append("</td>")
-                .append("</tr>");
-    }
+                    // Construir la respuesta HTML
+                    StringBuilder htmlResponse = new StringBuilder();
+                    for (Empleado em : empleadosPorCodigo) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(em.getId()).append("</td>")
+                                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
+                                .append("<td>").append(em.getDPI()).append("</td>") // ✅ DPI agregado
+                                .append("<td>").append(em.getNOMBRES()).append("</td>")
+                                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
+                                .append("<td>").append(em.getN_IGSS()).append("</td>")
+                                .append("<td>").append(em.getNIT()).append("</td>")
+                                .append("<td>").append(em.getCOD_EMP()).append("</td>")
+                                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
+                                .append("<td>").append(em.getCELULAR()).append("</td>")
+                                .append("<td>").append(em.getCorreo()).append("</td>")
+                                .append("<td>").append(em.getEstado()).append("</td>")
+                                .append("<td>")
+                                .append("<a class='btn btn-warning btn-sm' ")
+                                .append("href='Controlador?menu=Empleados&accion=Editar&empCod=").append(em.getCOC_EMPD()).append("' ")
+                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                                .append("</td>")
+                                .append("</tr>");
+                    }
 
-    response.setContentType("text/html");
-    response.getWriter().write(htmlResponse.toString());
-    return;
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
 
-case "BuscarPorNombre":
-    String nombre = request.getParameter("nombre");
-    empleadoDao = new EmpleadoDao();
-    List<Empleado> empleadosPorNombre = empleadoDao.buscarPorNombre(nombre);
+                case "BuscarPorNombre":
+                    String nombre = request.getParameter("nombre");
+                    empleadoDao = new EmpleadoDao();
+                    List<Empleado> empleadosPorNombre = empleadoDao.buscarPorNombre(nombre);
 
-    htmlResponse = new StringBuilder();
-    for (Empleado em : empleadosPorNombre) {
-        htmlResponse.append("<tr>")
-                .append("<td>").append(em.getId()).append("</td>")
-                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                .append("<td>").append(em.getDPI()).append("</td>")              // ✅ DPI agregado
-                .append("<td>").append(em.getNOMBRES()).append("</td>")
-                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
-                .append("<td>").append(em.getN_IGSS()).append("</td>")
-                .append("<td>").append(em.getNIT()).append("</td>")
-                .append("<td>").append(em.getCOD_EMP()).append("</td>")
-                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
-                .append("<td>").append(em.getCELULAR()).append("</td>")
-                .append("<td>").append(em.getCorreo()).append("</td>")
-                .append("<td>").append(em.getEstado()).append("</td>")
-                .append("<td>")
-                .append("<a class='btn btn-warning btn-sm' ")
-                .append("href='Controlador?menu=Empleados&accion=Editar&empCod=").append(em.getCOC_EMPD()).append("' ")
-                .append("title='Editar'><i class='fas fa-edit'></i></a>")
-                .append("</td>")
-                .append("</tr>");
-    }
+                    htmlResponse = new StringBuilder();
+                    for (Empleado em : empleadosPorNombre) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(em.getId()).append("</td>")
+                                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
+                                .append("<td>").append(em.getDPI()).append("</td>") // ✅ DPI agregado
+                                .append("<td>").append(em.getNOMBRES()).append("</td>")
+                                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
+                                .append("<td>").append(em.getN_IGSS()).append("</td>")
+                                .append("<td>").append(em.getNIT()).append("</td>")
+                                .append("<td>").append(em.getCOD_EMP()).append("</td>")
+                                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
+                                .append("<td>").append(em.getCELULAR()).append("</td>")
+                                .append("<td>").append(em.getCorreo()).append("</td>")
+                                .append("<td>").append(em.getEstado()).append("</td>")
+                                .append("<td>")
+                                .append("<a class='btn btn-warning btn-sm' ")
+                                .append("href='Controlador?menu=Empleados&accion=Editar&empCod=").append(em.getCOC_EMPD()).append("' ")
+                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                                .append("</td>")
+                                .append("</tr>");
+                    }
 
-    response.setContentType("text/html");
-    response.getWriter().write(htmlResponse.toString());
-    return;
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
 
-case "FiltrarPorEstado":
-    String estado = request.getParameter("estado");
-    empleadoDao = new EmpleadoDao();
-    List<Empleado> empleadosPorEstado = empleadoDao.filtrarPorEstado(estado);
+                case "FiltrarPorEstado":
+                    String estado = request.getParameter("estado");
+                    empleadoDao = new EmpleadoDao();
+                    List<Empleado> empleadosPorEstado = empleadoDao.filtrarPorEstado(estado);
 
-    htmlResponse = new StringBuilder();
-    for (Empleado em : empleadosPorEstado) {
-        htmlResponse.append("<tr>")
-                .append("<td>").append(em.getId()).append("</td>")
-                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                .append("<td>").append(em.getDPI()).append("</td>")              // ✅ DPI agregado
-                .append("<td>").append(em.getNOMBRES()).append("</td>")
-                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
-                .append("<td>").append(em.getN_IGSS()).append("</td>")
-                .append("<td>").append(em.getNIT()).append("</td>")
-                .append("<td>").append(em.getCOD_EMP()).append("</td>")
-                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
-                .append("<td>").append(em.getCELULAR()).append("</td>")
-                .append("<td>").append(em.getCorreo()).append("</td>")
-                .append("<td>").append(em.getEstado()).append("</td>")
-                .append("<td>")
-                .append("<a class='btn btn-warning btn-sm' ")
-                .append("href='Controlador?menu=Empleados&accion=Editar&empCod=").append(em.getCOC_EMPD()).append("' ")
-                .append("title='Editar'><i class='fas fa-edit'></i></a>")
-                .append("</td>")
-                .append("</tr>");
-    }
+                    htmlResponse = new StringBuilder();
+                    for (Empleado em : empleadosPorEstado) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(em.getId()).append("</td>")
+                                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
+                                .append("<td>").append(em.getDPI()).append("</td>") // ✅ DPI agregado
+                                .append("<td>").append(em.getNOMBRES()).append("</td>")
+                                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
+                                .append("<td>").append(em.getN_IGSS()).append("</td>")
+                                .append("<td>").append(em.getNIT()).append("</td>")
+                                .append("<td>").append(em.getCOD_EMP()).append("</td>")
+                                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
+                                .append("<td>").append(em.getCELULAR()).append("</td>")
+                                .append("<td>").append(em.getCorreo()).append("</td>")
+                                .append("<td>").append(em.getEstado()).append("</td>")
+                                .append("<td>")
+                                .append("<a class='btn btn-warning btn-sm' ")
+                                .append("href='Controlador?menu=Empleados&accion=Editar&empCod=").append(em.getCOC_EMPD()).append("' ")
+                                .append("title='Editar'><i class='fas fa-edit'></i></a>")
+                                .append("</td>")
+                                .append("</tr>");
+                    }
 
-    response.setContentType("text/html");
-    response.getWriter().write(htmlResponse.toString());
-    return;
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
 
 // FILTROS DE REPORTERIA
-case "BuscarPorCodigoRE":
-    codigo = request.getParameter("codigo");
-    empleadoDao = new EmpleadoDao();
-    empleadosPorCodigo = empleadoDao.buscarPorCodigo(codigo);
+                case "BuscarPorCodigoRE":
+                    codigo = request.getParameter("codigo");
+                    empleadoDao = new EmpleadoDao();
+                    empleadosPorCodigo = empleadoDao.buscarPorCodigo(codigo);
 
-    // Construir la respuesta HTML
-    htmlResponse = new StringBuilder();
-    for (Empleado em : empleadosPorCodigo) {
-        htmlResponse.append("<tr>")
-                .append("<td>").append(em.getId()).append("</td>")
-                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                .append("<td>").append(em.getDPI()).append("</td>")              // ✅ DPI agregado
-                .append("<td>").append(em.getNOMBRES()).append("</td>")
-                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
-                .append("<td>").append(em.getN_IGSS()).append("</td>")
-                .append("<td>").append(em.getNIT()).append("</td>")
-                .append("<td>").append(em.getCOD_EMP()).append("</td>")
-                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
-                .append("<td>").append(em.getCELULAR()).append("</td>")
-                .append("<td>").append(em.getCorreo()).append("</td>")
-                .append("<td>").append(em.getEstado()).append("</td>")
-                .append("</tr>");
-    }
+                    // Construir la respuesta HTML
+                    htmlResponse = new StringBuilder();
+                    for (Empleado em : empleadosPorCodigo) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(em.getId()).append("</td>")
+                                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
+                                .append("<td>").append(em.getDPI()).append("</td>") // ✅ DPI agregado
+                                .append("<td>").append(em.getNOMBRES()).append("</td>")
+                                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
+                                .append("<td>").append(em.getN_IGSS()).append("</td>")
+                                .append("<td>").append(em.getNIT()).append("</td>")
+                                .append("<td>").append(em.getCOD_EMP()).append("</td>")
+                                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
+                                .append("<td>").append(em.getCELULAR()).append("</td>")
+                                .append("<td>").append(em.getCorreo()).append("</td>")
+                                .append("<td>").append(em.getEstado()).append("</td>")
+                                .append("</tr>");
+                    }
 
-    response.setContentType("text/html");
-    response.getWriter().write(htmlResponse.toString());
-    return;
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
 
-case "BuscarPorNombreRE":
-    nombre = request.getParameter("nombre");
-    empleadoDao = new EmpleadoDao();
-    empleadosPorNombre = empleadoDao.buscarPorNombre(nombre);
+                case "BuscarPorNombreRE":
+                    nombre = request.getParameter("nombre");
+                    empleadoDao = new EmpleadoDao();
+                    empleadosPorNombre = empleadoDao.buscarPorNombre(nombre);
 
-    htmlResponse = new StringBuilder();
-    for (Empleado em : empleadosPorNombre) {
-        htmlResponse.append("<tr>")
-                .append("<td>").append(em.getId()).append("</td>")
-                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                .append("<td>").append(em.getDPI()).append("</td>")              // ✅ DPI agregado
-                .append("<td>").append(em.getNOMBRES()).append("</td>")
-                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
-                .append("<td>").append(em.getN_IGSS()).append("</td>")
-                .append("<td>").append(em.getNIT()).append("</td>")
-                .append("<td>").append(em.getCOD_EMP()).append("</td>")
-                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
-                .append("<td>").append(em.getCELULAR()).append("</td>")
-                .append("<td>").append(em.getCorreo()).append("</td>")
-                .append("<td>").append(em.getEstado()).append("</td>")
-                .append("</tr>");
-    }
+                    htmlResponse = new StringBuilder();
+                    for (Empleado em : empleadosPorNombre) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(em.getId()).append("</td>")
+                                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
+                                .append("<td>").append(em.getDPI()).append("</td>") // ✅ DPI agregado
+                                .append("<td>").append(em.getNOMBRES()).append("</td>")
+                                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
+                                .append("<td>").append(em.getN_IGSS()).append("</td>")
+                                .append("<td>").append(em.getNIT()).append("</td>")
+                                .append("<td>").append(em.getCOD_EMP()).append("</td>")
+                                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
+                                .append("<td>").append(em.getCELULAR()).append("</td>")
+                                .append("<td>").append(em.getCorreo()).append("</td>")
+                                .append("<td>").append(em.getEstado()).append("</td>")
+                                .append("</tr>");
+                    }
 
-    response.setContentType("text/html");
-    response.getWriter().write(htmlResponse.toString());
-    return;
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
 
-case "FiltrarPorEstadoRE":
-    estado = request.getParameter("estado");
-    empleadoDao = new EmpleadoDao();
-    empleadosPorEstado = empleadoDao.filtrarPorEstado(estado);
+                case "FiltrarPorEstadoRE":
+                    estado = request.getParameter("estado");
+                    empleadoDao = new EmpleadoDao();
+                    empleadosPorEstado = empleadoDao.filtrarPorEstado(estado);
 
-    htmlResponse = new StringBuilder();
-    for (Empleado em : empleadosPorEstado) {
-        htmlResponse.append("<tr>")
-                .append("<td>").append(em.getId()).append("</td>")
-                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                .append("<td>").append(em.getDPI()).append("</td>")              // ✅ DPI agregado
-                .append("<td>").append(em.getNOMBRES()).append("</td>")
-                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
-                .append("<td>").append(em.getN_IGSS()).append("</td>")
-                .append("<td>").append(em.getNIT()).append("</td>")
-                .append("<td>").append(em.getCOD_EMP()).append("</td>")
-                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
-                .append("<td>").append(em.getCELULAR()).append("</td>")
-                .append("<td>").append(em.getCorreo()).append("</td>")
-                .append("<td>").append(em.getEstado()).append("</td>")
-                .append("</tr>");
-    }
+                    htmlResponse = new StringBuilder();
+                    for (Empleado em : empleadosPorEstado) {
+                        htmlResponse.append("<tr>")
+                                .append("<td>").append(em.getId()).append("</td>")
+                                .append("<td>").append(em.getCOC_EMPD()).append("</td>")
+                                .append("<td>").append(em.getDPI()).append("</td>") // ✅ DPI agregado
+                                .append("<td>").append(em.getNOMBRES()).append("</td>")
+                                .append("<td>").append(em.getAPELLIDOS()).append("</td>")
+                                .append("<td>").append(em.getN_IGSS()).append("</td>")
+                                .append("<td>").append(em.getNIT()).append("</td>")
+                                .append("<td>").append(em.getCOD_EMP()).append("</td>")
+                                .append("<td>").append(em.getCOD_EMPSA()).append("</td>")
+                                .append("<td>").append(em.getCELULAR()).append("</td>")
+                                .append("<td>").append(em.getCorreo()).append("</td>")
+                                .append("<td>").append(em.getEstado()).append("</td>")
+                                .append("</tr>");
+                    }
 
-    response.setContentType("text/html");
-    response.getWriter().write(htmlResponse.toString());
-    return;
+                    response.setContentType("text/html");
+                    response.getWriter().write(htmlResponse.toString());
+                    return;
 
                 default:
                     throw new AssertionError();

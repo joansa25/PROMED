@@ -72,43 +72,31 @@
         <hr>
 
         <!-- Tabla estilizada de datos-->
+<!-- Tabla estilizada de datos de Planes -->
 <div class="table-container">
     <table class="table">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>DPI</th>
-                <th>NOMBRES</th>
-                <th>APELLIDOS</th>
-                <th>NO. IGSS</th>
-                <th>NIT</th>
-                <th>COD EMPLEO</th>
-                <th>COD EMPSA</th>
-                <th>CELULAR</th>
-                <th>CORREO</th>
+                <th>CÓDIGO PLAN</th>
+                <th>NOMBRE</th>
+                <th>DESCRIPCIÓN</th>
                 <th>ESTADO</th>
                 <th>ACCIONES</th>
             </tr>
         </thead>
-        <tbody class="scrollable-tbody" id="clientesTable">
-            <c:forEach var="em" items="${empleados}">
+        <tbody class="scrollable-tbody" id="planesTable">
+            <c:forEach var="plan" items="${planes}">
                 <tr>
-                    <td>${em.getId()}</td>
-                    <td>${em.getCOC_EMPD()}</td>
-                    <td>${em.getNOMBRES()}</td>
-                    <td>${em.getAPELLIDOS()}</td>
-                    <td>${em.getN_IGSS()}</td>
-                    <td>${em.getNIT()}</td>
-                    <td>${em.getCOD_EMP()}</td>
-                    <td>${em.getCOD_EMPSA()}</td>
-                    <td>${em.getCELULAR()}</td>
-                    <td>${em.getCorreo()}</td>
-                    <td>${em.getEstado()}</td>
+                    <td>${plan.getId()}</td>
+                    <td>${plan.getCOD_PLAN()}</td>
+                    <td>${plan.getCOD_NOMB()}</td>
+                    <td>${plan.getCOD_DESC()}</td>
+                    <td>${plan.getEstado()}</td>
                     <td>
-                        <a class="btn btn-warning btn-sm" href="Controlador?menu=Empleados&accion=Editar&empCod=${em.getCOC_EMPD()}" title="Editar">
+                        <a class="btn btn-warning btn-sm" href="Controlador?menu=Planes&accion=Editar&planCod=${plan.getCOD_PLAN()}" title="Editar">
                             <i class="fas fa-edit"></i>
                         </a>
-                             
                     </td>
                 </tr>
             </c:forEach>
