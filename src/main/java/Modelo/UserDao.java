@@ -277,7 +277,61 @@ public int obtenerNivelPermiso(String rol) {
 }
 
 
-
+// Método correcto en UserDao.java
+public Plan obtenerPlanUsuario(String codUser) {
+    Plan plan = null;
+    String sql = "SELECT p.ID, p.COD_PLAN, p.COD_NOMB, p.COD_DESC, p.ESTADO " +
+                 "FROM pm_planes p " +
+                 "INNER JOIN pm_clientes c ON p.COD_PLAN = c.COD_PLAN " +
+                 "INNER JOIN pm_usuarios u ON c.COD_USER = u.COD_USER " +
+                 "WHERE u.COD_USER = ?";
+    
+    System.out.println("=== EJECUTANDO CONSULTA PARA OBTENER PLAN ===");
+    System.out.println("SQL: " + sql);
+    System.out.println("Parámetro COD_USER: " + codUser);
+    
+    try {
+        con = cn.Conexion();
+        ps = con.prepareStatement(sql);
+        ps.setString(1, codUser);
+        rs = ps.executeQuery();
+        
+        if (rs.next()) {
+            plan = new Plan();
+            plan.setId(rs.getInt("ID"));
+            plan.setCOD_PLAN(rs.getString("COD_PLAN"));
+            plan.setCOD_NOMB(rs.getString("COD_NOMB"));
+            plan.setCOD_DESC(rs.getString("COD_DESC"));
+            plan.setEstado(rs.getString("ESTADO"));
+            
+            System.out.println("✅ PLAN ENCONTRADO:");
+            System.out.println("   - ID: " + plan.getId());
+            System.out.println("   - Código: " + plan.getCOD_PLAN());
+            System.out.println("   - Nombre: " + plan.getCOD_NOMB());
+            System.out.println("   - Descripción: " + plan.getCOD_DESC());
+            System.out.println("   - Estado: " + plan.getEstado());
+        } else {
+            System.out.println("❌ NO SE ENCONTRÓ PLAN para el usuario: " + codUser);
+            System.out.println("   Verificar si:");
+            System.out.println("   1. El usuario existe en pm_usuarios");
+            System.out.println("   2. El usuario tiene registro en pm_clientes");
+            System.out.println("   3. El cliente tiene un COD_PLAN asignado");
+            System.out.println("   4. El plan existe en pm_planes");
+        }
+    } catch (Exception e) {
+        System.out.println("❌ ERROR AL EJECUTAR CONSULTA: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (con != null) con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    return plan;
+}
 
 
 }

@@ -81,26 +81,26 @@ public class Validars extends HttpServlet {
             String user = request.getParameter("txtuser");
             String pass = request.getParameter("txtpass");
 
-
-
             System.out.println("user: " + user);
             System.out.println("pss " + pass);
             User us = usdao.validar(user, pass);
             if (us != null && us.getUser_US() != null) {
-    System.out.println("=== LOGIN EXITOSO ===");
-    System.out.println("Usuario: " + us.getUser_US());
-    System.out.println("Rol del usuario: " + us.getRol_Us());
-    
-    // Obtener nivel de permisos
-    int nivelPermiso = usdao.obtenerNivelPermiso(us.getRol_Us());
-    System.out.println("Nivel de permisos asignado: " + nivelPermiso);
-    
-    // Guardar en sesión
-    request.getSession().setAttribute("usuario", us);
-    request.getSession().setAttribute("nivelPermiso", nivelPermiso);
-    
-    System.out.println("Datos guardados en sesión - redirigiendo al menú principal");
-    request.getRequestDispatcher("Controlador?menu=Principal").forward(request, response);
+                System.out.println("=== LOGIN EXITOSO ===");
+                System.out.println("Usuario: " + us.getUser_US());
+                System.out.println("Rol del usuario: " + us.getRol_Us());
+                System.out.println("cod_us::::::::::::::::::"+us.getCod_user());
+
+                // Obtener nivel de permisos
+                int nivelPermiso = usdao.obtenerNivelPermiso(us.getRol_Us());
+                System.out.println("Nivel de permisos asignado: " + nivelPermiso);
+
+                // Guardar en sesión
+                request.getSession().setAttribute("cod_user", us);
+                request.getSession().setAttribute("usuario", us);
+                request.getSession().setAttribute("nivelPermiso", nivelPermiso);
+
+                System.out.println("Datos guardados en sesión - redirigiendo al menú principal");
+                request.getRequestDispatcher("Controlador?menu=Principal").forward(request, response);
             } else {
                 request.getRequestDispatcher("index.html").forward(request, response);
             }

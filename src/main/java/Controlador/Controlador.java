@@ -61,8 +61,7 @@ public class Controlador extends HttpServlet {
         String accion = request.getParameter("accion");
         System.out.println("Valor de 'menu': " + menu);
         System.out.println("Valor de 'accion': " + accion);
-        
-        
+
         // Verificar que menu no sea null
         if (menu != null) {
             switch (menu) {
@@ -85,7 +84,6 @@ public class Controlador extends HttpServlet {
                                 empleadosActivos,
                                 clientesActivos,
                                 planesActivos
-                                
                         );
 
                         // Guardar en sesión para que el iframe pueda acceder
@@ -101,7 +99,7 @@ public class Controlador extends HttpServlet {
                                 + "Empleados=" + empleadosActivos
                                 + ", Clientes=" + clientesActivos
                                 + ", Planes=" + planesActivos
-                         );
+                        );
 
                     } catch (Exception e) {
                         System.err.println("Error al cargar datos del dashboard: " + e.getMessage());
@@ -961,10 +959,72 @@ public class Controlador extends HttpServlet {
 
                     // Pasar la lista a la vista
                     request.setAttribute("planes", lista);
+                    
+                    
+                    
+                    
+                    
+                      
+                    
+                    
+                    
+                    
 
                     request.getRequestDispatcher("VIEWS/TEMPLATES/Planes.jsp").forward(request, response);
                     break;
 
+                case "Listarc":
+                    System.out.println("dentro de Planes LISTAR");
+
+                    // Obtener la lista de planes
+                    lista = plandao.listar();
+
+                    if (lista == null || lista.isEmpty()) {
+                        System.out.println("La lista de planes está vacía");
+                    } else {
+                        for (Plan plan : lista) {
+                            System.out.println(plan.getCOD_PLAN());
+                        }
+                    }
+                    
+                    // Obtener el usuario de la sesión
+    User usuarioLogueado = (User) request.getSession().getAttribute("usuario");
+    
+    if (usuarioLogueado != null) {
+        System.out.println("=== OBTENIENDO PLAN DEL USUARIO ===");
+        System.out.println("Usuario logueado: " + usuarioLogueado.getUser_US());
+        System.out.println("Código de usuario: " + usuarioLogueado.getCod_user());
+        
+        // Obtener el plan del usuario usando la consulta corregida
+        Plan planUsuario = usdao.obtenerPlanUsuario(usuarioLogueado.getCod_user());
+        
+        if (planUsuario != null) {
+            System.out.println("=== PLAN DEL USUARIO ENCONTRADO ===");
+            System.out.println("Plan: " + planUsuario.getCOD_NOMB());
+            System.out.println("Descripción: " + planUsuario.getCOD_DESC());
+            System.out.println("Estado: " + planUsuario.getEstado());
+            
+            // Enviar datos a la vista
+            request.setAttribute("planUsuario", planUsuario);
+            request.setAttribute("tienePlan", true);
+            request.setAttribute("mensajeExito", "Plan cargado correctamente");
+        } else {
+            System.out.println("⚠️ EL USUARIO NO TIENE PLAN ASIGNADO");
+            request.setAttribute("tienePlan", false);
+            request.setAttribute("mensajeAdvertencia", "No tienes un plan asignado. Contacta al administrador.");
+        }
+        
+    } else {
+        System.out.println("❌ NO HAY USUARIO EN SESIÓN");
+        request.setAttribute("error", "Sesión expirada. Por favor inicia sesión nuevamente.");
+    }
+                    
+
+                    // Pasar la lista a la vista
+                    request.setAttribute("planes", lista);
+
+                    request.getRequestDispatcher("VIEWS/TEMPLATES/Planesc.jsp").forward(request, response);
+                    break;
                 case "ListarRE":
                     System.out.println("dentro de Planes LISTAR REPORTES");
 
