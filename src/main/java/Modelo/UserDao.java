@@ -37,9 +37,13 @@ public User validar(String user, String password) {
             us = new User();
             us.setUser_US(rs.getString("User_US"));
             us.setPsw_Us(rs.getString("Psw_Us"));
-            us.setNomb_Us(rs.getString("Nomb_Us"));  // ← nombre
-            us.setApe_Us(rs.getString("Ape_Us"));    // ← apellido
-            us.setCod_user(rs.getString("Cod_User")); // ← si lo necesitas también
+            us.setNomb_Us(rs.getString("Nomb_Us"));  
+            us.setApe_Us(rs.getString("Ape_Us"));    
+            us.setCod_user(rs.getString("Cod_User")); 
+            us.setRol_Us(rs.getString("ROL_US")); // ← ¡AGREGAR ESTA LÍNEA!
+            
+            // Debug para verificar
+            System.out.println("Usuario validado - Rol obtenido: " + rs.getString("ROL_US"));
         }
     } catch (Exception e) {
         e.printStackTrace();
@@ -239,5 +243,41 @@ public List<User> filtrarPorEstado(String estado) {
     }
     return lista;
 }
+public int obtenerNivelPermiso(String rol) {
+    System.out.println("=== DAO: Obteniendo nivel para rol: " + rol + " ===");
+    
+    // Validar si el rol es null
+    if (rol == null) {
+        System.out.println("ERROR: El rol es NULL");
+        return 0;
+    }
+    
+    int nivel = 0;
+    switch (rol) {
+        case "R001":
+            nivel = 1;
+            System.out.println("DAO: Rol R001 -> Nivel 1 (Solo Empresa)");
+            break;
+        case "R002":
+            nivel = 2;
+            System.out.println("DAO: Rol R002 -> Nivel 2 (Empresa + más opciones)");
+            break;
+        case "R003":
+            nivel = 3;
+            System.out.println("DAO: Rol R003 -> Nivel 3 (Acceso completo)");
+            break;
+        default:
+            nivel = 0;
+            System.out.println("DAO: Rol desconocido '" + rol + "' -> Nivel 0 (Sin permisos)");
+            break;
+    }
+    
+    System.out.println("DAO: Nivel final asignado: " + nivel);
+    return nivel;
+}
+
+
+
+
 
 }

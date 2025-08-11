@@ -59,7 +59,7 @@
         </h1>
         <small class="text-muted">
             <i class="fas fa-clock me-1"></i>
-            Última actualización: <span id="currentTime"></span>
+             <span id="currentTime"></span>
         </small>
     </div>
 

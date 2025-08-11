@@ -61,6 +61,8 @@ public class Controlador extends HttpServlet {
         String accion = request.getParameter("accion");
         System.out.println("Valor de 'menu': " + menu);
         System.out.println("Valor de 'accion': " + accion);
+        
+        
         // Verificar que menu no sea null
         if (menu != null) {
             switch (menu) {

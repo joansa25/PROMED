@@ -12,13 +12,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
  * @author joans
  */
 public class Validars extends HttpServlet {
-User us = new User();
+
+    User us = new User();
     UserDao usdao = new UserDao();
 
     /**
@@ -38,7 +40,7 @@ User us = new User();
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet Validars</title>");            
+            out.println("<title>Servlet Validars</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet Validars at " + request.getContextPath() + "</h1>");
@@ -78,15 +80,27 @@ User us = new User();
             System.out.println("entrando  ingresar");
             String user = request.getParameter("txtuser");
             String pass = request.getParameter("txtpass");
+
+
+
             System.out.println("user: " + user);
             System.out.println("pss " + pass);
             User us = usdao.validar(user, pass);
             if (us != null && us.getUser_US() != null) {
-                // Guarda el objeto usuario en la sesión
-                request.getSession().setAttribute("usuario", us);
-                request.getRequestDispatcher("Controlador?menu=Principal" ).forward(request, response);
-                System.out.println("el usuario es  :" + user);
-                System.out.println("credenciales validas");
+    System.out.println("=== LOGIN EXITOSO ===");
+    System.out.println("Usuario: " + us.getUser_US());
+    System.out.println("Rol del usuario: " + us.getRol_Us());
+    
+    // Obtener nivel de permisos
+    int nivelPermiso = usdao.obtenerNivelPermiso(us.getRol_Us());
+    System.out.println("Nivel de permisos asignado: " + nivelPermiso);
+    
+    // Guardar en sesión
+    request.getSession().setAttribute("usuario", us);
+    request.getSession().setAttribute("nivelPermiso", nivelPermiso);
+    
+    System.out.println("Datos guardados en sesión - redirigiendo al menú principal");
+    request.getRequestDispatcher("Controlador?menu=Principal").forward(request, response);
             } else {
                 request.getRequestDispatcher("index.html").forward(request, response);
             }
@@ -96,6 +110,7 @@ User us = new User();
 
         }
     }
+
     /**
      * Returns a short description of the servlet.
      *

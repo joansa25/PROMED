@@ -13,6 +13,7 @@ Modelo\Empleado.class
 Controlador\Validars.class
 Modelo\Cliente.class
 Modelo\Empresa.class
+Modelo\IncidenciaDao.class
 Controlador\Controlador.class
 Test\TestConexion.class
 Modelo\PlanDao.class

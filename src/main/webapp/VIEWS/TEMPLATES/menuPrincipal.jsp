@@ -66,31 +66,110 @@
         <!-- Botón para mostrar/ocultar la barra lateral -->
         <button class="sidebar-toggle" id="sidebarToggle">☰</button>
 
-        <!-- Barra lateral -->
-        <div class="sidebar" id="sidebar">
-            <ul>
-                <!-- Opción para volver al dashboard 
-                <li><a href="VIEWS/TEMPLATES/dashboard.jsp" target="myFrame"><i class="fas fa-chart-bar"></i> Dashboard</a></li>-->
+ <!-- Barra lateral -->
+<div class="sidebar" id="sidebar">
+    <ul>
+        <li>
+            <a href="#empresaSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                <i class="fas fa-user-cog"></i> ADMINISTRACIÓN
+            </a>
+            <ul class="collapse list-unstyled" id="empresaSubmenu">
+                <!-- TODAS las opciones con IDs únicos -->
+                <li id="menu-clientes"><a href="Controlador?menu=Clientes&accion=Listar" target="myFrame"><i class="fas fa-users"></i> Clientes</a></li>
+                <li id="menu-empleados"><a href="Controlador?menu=Empleados&accion=Listar" target="myFrame"><i class="fas fa-user-plus"></i> Empleados</a></li>
+                <li id="menu-empleos"><a href="Controlador?menu=Empleos&accion=Listar" target="myFrame"><i class="fas fa-user-tie"></i> Empleo</a></li>
+                <li id="menu-empresa"><a href="Controlador?menu=Empresa&accion=Listar" target="myFrame"><i class="fas fa-building"></i> Empresa</a></li> 
+                <li id="menu-planes"><a href="Controlador?menu=Planes&accion=Listar" target="myFrame"><i class="fas fa-layer-group"></i> Planes</a></li>
+                <li id="menu-incidencias"><a href="Controlador?menu=Incidencias&accion=Listar" target="myFrame"><i class="fas fa-exclamation-triangle"></i> Incidencias</a></li>
+                <li id="menu-zonas"><a href="Controlador?menu=Zonas&accion=Listar" target="myFrame"><i class="fas fa-map-marked-alt"></i> Zonas</a></li>
                 
-                <li>
-                    <a href="#empresaSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="fas fa-user-cog"></i> ADMINISTRACIÓN
-                    </a>
-                    <ul class="collapse list-unstyled" id="empresaSubmenu">
-                        <li><a href="Controlador?menu=Clientes&accion=Listar" target="myFrame"><i class="fas fa-users"></i> Clientes</a></li>
-                        <li><a href="Controlador?menu=Empleados&accion=Listar" target="myFrame"><i class="fas fa-user-plus"></i> Empleados</a></li>
-                        <li><a href="Controlador?menu=Empleos&accion=Listar" target="myFrame"><i class="fas fa-user-tie"></i> Empleo</a></li>
-                        <li><a href="Controlador?menu=Empresa&accion=Listar" target="myFrame"><i class="fas fa-building"></i> Empresa</a></li> 
-                        <li><a href="Controlador?menu=Planes&accion=Listar" target="myFrame"><i class="fas fa-layer-group"></i> Planes</a></li>
-                        <li><a href="Controlador?menu=Incidencias&accion=Listar" target="myFrame"><i class="fas fa-exclamation-triangle"></i> Incidencias</a></li>
-                        <li><a href="Controlador?menu=Zonas&accion=Listar" target="myFrame"><i class="fas fa-map-marked-alt"></i> Zonas</a></li>
-                    </ul>
-                </li>
-
-                <li><a href="Controlador?menu=Reportes&accion=Listar" target="myFrame"><i class="fas fa-file-alt"></i> Reportes</a></li>
-                <li><a href="Controlador?menu=Seguridad&accion=Listar" target="myFrame"><i class="fas fa-user-cog"></i> Seguridad</a></li>
+                <!-- Mensaje de sin permisos (oculto por defecto) -->
+                <li id="sin-permisos" style="display: none;"><span style="color: red;">Sin permisos disponibles</span></li>
             </ul>
-        </div>
+        </li>
+        
+        <!-- Reportes y Seguridad - siempre visibles -->
+        <li id="menu-reportes"><a href="Controlador?menu=Reportes&accion=Listar" target="myFrame"><i class="fas fa-file-alt"></i> Reportes</a></li>
+        <li id="menu-seguridad"><a href="Controlador?menu=Seguridad&accion=Listar" target="myFrame"><i class="fas fa-user-cog"></i> Seguridad</a></li>
+    </ul>
+</div>
+
+<script>
+// Obtener el nivel de permisos desde el servidor
+const nivelPermiso = ${nivelPermiso};
+const usuario = "${usuario.user_US}";
+const rol = "${usuario.rol_Us}";
+
+console.log("=== CONTROL DE PERMISOS JS ===");
+console.log("Usuario:", usuario);
+console.log("Rol:", rol);
+console.log("Nivel de permisos:", nivelPermiso);
+
+// Función para ocultar todos los menús
+function ocultarTodosLosMenus() {
+    const menus = ['menu-clientes', 'menu-empleados', 'menu-empleos', 'menu-empresa', 'menu-planes', 'menu-incidencias', 'menu-zonas','menu-reportes','menu-seguridad'];
+    menus.forEach(function(menuId) {
+        const elemento = document.getElementById(menuId);
+        if (elemento) {
+            elemento.style.display = 'none';
+            console.log("Ocultando:", menuId);
+        }
+    });
+}
+
+// Función para mostrar menús específicos
+function mostrarMenus(menuIds) {
+    menuIds.forEach(function(menuId) {
+        const elemento = document.getElementById(menuId);
+        if (elemento) {
+            elemento.style.display = 'block';
+            console.log("Mostrando:", menuId);
+        }
+    });
+}
+
+// Función principal de control de permisos
+function aplicarPermisos() {
+    // Primero ocultar todos
+    ocultarTodosLosMenus();
+    
+    // Luego mostrar según el nivel
+    switch(nivelPermiso) {
+        //CLIENTES
+        case 3:
+            console.log("🔹 Aplicando permisos NIVEL 1 - Solo Empresa");
+            mostrarMenus(['menu-planes','menu-incidencias']);
+            break;
+           //COBRADOR
+        case 2:
+            console.log("🔹 Aplicando permisos NIVEL 2 - Empresa + básicos");
+            mostrarMenus(['menu-clientes', 'menu-planes', 'menu-incidencias']);
+            break;
+            
+        case 1:
+            console.log("🔹 Aplicando permisos NIVEL 3 - Acceso completo");
+            mostrarMenus(['menu-clientes', 'menu-empleados', 'menu-empleos', 'menu-empresa', 'menu-planes', 'menu-incidencias', 'menu-zonas','menu-reportes','menu-seguridad']);
+            break;
+            
+        default:
+            console.log("❌ Nivel no válido o sin permisos");
+            document.getElementById('sin-permisos').style.display = 'block';
+            break;
+    }
+}
+
+// Ejecutar cuando la página esté lista
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("🚀 Iniciando control de permisos...");
+    aplicarPermisos();
+    console.log("✅ Control de permisos aplicado");
+});
+
+// También ejecutar inmediatamente por si acaso
+aplicarPermisos();
+
+console.log("=== FIN SCRIPT PERMISOS ===");
+</script>
 
         <!-- Scripts de Bootstrap -->
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
