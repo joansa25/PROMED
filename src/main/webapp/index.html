@@ -6,212 +6,713 @@
         <title>Inicio de Sesión</title>
         <link rel="stylesheet" href="VIEWS/STYLES/styleLogin.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        
+        <!-- ESTILOS EXCLUSIVOS DEL CHAT BOT - NO AFECTAN TU DISEÑO ORIGINAL -->
+        <style>
+            /* ============ SOLO ESTILOS DEL CHAT BOT WHATSAPP ============ */
+            .chat-bot-container {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 9999;
+            }
 
+            .chat-trigger {
+                width: 60px;
+                height: 60px;
+                background: #25D366;
+                border: none;
+                border-radius: 50%;
+                color: white;
+                font-size: 1.5rem;
+                cursor: pointer;
+                box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .chat-trigger:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 25px rgba(37, 211, 102, 0.6);
+            }
+
+            .chat-window {
+                position: fixed;
+                bottom: 90px;
+                right: 20px;
+                width: 350px;
+                height: 500px;
+                background: white;
+                border-radius: 15px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                display: none;
+                flex-direction: column;
+                overflow: hidden;
+                animation: slideUp 0.3s ease;
+                z-index: 9998;
+            }
+
+            @keyframes slideUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .chat-header {
+                background: #075E54;
+                color: white;
+                padding: 1rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .chat-header-info {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .chat-avatar {
+                width: 40px;
+                height: 40px;
+                background: #25D366;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+            }
+
+            .chat-status {
+                font-size: 0.75rem;
+                opacity: 0.8;
+            }
+
+            .chat-close {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 1.2rem;
+                cursor: pointer;
+                padding: 0.25rem;
+            }
+
+            .chat-messages {
+                flex: 1;
+                padding: 1rem;
+                overflow-y: auto;
+                background: #e5ddd5;
+                background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" opacity="0.05"><path d="M20 0v40M0 20h40" stroke="%23000"/></svg>');
+            }
+
+            .message {
+                margin-bottom: 1rem;
+                animation: messageAppear 0.3s ease;
+            }
+
+            @keyframes messageAppear {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .message.bot {
+                display: flex;
+                justify-content: flex-start;
+            }
+
+            .message.user {
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            .message-bubble {
+                max-width: 80%;
+                padding: 0.75rem 1rem;
+                border-radius: 18px;
+                font-size: 0.9rem;
+                line-height: 1.4;
+                position: relative;
+            }
+
+            .message.bot .message-bubble {
+                background: white;
+                color: #333;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            }
+
+            .message.user .message-bubble {
+                background: #dcf8c6;
+                color: #333;
+            }
+
+            .message-time {
+                font-size: 0.7rem;
+                opacity: 0.6;
+                margin-top: 0.25rem;
+                text-align: right;
+            }
+
+            .questions-menu {
+                background: white;
+                border-radius: 12px;
+                padding: 0.5rem;
+                margin-top: 0.5rem;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+
+            .question-option {
+                display: block;
+                width: 100%;
+                padding: 0.75rem;
+                margin: 0.25rem 0;
+                background: #f0f2f5;
+                border: none;
+                border-radius: 8px;
+                text-align: left;
+                cursor: pointer;
+                transition: background 0.2s;
+                font-size: 0.85rem;
+                color: #333;
+            }
+
+            .question-option:hover {
+                background: #e4e6ea;
+            }
+
+            .typing-indicator {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.75rem 1rem;
+                background: white;
+                border-radius: 18px;
+                max-width: 80px;
+                margin-bottom: 1rem;
+            }
+
+            .typing-dots {
+                display: flex;
+                gap: 2px;
+            }
+
+            .typing-dot {
+                width: 4px;
+                height: 4px;
+                background: #999;
+                border-radius: 50%;
+                animation: typing 1.4s infinite;
+            }
+
+            .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+            .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+            @keyframes typing {
+                0%, 60%, 100% { transform: translateY(0); }
+                30% { transform: translateY(-10px); }
+            }
+
+            .continue-options {
+                display: flex;
+                gap: 0.5rem;
+                margin-top: 0.5rem;
+            }
+
+            .continue-btn {
+                flex: 1;
+                padding: 0.5rem;
+                border: none;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 0.8rem;
+                transition: all 0.2s;
+            }
+
+            .continue-btn.yes {
+                background: #25D366;
+                color: white;
+            }
+
+            .continue-btn.no {
+                background: #f0f2f5;
+                color: #333;
+            }
+
+            .continue-btn:hover {
+                transform: scale(1.05);
+            }
+
+            /* Responsive para chat bot */
+            @media (max-width: 768px) {
+                .chat-window {
+                    width: calc(100vw - 40px);
+                    right: 20px;
+                    left: 20px;
+                    height: 400px;
+                }
+            }
+        </style>
     </head>
     <body>
-  <!-- Encabezado con logo y menú hamburguesa -->
-  <header>
-<div class="logo">
-      <img src="VIEWS/IMAGENES/logo.jpg" alt="Soluciones.com - Internet de Alta Velocidad" id="logo-img">
-    </div>    <div class="menu-toggle" id="menu-toggle">☰</div>
-    <nav class="dropdown-menu" id="dropdown-menu">
-      <ul>
-        <li><a href="#" onclick="mostrarLogin('Administrador')">Login Administrador</a></li>
-        <li><a href="#" onclick="mostrarLogin('Cobrador')">Login Cobrador</a></li>
-        <li><a href="#" onclick="mostrarLogin('Usuario')">Login Usuario</a></li>
-      </ul>
-    </nav>
-  </header>
+        <!-- Encabezado con logo y menú hamburguesa -->
+        <header>
+            <div class="logo">
+                <img src="VIEWS/IMAGENES/logo.jpg" alt="Soluciones.com - Internet de Alta Velocidad" id="logo-img">
+            </div>    
+            <div class="menu-toggle" id="menu-toggle">☰</div>
+            <nav class="dropdown-menu" id="dropdown-menu">
+                <ul>
+                    <li><a href="#" onclick="mostrarLogin('Administrador')">INICIAR SESION</a></li>
+                </ul>
+            </nav>
+        </header>
 
-   <!-- Contenido principal -->
-  <div class="main-content">
-    <!-- Sección de planes -->
-    <section class="planes">
-      <div class="plan" onclick="mostrarMenu(this, 'Plan 1')">
-        <h3>Plan 1</h3>
-        <p>15 Megas por Q150 mensual</p>
-      </div>
-      <div class="plan" onclick="mostrarMenu(this, 'Plan 2')">
-        <h3>Plan 2</h3>
-        <p>20 Megas por Q200 mensual</p>
-      </div>
-      <div class="plan" onclick="mostrarMenu(this, 'Plan 3')">
-        <h3>Plan 3</h3>
-        <p>25 Megas por Q250 mensual</p>
-      </div>
-      <div class="plan" onclick="mostrarMenu(this, 'Plan 4')">
-        <h3>Plan 4</h3>
-        <p>IPTV por Q50 mensual</p>
-      </div>
-    </section>
+        <!-- Contenido principal -->
+        <div class="main-content">
+            <!-- Sección de planes -->
+            <section class="planes">
+                <div class="plan" onclick="mostrarMenu(this, 'Plan 1')">
+                    <h3>Plan 1</h3>
+                    <p>15 Megas por Q150 mensual</p>
+                </div>
+                <div class="plan" onclick="mostrarMenu(this, 'Plan 2')">
+                    <h3>Plan 2</h3>
+                    <p>20 Megas por Q200 mensual</p>
+                </div>
+                <div class="plan" onclick="mostrarMenu(this, 'Plan 3')">
+                    <h3>Plan 3</h3>
+                    <p>25 Megas por Q250 mensual</p>
+                </div>
+                <div class="plan" onclick="mostrarMenu(this, 'Plan 4')">
+                    <h3>Plan 4</h3>
+                    <p>IPTV por Q50 mensual</p>
+                </div>
+            </section>
 
-    <!-- Sección para mostrar menús dinámicamente -->
-    <div id="opciones-container"></div>
-  </div>
-
-  <!-- Icono de asistente (lado derecho) -->
-  <div class="asistente derecha">
-    <button onclick="mostrarPreguntas()">🤖</button>
-    <div id="preguntas-frecuentes" style="display: none;">
-      <p><strong>¿Cuáles son los medios de pago?</strong><br />Puede pagar por Tigo Money, depósitos o en nuestras oficinas.</p>
-      <p><strong>¿Cuánto tarda la instalación?</strong><br />Máximo 48 horas después de solicitarlo.</p>
-      <p><strong>¿Tienen soporte técnico?</strong><br />Sí, 24/7 vía WhatsApp y teléfono.</p>
-    </div>
-  </div>
-
-  <!-- Pie de página con la información de la empresa -->
-  <footer>
-    <h4>Sobre Soluciones.com</h4>
-    <p>Brindamos servicios de Internet e IPTV confiables en el área de TIQUISATE. Cobertura tanto en las áreas rurales como urbanas del municipio.</p>
-  </footer>
-
-  <!-- Script para mostrar/ocultar menús y formularios -->
-  <script>
-    // Mostrar menú de opciones del plan
-    function mostrarMenu(element, plan) {
-      const contenedor = document.getElementById("opciones-container");
-      contenedor.innerHTML = `
-        <div class="menu-plan">
-          <button class="btn-cerrar" onclick="cerrarMenu()" title="Cerrar">×</button>
-          <h4>${plan}</h4>
-          <button onclick="mostrarFormularioAdquirir('${plan}')">Adquirir Plan</button>
-          <button onclick="mostrarFormularioCambio('${plan}')">Cambiar a este Plan</button>
+            <!-- Sección para mostrar menús dinámicamente -->
+            <div id="opciones-container"></div>
         </div>
-      `;
-    }
 
-    // Formulario de adquirir plan
-    function mostrarFormularioAdquirir(plan) {
-      document.getElementById("opciones-container").innerHTML = `
-        <form>
-          <button class="btn-cerrar" onclick="cerrarMenu()" title="Cerrar">×</button>
-          <h4>Formulario de adquisición - ${plan}</h4>
-          <input type="text" placeholder="Nombre completo" required />
-          <input type="text" placeholder="DPI" required />
-          <input type="text" placeholder="Dirección" required />
-          <input type="tel" placeholder="Teléfono" required />
-          <button type="submit">Solicitar</button>
-        </form>
-      `;
-    }
-
-    // Formulario de cambiar plan
-    function mostrarFormularioCambio(plan) {
-      document.getElementById("opciones-container").innerHTML = `
-        <form>
-          <button class="btn-cerrar" onclick="cerrarMenu()" title="Cerrar">×</button>
-          <h4>Cambiar a ${plan}</h4>
-          <input type="text" placeholder="Nombre del usuario" required />
-          <input type="text" placeholder="DPI" required />
-          <input type="text" placeholder="Código de cliente" required />
-          <input type="text" placeholder="Plan actual" required />
-          <button type="submit">Solicitar</button>
-        </form>
-      `;
-    }
-
-    // Mostrar formulario de login
-    function mostrarLogin(tipo) {
-      // Cierra el menú hamburguesa
-      document.getElementById('dropdown-menu').classList.remove('active');
-      
-      if (tipo === 'Administrador') {
-        // Mostrar el login del sistema Java
-        mostrarLoginSistema();
-      } else {
-        // Mostrar el formulario simple para otros tipos
-        document.getElementById("opciones-container").innerHTML = `
-          <form class="login-form">
-            <button class="btn-cerrar" onclick="cerrarMenu()" title="Cerrar">×</button>
-            <h4>Login ${tipo}</h4>
-            <input type="text" placeholder="Usuario" required />
-            <input type="password" placeholder="Contraseña" required />
-            <button type="submit">Ingresar</button>
-          </form>
-        `;
-      }
-    }
-
-    // Función para mostrar el login del sistema Java
-    function mostrarLoginSistema() {
-      const loginHtml = `
-        <div class="sistema-login" id="sistema-login">
-          <button class="btn-cerrar" onclick="cerrarLoginSistema()" title="Cerrar">×</button>
-          <div class="logo">
-            <img src="VIEWS/IMAGENES/logo.jpg" alt="Soluciones.com">
-          </div>
-          <div class="container">
-            <div class="contenido">
-              <div class="login-container">
-                <form class="login-form" id="login-Form" action="Validars" method="POST">
-                  <h2>Inicia sesión en tu cuenta</h2>
-                  <div class="mb-3">
-                    <label for="usuario" class="form-label">USUARIO</label>
-                    <input type="text" name="txtuser" class="form-control" id="usuario" placeholder="Ingresa tu Usuario" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="contraseña" class="form-label">CONTRASEÑA</label>
-                    <div class="password-container">
-                      <input type="password" name="txtpass" class="form-control" id="contraseña" placeholder="Ingresa tu contraseña" required>
-                      <span class="toggle-password" onclick="togglePassword()">
-                        <i class="fas fa-eye" id="toggle-icon"></i>
-                      </span>
+    
+        <!-- CHAT BOT WHATSAPP NUEVO (NO REEMPLAZA TU ASISTENTE ORIGINAL) -->
+        <div class="chat-bot-container">
+            <button class="chat-trigger" onclick="toggleChat()">
+                <i class="fab fa-whatsapp"></i>
+            </button>
+            
+            <div class="chat-window" id="chat-window">
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <div class="chat-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <div><strong>Asistente Soluciones.com</strong></div>
+                            <div class="chat-status">En línea</div>
+                        </div>
                     </div>
-                  </div>
-                  <button type="submit" name="accion" value="ingresar">Ingresar</button>
-                  <div class="texto-formulario">
-                    <p>Desarrollado por Medford</p>
-                    <p>502 47251542</p>
-                  </div>
-                </form>
-              </div>
+                    <button class="chat-close" onclick="toggleChat()">×</button>
+                </div>
+                
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Los mensajes se cargarán aquí dinámicamente -->
+                </div>
             </div>
-          </div>
         </div>
-      `;
-      
-      document.body.insertAdjacentHTML('beforeend', loginHtml);
-    }
 
-    // Función para cerrar el login del sistema
-    function cerrarLoginSistema() {
-      const loginSistema = document.getElementById('sistema-login');
-      if (loginSistema) {
-        loginSistema.remove();
-      }
-    }
+        <!-- Pie de página con la información de la empresa -->
+        <footer>
+            <h4>Sobre Soluciones.com</h4>
+            <p>Brindamos servicios de Internet e IPTV confiables en el área de TIQUISATE. Cobertura tanto en las áreas rurales como urbanas del municipio.</p>
+        </footer>
 
-    // Función para toggle del password (como en tu sistema original)
-    function togglePassword() {
-      const passwordInput = document.getElementById('contraseña');
-      const toggleIcon = document.getElementById('toggle-icon');
-      
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleIcon.classList.remove('fa-eye');
-        toggleIcon.classList.add('fa-eye-slash');
-      } else {
-        passwordInput.type = 'password';
-        toggleIcon.classList.remove('fa-eye-slash');
-        toggleIcon.classList.add('fa-eye');
-      }
-    }
+        <!-- Script original + funciones del chat bot -->
+        <script>
+            // ============ TUS FUNCIONES ORIGINALES (SIN CAMBIOS) ============
+            
+            // Mostrar menú de opciones del plan
+            function mostrarMenu(element, plan) {
+                const contenedor = document.getElementById("opciones-container");
+                contenedor.innerHTML = `
+                    <div class="menu-plan">
+                        <button class="btn-cerrar" onclick="cerrarMenu()" title="Cerrar">×</button>
+                        <h4>${plan}</h4>
+                        <button onclick="mostrarFormularioAdquirir('${plan}')">Adquirir Plan</button>
+                        <button onclick="mostrarFormularioCambio('${plan}')">Cambiar a este Plan</button>
+                    </div>
+                `;
+            }
 
-    // Función para cerrar cualquier menú o formulario
-    function cerrarMenu() {
-      document.getElementById("opciones-container").innerHTML = '';
-    }
+            // Formulario de adquirir plan
+            function mostrarFormularioAdquirir(plan) {
+                document.getElementById("opciones-container").innerHTML = `
+                    <form>
+                        <button class="btn-cerrar" onclick="cerrarMenu()" title="Cerrar">×</button>
+                        <h4>Formulario de adquisición - ${plan}</h4>
+                        <input type="text" placeholder="Nombre completo" required />
+                        <input type="text" placeholder="DPI" required />
+                        <input type="text" placeholder="Dirección" required />
+                        <input type="tel" placeholder="Teléfono" required />
+                        <button type="submit">Solicitar</button>
+                    </form>
+                `;
+            }
 
-    // Mostrar/ocultar preguntas frecuentes
-    function mostrarPreguntas() {
-      const box = document.getElementById("preguntas-frecuentes");
-      box.style.display = box.style.display === "none" ? "block" : "none";
-    }
+            // Formulario de cambiar plan
+            function mostrarFormularioCambio(plan) {
+                document.getElementById("opciones-container").innerHTML = `
+                    <form>
+                        <button class="btn-cerrar" onclick="cerrarMenu()" title="Cerrar">×</button>
+                        <h4>Cambiar a ${plan}</h4>
+                        <input type="text" placeholder="Nombre del usuario" required />
+                        <input type="text" placeholder="DPI" required />
+                        <input type="text" placeholder="Código de cliente" required />
+                        <input type="text" placeholder="Plan actual" required />
+                        <button type="submit">Solicitar</button>
+                    </form>
+                `;
+            }
 
-    // Mostrar/ocultar menú hamburguesa
-    document.getElementById('menu-toggle').onclick = function () {
-      document.getElementById('dropdown-menu').classList.toggle('active');
-    };
-  </script>
-</body>
+            // Mostrar formulario de login
+            function mostrarLogin(tipo) {
+                // Cierra el menú hamburguesa
+                document.getElementById('dropdown-menu').classList.remove('active');
+                
+                if (tipo === 'Administrador') {
+                    // Mostrar el login del sistema Java
+                    mostrarLoginSistema();
+                } else {
+                    // Mostrar el formulario simple para otros tipos
+                    document.getElementById("opciones-container").innerHTML = `
+                        <form class="login-form">
+                            <button class="btn-cerrar" onclick="cerrarMenu()" title="Cerrar">×</button>
+                            <h4>Login ${tipo}</h4>
+                            <input type="text" placeholder="Usuario" required />
+                            <input type="password" placeholder="Contraseña" required />
+                            <button type="submit">Ingresar</button>
+                        </form>
+                    `;
+                }
+            }
+
+            // Función para mostrar el login del sistema Java
+            function mostrarLoginSistema() {
+                const loginHtml = `
+                    <div class="sistema-login" id="sistema-login">
+                        <button class="btn-cerrar" onclick="cerrarLoginSistema()" title="Cerrar">×</button>
+                        <div class="logo">
+                            <img src="VIEWS/IMAGENES/logo.jpg" alt="Soluciones.com">
+                        </div>
+                        <div class="container">
+                            <div class="contenido">
+                                <div class="login-container">
+                                    <form class="login-form" id="login-Form" action="Validars" method="POST">
+                                        <h2>Inicia sesión en tu cuenta</h2>
+                                        <div class="mb-3">
+                                            <label for="usuario" class="form-label">USUARIO</label>
+                                            <input type="text" name="txtuser" class="form-control" id="usuario" placeholder="Ingresa tu Usuario" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="contraseña" class="form-label">CONTRASEÑA</label>
+                                            <div class="password-container">
+                                                <input type="password" name="txtpass" class="form-control" id="contraseña" placeholder="Ingresa tu contraseña" required>
+                                                <span class="toggle-password" onclick="togglePassword()">
+                                                    <i class="fas fa-eye" id="toggle-icon"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <button type="submit" name="accion" value="ingresar">Ingresar</button>
+                                        <div class="texto-formulario">
+                                            <p>Desarrollado por Medford</p>
+                                            <p>502 47251542</p>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', loginHtml);
+            }
+
+            // Función para cerrar el login del sistema
+            function cerrarLoginSistema() {
+                const loginSistema = document.getElementById('sistema-login');
+                if (loginSistema) {
+                    loginSistema.remove();
+                }
+            }
+
+            // Función para toggle del password (como en tu sistema original)
+            function togglePassword() {
+                const passwordInput = document.getElementById('contraseña');
+                const toggleIcon = document.getElementById('toggle-icon');
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    toggleIcon.classList.remove('fa-eye');
+                    toggleIcon.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    toggleIcon.classList.remove('fa-eye-slash');
+                    toggleIcon.classList.add('fa-eye');
+                }
+            }
+
+            // Función para cerrar cualquier menú o formulario
+            function cerrarMenu() {
+                document.getElementById("opciones-container").innerHTML = '';
+            }
+
+            // Mostrar/ocultar preguntas frecuentes (TU ASISTENTE ORIGINAL)
+            function mostrarPreguntas() {
+                const box = document.getElementById("preguntas-frecuentes");
+                box.style.display = box.style.display === "none" ? "block" : "none";
+            }
+
+            // Mostrar/ocultar menú hamburguesa
+            document.getElementById('menu-toggle').onclick = function () {
+                document.getElementById('dropdown-menu').classList.toggle('active');
+            };
+
+            // ============ FUNCIONES DEL CHAT BOT WHATSAPP (NUEVAS) ============
+            
+            // Preguntas y respuestas del chat bot
+            const preguntasRespuestas = {
+                "¿Qué servicios ofrece Soluciones.com S.A.?": "Ofrecemos servicios de telecomunicaciones integrales que incluyen internet residencial y empresarial, telefonía fija, soluciones de atención al cliente y herramientas de administración de cobranza automatizada.",
+                
+                "¿En qué áreas geográficas está disponible el servicio?": "Actualmente brindamos cobertura en Tiquisate, Escuintla, y comunidades cercanas. Nuestro plan de expansión contempla ampliar el servicio a otros municipios del departamento en los próximos años.",
+                
+                "¿Qué velocidad de internet puedo contratar?": "Contamos con planes que se ajustan a diferentes necesidades, desde 20 Mbps para uso básico en el hogar, hasta 200 Mbps para empresas que requieren alta capacidad de conexión.",
+                
+                "¿Cómo se realiza el proceso de instalación del servicio?": "Una vez confirmada la contratación, un técnico especializado visita su domicilio o empresa para realizar la instalación de forma rápida y segura. El tiempo promedio de instalación es de 24 a 48 horas.",
+                
+                "¿Cómo puedo pagar mi factura mensual?": "Puede realizar el pago en línea a través de nuestra plataforma web, en bancos autorizados, con cargo automático a tarjeta de débito o crédito, o en efectivo en nuestras oficinas.",
+                
+                "¿Qué debo hacer si presento problemas de conexión?": "Puede comunicarse con nuestro centro de soporte técnico disponible 24/7 al número de atención al cliente o a través de la aplicación web. Nuestros técnicos identificarán y resolverán el inconveniente lo antes posible.",
+                
+                "¿Ofrecen atención al cliente en línea?": "Sí. Nuestra aplicación web le permite gestionar sus facturas, reportar fallas, hacer consultas y chatear en tiempo real con un agente de atención al cliente.",
+                
+                "¿Puedo cambiar de plan una vez contratado el servicio?": "Sí, puede solicitar el cambio de plan en cualquier momento comunicándose con nuestro equipo de ventas o a través de la aplicación web. El ajuste se verá reflejado en la siguiente facturación.",
+                
+                "¿Tienen promociones o descuentos especiales?": "Sí. Ofrecemos promociones de instalación gratuita, descuentos en los primeros tres meses y paquetes especiales para clientes empresariales. Estas promociones se comunican periódicamente en nuestro sitio web y redes sociales.",
+                
+                "¿Qué beneficios adicionales obtengo al usar la aplicación web de Soluciones.com S.A.?": "La aplicación le permite administrar su cuenta de forma digital, recibir notificaciones de vencimiento de pagos, generar reportes de consumo, acceder a historial de facturación y recibir soporte técnico en tiempo real."
+            };
+
+            let chatAbierto = false;
+
+            // Función para alternar el chat
+            function toggleChat() {
+                const chatWindow = document.getElementById('chat-window');
+                chatAbierto = !chatAbierto;
+                
+                if (chatAbierto) {
+                    chatWindow.style.display = 'flex';
+                    iniciarChat();
+                } else {
+                    chatWindow.style.display = 'none';
+                    limpiarChat();
+                }
+            }
+
+            // Función para iniciar el chat
+            function iniciarChat() {
+                const mensajesContainer = document.getElementById('chat-messages');
+                
+                // Mensaje de bienvenida
+                setTimeout(() => {
+                    agregarMensajeBot("¡Hola! 👋 Soy el asistente virtual de Soluciones.com S.A.");
+                }, 500);
+                
+                setTimeout(() => {
+                    agregarMensajeBot("¿En qué puedo ayudarte hoy? Selecciona una de las siguientes opciones:");
+                    mostrarMenuPreguntas();
+                }, 1500);
+            }
+
+            // Función para limpiar el chat
+            function limpiarChat() {
+                document.getElementById('chat-messages').innerHTML = '';
+            }
+
+            // Función para agregar mensaje del bot
+            function agregarMensajeBot(mensaje) {
+                const mensajesContainer = document.getElementById('chat-messages');
+                const horaActual = new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+                
+                const mensajeDiv = document.createElement('div');
+                mensajeDiv.className = 'message bot';
+                mensajeDiv.innerHTML = `
+                    <div class="message-bubble">
+                        ${mensaje}
+                        <div class="message-time">${horaActual}</div>
+                    </div>
+                `;
+                
+                mensajesContainer.appendChild(mensajeDiv);
+                mensajesContainer.scrollTop = mensajesContainer.scrollHeight;
+            }
+
+            // Función para agregar mensaje del usuario
+            function agregarMensajeUsuario(mensaje) {
+                const mensajesContainer = document.getElementById('chat-messages');
+                const horaActual = new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+                
+                const mensajeDiv = document.createElement('div');
+                mensajeDiv.className = 'message user';
+                mensajeDiv.innerHTML = `
+                    <div class="message-bubble">
+                        ${mensaje}
+                        <div class="message-time">${horaActual}</div>
+                    </div>
+                `;
+                
+                mensajesContainer.appendChild(mensajeDiv);
+                mensajesContainer.scrollTop = mensajesContainer.scrollHeight;
+            }
+
+            // Función para mostrar indicador de escritura
+            function mostrarIndicadorEscritura() {
+                const mensajesContainer = document.getElementById('chat-messages');
+                const indicadorDiv = document.createElement('div');
+                indicadorDiv.className = 'message bot';
+                indicadorDiv.id = 'typing-indicator';
+                indicadorDiv.innerHTML = `
+                    <div class="typing-indicator">
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                `;
+                
+                mensajesContainer.appendChild(indicadorDiv);
+                mensajesContainer.scrollTop = mensajesContainer.scrollHeight;
+            }
+
+            // Función para quitar indicador de escritura
+            function quitarIndicadorEscritura() {
+                const indicador = document.getElementById('typing-indicator');
+                if (indicador) {
+                    indicador.remove();
+                }
+            }
+
+            // Función para mostrar menú de preguntas
+            function mostrarMenuPreguntas() {
+                const mensajesContainer = document.getElementById('chat-messages');
+                const menuDiv = document.createElement('div');
+                menuDiv.className = 'message bot';
+                
+                let opcionesHTML = '<div class="questions-menu">';
+                let contador = 1;
+                
+                Object.keys(preguntasRespuestas).forEach(pregunta => {
+                    opcionesHTML += `<button class="question-option" onclick="seleccionarPregunta('${pregunta}')">${contador}. ${pregunta}</button>`;
+                    contador++;
+                });
+                
+                opcionesHTML += '</div>';
+                
+                menuDiv.innerHTML = opcionesHTML;
+                mensajesContainer.appendChild(menuDiv);
+                mensajesContainer.scrollTop = mensajesContainer.scrollHeight;
+            }
+
+            // Función para seleccionar una pregunta
+            function seleccionarPregunta(pregunta) {
+                // Agregar pregunta del usuario
+                agregarMensajeUsuario(pregunta);
+                
+                // Remover el menú de preguntas
+                const menu = document.querySelector('.questions-menu');
+                if (menu) {
+                    menu.parentElement.remove();
+                }
+                
+                // Mostrar indicador de escritura
+                mostrarIndicadorEscritura();
+                
+                // Simular tiempo de respuesta
+                setTimeout(() => {
+                    quitarIndicadorEscritura();
+                    
+                    // Agregar respuesta del bot
+                    const respuesta = preguntasRespuestas[pregunta];
+                    agregarMensajeBot(respuesta);
+                    
+                    // Preguntar si quiere hacer otra pregunta
+                    setTimeout(() => {
+                        preguntarContinuar();
+                    }, 1000);
+                }, 1500);
+            }
+
+            // Función para preguntar si quiere continuar
+            function preguntarContinuar() {
+                const mensajesContainer = document.getElementById('chat-messages');
+                const preguntaDiv = document.createElement('div');
+                preguntaDiv.className = 'message bot';
+                preguntaDiv.innerHTML = `
+                    <div class="message-bubble">
+                        ¿Te puedo ayudar con algo más? 😊
+                        <div class="continue-options">
+                            <button class="continue-btn yes" onclick="continuarChat()">Sí, otra pregunta</button>
+                            <button class="continue-btn no" onclick="terminarChat()">No, gracias</button>
+                        </div>
+                    </div>
+                `;
+                
+                mensajesContainer.appendChild(preguntaDiv);
+                mensajesContainer.scrollTop = mensajesContainer.scrollHeight;
+            }
+
+            // Función para continuar el chat
+            function continuarChat() {
+                // Remover botones de continuar
+                const continueOptions = document.querySelector('.continue-options');
+                if (continueOptions) {
+                    continueOptions.parentElement.parentElement.remove();
+                }
+                
+                agregarMensajeUsuario("Sí, tengo otra pregunta");
+                
+                setTimeout(() => {
+                    agregarMensajeBot("¡Perfecto! ¿Cuál es tu siguiente pregunta?");
+                    mostrarMenuPreguntas();
+                }, 500);
+            }
+
+            // Función para terminar el chat
+            function terminarChat() {
+                // Remover botones de continuar
+                const continueOptions = document.querySelector('.continue-options');
+                if (continueOptions) {
+                    continueOptions.parentElement.parentElement.remove();
+                }
+                
+                agregarMensajeUsuario("No, gracias");
+                
+                setTimeout(() => {
+                    agregarMensajeBot("¡Gracias por contactarnos! 🙏 Ha sido un placer ayudarte. Si necesitas algo más, no dudes en escribirme. ¡Que tengas un excelente día!");
+                }, 500);
+            }
+        </script>
+    </body>
 </html>

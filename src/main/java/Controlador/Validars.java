@@ -101,6 +101,8 @@ public class Validars extends HttpServlet {
 
                 System.out.println("Datos guardados en sesión - redirigiendo al menú principal");
                 request.getRequestDispatcher("Controlador?menu=Principal").forward(request, response);
+                
+                
             } else {
                 request.getRequestDispatcher("index.html").forward(request, response);
             }

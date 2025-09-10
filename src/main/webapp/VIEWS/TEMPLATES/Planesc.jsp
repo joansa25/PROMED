@@ -358,7 +358,7 @@
             }, 1000);
         </c:if>
     });
-</script>
+</script> 
 
     <!-- Sección para mostrar menús dinámicamente -->
     <div id="opciones-container"></div>
