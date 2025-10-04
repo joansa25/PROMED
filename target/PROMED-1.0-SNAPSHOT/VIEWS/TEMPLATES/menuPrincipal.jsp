@@ -9,6 +9,7 @@
 <html lang="es">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MENU PRINCIPAL</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="VIEWS/STYLES/styleMenuPrincipal.css" rel="stylesheet">
@@ -21,7 +22,7 @@
         <!-- Barra de navegación -->
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container-fluid">
-                <span class="navbar-brand mb-0 h1">.     Bienvenido ${usuario.nomb_Us} ${usuario.ape_Us} <i class="fas fa-check"></i></span>
+                <span class="navbar-brand mb-0 h1">.        .   Bienvenido ${usuario.nomb_Us} ${usuario.ape_Us} <i class="fas fa-check"></i></span>
 
                 <!-- Botón Menú -->
                 <div class="d-flex align-items-center">
@@ -58,9 +59,8 @@
 
 
         <!-- Iframe con dashboard por defecto -->
-        <div class="m-4" style="height: 630px;">
-            <iframe name="myFrame" src="VIEWS/TEMPLATES/dashboard.jsp" style="height: 100%; width: 100%; border: none; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            </iframe>
+        <div class="m-4">
+            <iframe name="myFrame" src="VIEWS/TEMPLATES/dashboard.jsp"></iframe>
         </div>
 
         <!-- Botón para mostrar/ocultar la barra lateral -->
@@ -76,7 +76,6 @@
                     <ul class="collapse list-unstyled" id="empresaSubmenu">
                         <!-- TODAS las opciones con IDs únicos -->
                         <li id="menu-clientes"><a href="Controlador?menu=Clientes&accion=Listar" target="myFrame"><i class="fas fa-users"></i> Clientes</a></li>
-
                         <li id="menu-empleados"><a href="Controlador?menu=Empleados&accion=Listar" target="myFrame"><i class="fas fa-user-plus"></i> Empleados</a></li>
                         <li id="menu-empleos"><a href="Controlador?menu=Empleos&accion=Listar" target="myFrame"><i class="fas fa-user-tie"></i> Empleo</a></li>
                         <li id="menu-empresa"><a href="Controlador?menu=Empresa&accion=Listar" target="myFrame"><i class="fas fa-building"></i> Empresa</a></li> 
@@ -88,6 +87,7 @@
                         <!-- Mensaje de sin permisos (oculto por defecto) -->
                         <li id="sin-permisos" style="display: none;"><span style="color: red;">Sin permisos disponibles</span></li>
                     </ul>
+                    <li id="menu-ChatBot"><a href="Controlador?menu=ChatBot&accion=Listar" target="myFrame"><i class="fas fa-robot"></i> Chat Bot</a></li>
                 </li>
 
                 <!-- Reportes y Seguridad - siempre visibles -->
@@ -140,7 +140,7 @@
                     //CLIENTES
                     case 3:
                         console.log("🔹 Aplicando permisos NIVEL 1 - Solo Empresa");
-                        mostrarMenus(['menu-planesc', 'menu-incidencias']);
+                        mostrarMenus(['menu-planesc', 'menu-incidencias','menu-ChatBot']);
                         break;
                         //COBRADOR
                     case 2:

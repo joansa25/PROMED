@@ -1486,6 +1486,33 @@ public class Controlador extends HttpServlet {
             }
         }
 
+        
+        
+        
+        /*CHATBOT*/
+                /*ChatBot*/
+        if (menu.equals("ChatBot")) {
+            System.out.println("dentro de ChatBot");
+
+            switch (accion) {
+                case "Listar":
+                    System.out.println("dentro de ChatBot LISTAR");
+
+                 
+                    request.getRequestDispatcher("VIEWS/TEMPLATES/ChatBot.jsp").forward(request, response);
+                    break;
+
+               
+
+                default:
+                    throw new AssertionError();
+            }
+        }
+        
+        
+        
+        
+        
         /*Seguridad*/
         if (menu.equals("Seguridad")) {
             System.out.println("Dentro de Seguridad");
