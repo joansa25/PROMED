@@ -73,45 +73,48 @@ public class Validars extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String accion = request.getParameter("accion");
-        if (accion.equalsIgnoreCase("ingresar")) {
-            System.out.println("entrando  ingresar");
-            String user = request.getParameter("txtuser");
-            String pass = request.getParameter("txtpass");
-
-            System.out.println("user: " + user);
-            System.out.println("pss " + pass);
-            User us = usdao.validar(user, pass);
-            if (us != null && us.getUser_US() != null) {
-                System.out.println("=== LOGIN EXITOSO ===");
-                System.out.println("Usuario: " + us.getUser_US());
-                System.out.println("Rol del usuario: " + us.getRol_Us());
-                System.out.println("cod_us::::::::::::::::::"+us.getCod_user());
-
-                // Obtener nivel de permisos
-                int nivelPermiso = usdao.obtenerNivelPermiso(us.getRol_Us());
-                System.out.println("Nivel de permisos asignado: " + nivelPermiso);
-
-                // Guardar en sesión
-                request.getSession().setAttribute("cod_user", us);
-                request.getSession().setAttribute("usuario", us);
-                request.getSession().setAttribute("nivelPermiso", nivelPermiso);
-
-                System.out.println("Datos guardados en sesión - redirigiendo al menú principal");
-                request.getRequestDispatcher("Controlador?menu=Principal").forward(request, response);
-                
-                
-            } else {
-                request.getRequestDispatcher("index.html").forward(request, response);
-            }
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+    String accion = request.getParameter("accion");
+    if (accion.equalsIgnoreCase("ingresar")) {
+        System.out.println("entrando  ingresar");
+        String user = request.getParameter("txtuser");
+        String pass = request.getParameter("txtpass");
+        System.out.println("user: " + user);
+        System.out.println("pss " + pass);
+        User us = usdao.validar(user, pass);
+        if (us != null && us.getUser_US() != null) {
+            System.out.println("=== LOGIN EXITOSO ===");
+            System.out.println("Usuario: " + us.getUser_US());
+            System.out.println("Rol del usuario: " + us.getRol_Us());
+            System.out.println("Código de usuario: " + us.getCod_user());
+            
+            // Obtener nivel de permisos
+            int nivelPermiso = usdao.obtenerNivelPermiso(us.getRol_Us());
+            System.out.println("Nivel de permisos asignado: " + nivelPermiso);
+            
+            // ✅ GUARDAR EN SESIÓN CORRECTAMENTE
+            HttpSession sesion = request.getSession();
+            sesion.setAttribute("usuario", us);                        // Objeto User completo
+            sesion.setAttribute("COD_USER", us.getCod_user());         // ✅ String del código
+            sesion.setAttribute("nivelPermiso", nivelPermiso);         // Integer del nivel
+            
+            System.out.println("✅ Datos guardados en sesión:");
+            System.out.println("   COD_USER (String): " + us.getCod_user());
+            System.out.println("   nivelPermiso (int): " + nivelPermiso);
+            System.out.println("Datos guardados en sesión - redirigiendo al menú principal");
+            
+            request.getRequestDispatcher("Controlador?menu=Principal").forward(request, response);
+            
         } else {
+            System.out.println("❌ LOGIN FALLIDO - Usuario o contraseña incorrectos");
             request.getRequestDispatcher("index.html").forward(request, response);
-            System.out.println("daots incorrectos!");
-
         }
+    } else {
+        System.out.println("❌ Acción no reconocida");
+        request.getRequestDispatcher("index.html").forward(request, response);
     }
+}
 
     /**
      * Returns a short description of the servlet.

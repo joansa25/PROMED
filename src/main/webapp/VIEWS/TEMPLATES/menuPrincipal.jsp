@@ -58,11 +58,10 @@
         </nav>
 
 
-        <!-- Iframe con dashboard por defecto -->
+        <!-- Iframe con dashboard dinámico -->
         <div class="m-4">
-            <iframe name="myFrame" src="VIEWS/TEMPLATES/dashboard.jsp"></iframe>
+            <iframe name="myFrame" id="mainIframe" src=""></iframe>
         </div>
-
         <!-- Botón para mostrar/ocultar la barra lateral -->
         <button class="sidebar-toggle" id="sidebarToggle">☰</button>
 
@@ -83,11 +82,12 @@
                         <li id="menu-planesc"><a href="Controlador?menu=Planes&accion=Listarc" target="myFrame"><i class="fas fa-layer-group"></i> Planes</a></li>
                         <li id="menu-incidencias"><a href="Controlador?menu=Incidencias&accion=Listar" target="myFrame"><i class="fas fa-exclamation-triangle"></i> Incidencias</a></li>
                         <li id="menu-zonas"><a href="Controlador?menu=Zonas&accion=Listar" target="myFrame"><i class="fas fa-map-marked-alt"></i> Zonas</a></li>
+                        <li id="menu-Cotizacion"><a href="Controlador?menu=Cotizaciones&accion=Listar" target="myFrame"><i class="fas fa-map-marked-alt"></i> Cotizacion</a></li>
 
                         <!-- Mensaje de sin permisos (oculto por defecto) -->
                         <li id="sin-permisos" style="display: none;"><span style="color: red;">Sin permisos disponibles</span></li>
                     </ul>
-                    <li id="menu-ChatBot"><a href="Controlador?menu=ChatBot&accion=Listar" target="myFrame"><i class="fas fa-robot"></i> Chat Bot</a></li>
+                <li id="menu-ChatBot"><a href="Controlador?menu=ChatBot&accion=Listar" target="myFrame"><i class="fas fa-robot"></i> Chat Bot</a></li>
                 </li>
 
                 <!-- Reportes y Seguridad - siempre visibles -->
@@ -109,7 +109,7 @@
 
             // Función para ocultar todos los menús
             function ocultarTodosLosMenus() {
-                const menus = ['menu-clientes', 'menu-empleados', 'menu-empleos', 'menu-empresa', 'menu-planes', 'menu-incidencias', 'menu-zonas', 'menu-reportes', 'menu-seguridad'];
+                const menus = ['menu-clientes', 'menu-empleados', 'menu-empleos', 'menu-empresa', 'menu-planes', 'menu-incidencias', 'menu-zonas', 'menu-reportes', 'menu-seguridad','menu-Cotizacion'];
                 menus.forEach(function (menuId) {
                     const elemento = document.getElementById(menuId);
                     if (elemento) {
@@ -135,29 +135,43 @@
                 // Primero ocultar todos
                 ocultarTodosLosMenus();
 
+                // Variable para el dashboard
+                let dashboardSrc = "";
+
                 // Luego mostrar según el nivel
                 switch (nivelPermiso) {
                     //CLIENTES
                     case 3:
-                        console.log("🔹 Aplicando permisos NIVEL 1 - Solo Empresa");
-                        mostrarMenus(['menu-planesc', 'menu-incidencias','menu-ChatBot']);
-                        break;
+                            console.log("🔹 Aplicando permisos NIVEL 3 - Solo Empresa");
+            mostrarMenus(['menu-planesc', 'menu-incidencias', 'menu-ChatBot','menu-Cotizacion']);
+            
+                                  dashboardSrc = "VIEWS/TEMPLATES/dashboardClientes.jsp";
+
+            break;
                         //COBRADOR
                     case 2:
                         console.log("🔹 Aplicando permisos NIVEL 2 - Empresa + básicos");
-                        mostrarMenus(['menu-clientes', 'menu-planes', 'menu-incidencias']);
+                        mostrarMenus(['menu-clientes', 'menu-planes', 'menu-incidencias','menu-Cotizacion']);
+                        dashboardSrc = "VIEWS/TEMPLATES/dashboardCobrador.jsp";
                         break;
 
+                        //ADMINISTRADOR
                     case 1:
-                        console.log("🔹 Aplicando permisos NIVEL 3 - Acceso completo");
-                        mostrarMenus(['menu-clientes', 'menu-empleados', 'menu-empleos', 'menu-empresa', 'menu-planes', 'menu-incidencias', 'menu-zonas', 'menu-reportes', 'menu-seguridad']);
+                        console.log("🔹 Aplicando permisos NIVEL 1 - Acceso completo");
+                        mostrarMenus(['menu-clientes', 'menu-empleados', 'menu-empleos', 'menu-empresa', 'menu-planes', 'menu-incidencias', 'menu-zonas', 'menu-reportes', 'menu-seguridad','menu-Cotizacion']);
+                        dashboardSrc = "VIEWS/TEMPLATES/dashboard.jsp";
                         break;
 
                     default:
                         console.log("❌ Nivel no válido o sin permisos");
                         document.getElementById('sin-permisos').style.display = 'block';
+                        dashboardSrc = "VIEWS/TEMPLATES/dashboardDefault.jsp";
                         break;
                 }
+
+                // Cargar el dashboard correspondiente en el iframe
+                document.getElementById('mainIframe').src = dashboardSrc;
+                console.log("📊 Dashboard cargado:", dashboardSrc);
             }
 
             // Ejecutar cuando la página esté lista

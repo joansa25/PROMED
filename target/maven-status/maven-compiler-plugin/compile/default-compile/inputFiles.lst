@@ -7,8 +7,11 @@ C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\UserDao.ja
 C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\EmpleoDao.java
 C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\Empresa.java
 C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Test\TestConexion.java
+C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\Pago.java
+C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\Cotizacion.java
 C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Config\Conexion.java
 C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\IncidenciaDao.java
+C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\PagoDao.java
 C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\Zona.java
 C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\User.java
 C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Controlador\Controlador.java
@@ -18,3 +21,4 @@ C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\PlanDao.ja
 C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\Cliente.java
 C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\ZonaDao.java
 C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\ClienteDao.java
+C:\Users\joans\Documents\NetBeansProjects\PROMED\src\main\java\Modelo\CotizacionDao.java

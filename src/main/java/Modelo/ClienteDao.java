@@ -323,4 +323,39 @@ public int contarTotalClientes() {
     }
     return count;
 }
+
+
+// ✅ MÉTODO PARA OBTENER CLIENTE POR CÓDIGO DE USUARIO
+public Cliente obtenerClientePorUsuario(String codUser) {
+    Cliente cliente = null;
+    String sql = "SELECT ID, COD_CLI, DPI_CLI, NOM_CLI, APE_CLI, TEL_CLI, COR_CLI, DIR_CLI, NIT_CLI, COD_PLAN, COD_ZON, COD_USER, ESTADO "
+            + "FROM pm_clientes WHERE COD_USER = ? AND ESTADO = 'A'";
+    try {
+        con = cn.Conexion();
+        ps = con.prepareStatement(sql);
+        ps.setString(1, codUser);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            cliente = new Cliente();
+            cliente.setId(rs.getInt("ID"));
+            cliente.setCOD_CLI(rs.getString("COD_CLI"));
+            cliente.setDPI(rs.getLong("DPI_CLI"));
+            cliente.setNOMBRES(rs.getString("NOM_CLI"));
+            cliente.setAPELLIDOS(rs.getString("APE_CLI"));
+            cliente.setCELULAR(rs.getInt("TEL_CLI"));
+            cliente.setCORREO(rs.getString("COR_CLI"));
+            cliente.setDIRECCION(rs.getString("DIR_CLI"));
+            cliente.setNIT(rs.getInt("NIT_CLI"));
+            cliente.setCOD_PLAN(rs.getString("COD_PLAN"));
+            cliente.setCOD_ZONA(rs.getString("COD_ZON"));
+            cliente.setCOD_USER(rs.getString("COD_USER"));
+            cliente.setESTADO(rs.getString("ESTADO"));
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.out.println("Error al obtener cliente por usuario: " + e.getMessage());
+    }
+    return cliente;
+}
+
 }
