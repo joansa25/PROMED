@@ -509,7 +509,7 @@
             <div class="hero-logo">
                 <i class="fas fa-globe"></i>
             </div>
-            <h1>BIENVENIDO</h1>
+            <h1>COBRADOR</h1>
             <h1 class="hero-title">Soluciones.com S.A.</h1>
             <p class="hero-subtitle">Internet de Alta Calidad para tu Hogar y Negocio</p>
             <p class="hero-location">

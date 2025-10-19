@@ -100,7 +100,7 @@
                                 </c:choose>
                             </td>
                             <td>
-                                <!-- ✅ VALIDACIÓN: Solo Admin y Cobrador ven botones -->
+                                <!-- VALIDACIÓN: Solo Admin y Cobrador ven botones -->
                                 <c:if test="${nivelPermiso == null || nivelPermiso != 3}">
                                     <a class="btn btn-warning btn-sm" 
                                        href="Controlador?menu=Cotizaciones&accion=Editar&idCot=${cot.getID()}" 
@@ -117,18 +117,21 @@
                                         </a>
                                     </c:if>
 
-                                    <c:if test="${cot.getESTADO() == 'C'}">
+                                  
+                                </c:if>
+                                  <c:if test="${cot.getESTADO() == 'C'}">
                                         <a class="btn btn-info btn-sm"
-                                           href="Controlador?menu=Cotizaciones&accion=GenerarPDF&numCot=${c.NUM_COT}&idTrans=${c.ID_TRANS}"
+                                           href="Controlador?menu=Cotizaciones&accion=GenerarPDF&numCot=${cot.getNUM_COT()}&idTrans=${cot.getID_TRANS()}"
                                            title="Comprobante de pago">
                                             <i class="fas fa-file-alt"></i>
                                         </a>
 
+
                                     </c:if>
-                                </c:if>
 
                                 <!-- ✅ SI es cliente, celda vacía o mensaje -->
                                 <c:if test="${nivelPermiso == 3}">
+                                    
                                     <span class="text-muted" style="font-size: 0.85rem;">-</span>
                                 </c:if>
                             </td>
@@ -202,6 +205,7 @@
                                         </div>
                                     </div>
                                 </div>
+                            
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                     <button type="submit" name="accion" value="agregar" class="btn btn-info">

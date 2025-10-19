@@ -47,7 +47,7 @@ public class CotizacionDao {
         return lista;
     }
 
-    // Agregar nueva cotización
+    // Agregar nueva cotizaciÃ³n
     public int agregar(Cotizacion cot) {
         String sql = "INSERT INTO pm_cotizaciones(COD_CLI, NUM_COT, ID_TRANS, PERIODO, FEC_EMISION, FEC_VENC, MONTO, ESTADO) "
                 + "VALUES(?,?,?,?,?,?,?,?)";
@@ -65,15 +65,15 @@ public class CotizacionDao {
             ps.setString(8, cot.getESTADO());
             
             resultado = ps.executeUpdate();
-            System.out.println("Cotización insertada con éxito!");
+            System.out.println("CotizaciÃ³n insertada con Ã©xito!");
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error al insertar cotización: " + e.getMessage());
+            System.out.println("Error al insertar cotizaciÃ³n: " + e.getMessage());
         }
         return resultado;
     }
 
-    // Listar cotización por ID
+    // Listar cotizaciÃ³n por ID
     public Cotizacion listarPorId(int id) {
         Cotizacion cot = null;
         String sql = "SELECT ID, COD_CLI, NUM_COT, ID_TRANS, PERIODO, FEC_EMISION, FEC_VENC, MONTO, ESTADO, FEC_CREACION "
@@ -98,12 +98,12 @@ public class CotizacionDao {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error al listar cotización por ID: " + e.getMessage());
+            System.out.println("Error al listar cotizaciÃ³n por ID: " + e.getMessage());
         }
         return cot;
     }
 
-    // Actualizar cotización
+    // Actualizar cotizaciÃ³n
     public int actualizar(Cotizacion cot) {
         int resultado = 0;
         String sql = "UPDATE pm_cotizaciones SET COD_CLI = ?, NUM_COT = ?, ID_TRANS = ?, PERIODO = ?, "
@@ -122,15 +122,15 @@ public class CotizacionDao {
             ps.setInt(9, cot.getID());
             
             resultado = ps.executeUpdate();
-            System.out.println("Cotización actualizada correctamente!");
+            System.out.println("CotizaciÃ³n actualizada correctamente!");
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error al actualizar cotización: " + e.getMessage());
+            System.out.println("Error al actualizar cotizaciÃ³n: " + e.getMessage());
         }
         return resultado;
     }
 
-    // ✅ Listar cotizaciones por cliente EXACTO (para cliente logueado)
+    // âœ… Listar cotizaciones por cliente EXACTO (para cliente logueado)
     public List<Cotizacion> listarPorCliente(String codCli) {
         String sql = "SELECT ID, COD_CLI, NUM_COT, ID_TRANS, PERIODO, FEC_EMISION, FEC_VENC, MONTO, ESTADO, FEC_CREACION "
                 + "FROM pm_cotizaciones WHERE COD_CLI = ? ORDER BY FEC_VENC ASC";
@@ -161,7 +161,7 @@ public class CotizacionDao {
         return lista;
     }
 
-    // ✅ NUEVO: Buscar cotizaciones por código de cliente con LIKE (para búsquedas)
+    // âœ… NUEVO: Buscar cotizaciones por cÃ³digo de cliente con LIKE (para bÃºsquedas)
     public List<Cotizacion> buscarPorCodigoCliente(String codCli) {
         String sql = "SELECT ID, COD_CLI, NUM_COT, ID_TRANS, PERIODO, FEC_EMISION, FEC_VENC, MONTO, ESTADO, FEC_CREACION "
                 + "FROM pm_cotizaciones WHERE COD_CLI LIKE ? ORDER BY FEC_VENC ASC";
@@ -187,12 +187,12 @@ public class CotizacionDao {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error al buscar cotizaciones por código de cliente: " + e.getMessage());
+            System.out.println("Error al buscar cotizaciones por cÃ³digo de cliente: " + e.getMessage());
         }
         return lista;
     }
 
-    // ✅ Buscar por número de cotización con LIKE
+    // âœ… Buscar por nÃºmero de cotizaciÃ³n con LIKE
     public List<Cotizacion> buscarPorNumCot(String numCot) {
         String sql = "SELECT ID, COD_CLI, NUM_COT, ID_TRANS, PERIODO, FEC_EMISION, FEC_VENC, MONTO, ESTADO, FEC_CREACION "
                 + "FROM pm_cotizaciones WHERE NUM_COT LIKE ? ORDER BY FEC_VENC ASC";
@@ -218,12 +218,12 @@ public class CotizacionDao {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error al buscar cotización por número: " + e.getMessage());
+            System.out.println("Error al buscar cotizaciÃ³n por nÃºmero: " + e.getMessage());
         }
         return lista;
     }
 
-    // ✅ Listar cotizaciones por periodo con LIKE
+    // âœ… Listar cotizaciones por periodo con LIKE
     public List<Cotizacion> listarPorPeriodo(String periodo) {
         String sql = "SELECT ID, COD_CLI, NUM_COT, ID_TRANS, PERIODO, FEC_EMISION, FEC_VENC, MONTO, ESTADO, FEC_CREACION "
                 + "FROM pm_cotizaciones WHERE PERIODO LIKE ? ORDER BY COD_CLI";
@@ -411,18 +411,18 @@ public class CotizacionDao {
             ps = con.prepareStatement(sql);
             ps.setInt(1, id);
             resultado = ps.executeUpdate();
-            System.out.println("Cotización cancelada correctamente!");
+            System.out.println("CotizaciÃ³n cancelada correctamente!");
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error al cancelar cotización: " + e.getMessage());
+            System.out.println("Error al cancelar cotizaciÃ³n: " + e.getMessage());
         }
         return resultado;
     }
     
     
-    // Agregar estos métodos en CotizacionDao.java
+    // Agregar estos mÃ©todos en CotizacionDao.java
 
-// Método para obtener datos completos del pago con JOINs
+// MÃ©todo para obtener datos completos del pago con JOINs
 public Map<String, Object> obtenerDatosPagoCompleto(String numCot, String idTrans) {
     Map<String, Object> datos = new HashMap<>();
     String sql = "SELECT " +
@@ -456,7 +456,7 @@ public Map<String, Object> obtenerDatosPagoCompleto(String numCot, String idTran
             datos.put("numRef", rs.getString("NUM_REF"));
             datos.put("registradoPor", rs.getString("REGISTRADO_POR"));
             
-            // Datos de la cotización
+            // Datos de la cotizaciÃ³n
             datos.put("codCli", rs.getString("COD_CLI"));
             datos.put("periodo", rs.getString("PERIODO"));
             datos.put("fecEmision", rs.getDate("FEC_EMISION"));
@@ -482,7 +482,7 @@ public Map<String, Object> obtenerDatosPagoCompleto(String numCot, String idTran
     return datos;
 }
 
-// Método para verificar si existe un pago
+// MÃ©todo para verificar si existe un pago
 public boolean existePago(String numCot, String idTrans) {
     boolean existe = false;
     String sql = "SELECT COUNT(*) FROM pm_pagos WHERE NUM_COT = ? AND ID_TRANS = ?";

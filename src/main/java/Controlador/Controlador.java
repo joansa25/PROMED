@@ -109,11 +109,11 @@ public class Controlador extends HttpServlet {
                                 planesActivos
                         );
 
-                        // Guardar en sesión para que el iframe pueda acceder
+                        // Guardar en sesiÃ³n para que el iframe pueda acceder
                         HttpSession session = request.getSession();
                         session.setAttribute("dashboardData", dashboardData);
 
-                        // También puedes guardar datos individuales por si los necesitas separados
+                        // TambiÃ©n puedes guardar datos individuales por si los necesitas separados
                         session.setAttribute("empleadosActivos", empleadosActivos);
                         session.setAttribute("clientesActivos", clientesActivos);
                         session.setAttribute("planesActivos", planesActivos);
@@ -133,15 +133,15 @@ public class Controlador extends HttpServlet {
                         request.getSession().setAttribute("dashboardData", defaultData);
                     }
 
-                    // Redirigir al menú principal
+                    // Redirigir al menÃº principal
                     request.getRequestDispatcher("VIEWS/TEMPLATES/menuPrincipal.jsp").forward(request, response);
                     return;
 
                 case "exis":
-                    // Cerrar sesión - invalidar la sesión
+                    // Cerrar sesiÃ³n - invalidar la sesiÃ³n
                     HttpSession session = request.getSession(false);
                     if (session != null) {
-                        session.invalidate(); // Elimina toda la información de la sesión
+                        session.invalidate(); // Elimina toda la informaciÃ³n de la sesiÃ³n
                     }
 
                     // Limpiar cookies si las usas
@@ -155,13 +155,13 @@ public class Controlador extends HttpServlet {
                         }
                     }
 
-                    // Redirigir al login o página de inicio
-                    response.sendRedirect("index.html"); // Cambia por tu página de login
-                    return; // Importante: terminar la ejecución aquí
+                    // Redirigir al login o pÃ¡gina de inicio
+                    response.sendRedirect("index.html"); // Cambia por tu pÃ¡gina de login
+                    return; // Importante: terminar la ejecuciÃ³n aquÃ­
 
                 default:
-                    // Si el menú no coincide con ninguno conocido
-                    System.out.println("Menú no reconocido: " + menu);
+                    // Si el menÃº no coincide con ninguno conocido
+                    System.out.println("MenÃº no reconocido: " + menu);
                     break;
 
             }
@@ -180,7 +180,7 @@ public class Controlador extends HttpServlet {
                     List<Empresa> listaEmpresas = empsadao.listar();
 
                     if (listaEmpresas == null || listaEmpresas.isEmpty()) {
-                        System.out.println("La lista de empresas está vacía");
+                        System.out.println("La lista de empresas estÃ¡ vacÃ­a");
                     } else {
                         for (Empresa empresa : listaEmpresas) {
                             System.out.println(empresa.getCOD_EMPSA());
@@ -199,7 +199,7 @@ public class Controlador extends HttpServlet {
                     listaEmpresas = empsadao.listar();
 
                     if (listaEmpresas == null || listaEmpresas.isEmpty()) {
-                        System.out.println("La lista de empresas está vacía");
+                        System.out.println("La lista de empresas estÃ¡ vacÃ­a");
                     } else {
                         for (Empresa empresa : listaEmpresas) {
                             System.out.println(empresa.getCOD_EMPSA());
@@ -228,7 +228,7 @@ public class Controlador extends HttpServlet {
 
                     int resultadoAgregar = empsadao.agregar(nuevaEmpresa);
 
-                    // Agregar atributo según si fue éxito o error
+                    // Agregar atributo segÃºn si fue Ã©xito o error
                     if (resultadoAgregar > 0) {
                         request.setAttribute("resultado", 1);
                     } else {
@@ -420,7 +420,7 @@ public class Controlador extends HttpServlet {
                     List<Empleo> lista = emdao.listar();
 
                     if (lista == null || lista.isEmpty()) {
-                        System.out.println("La lista de empleados está vacía");
+                        System.out.println("La lista de empleados estÃ¡ vacÃ­a");
                     } else {
                         for (Empleo empleo : lista) {
                             System.out.println(empleo.getCOD_EMP());
@@ -439,7 +439,7 @@ public class Controlador extends HttpServlet {
                     lista = emdao.listar();
 
                     if (lista == null || lista.isEmpty()) {
-                        System.out.println("La lista de empleados está vacía");
+                        System.out.println("La lista de empleados estÃ¡ vacÃ­a");
                     } else {
                         for (Empleo empleo : lista) {
                             System.out.println(empleo.getCOD_EMP());
@@ -453,7 +453,7 @@ public class Controlador extends HttpServlet {
 
                     return;
                 case "agregar":
-                    // Obtener los parámetros del formulario
+                    // Obtener los parÃ¡metros del formulario
                     String codEmp = request.getParameter("txtCod_emp");
                     String nombreEmp = request.getParameter("txtNom_emp");
                     double salario = Double.parseDouble(request.getParameter("txtSalario"));
@@ -471,7 +471,7 @@ public class Controlador extends HttpServlet {
                     // Llamar al DAO para agregar el nuevo empleo
                     int resultadoAgregar = emdao.agregar(empleo);
                     if (resultadoAgregar > 0) {
-                        request.setAttribute("resultadoa", 1); // Éxito
+                        request.setAttribute("resultadoa", 1); // Ã‰xito
                     } else {
                         request.setAttribute("resultadoa", 0); // Error
                     }
@@ -481,15 +481,15 @@ public class Controlador extends HttpServlet {
                     return;
 
                 case "Editar":
-                    // Obtener el código del empleo a editar
+                    // Obtener el cÃ³digo del empleo a editar
                     String empCod = request.getParameter("empCod");
-                    System.out.println("El código a editar es: " + empCod);
+                    System.out.println("El cÃ³digo a editar es: " + empCod);
 
                     // Obtener el empleo desde el DAO
                     Empleo empEditar = emdao.ListarId(empCod);
                     request.setAttribute("empleo", empEditar);
 
-                    // Redirigir a la lista y abrir la modal de edición
+                    // Redirigir a la lista y abrir la modal de ediciÃ³n
                     request.getRequestDispatcher("Controlador?menu=Empleos&accion=Listar").forward(request, response);
                     return;
 
@@ -510,7 +510,7 @@ public class Controlador extends HttpServlet {
                     // Llamar al DAO para actualizar el empleo
                     int resultadoActualizar = emdao.actualizar(empleoAct);
                     if (resultadoActualizar > 0) {
-                        request.setAttribute("resultadoUpdate", 1); // Éxito
+                        request.setAttribute("resultadoUpdate", 1); // Ã‰xito
                     } else {
                         request.setAttribute("resultadoUpdate", 0); // Error
                     }
@@ -520,7 +520,7 @@ public class Controlador extends HttpServlet {
                     return;
 
                 case "BuscarPorCodigo":
-                    // Obtener el código ingresado por el usuario
+                    // Obtener el cÃ³digo ingresado por el usuario
                     String codigoBuscar = request.getParameter("codigo");
                     List<Empleo> empleosPorCodigo = emdao.buscarPorCodigo(codigoBuscar);
 
@@ -573,7 +573,7 @@ public class Controlador extends HttpServlet {
                     String estadoSeleccionado = request.getParameter("estado");
                     List<Empleo> empleosPorEstado;
 
-                    // Si el estado está vacío, listamos todos los empleos
+                    // Si el estado estÃ¡ vacÃ­o, listamos todos los empleos
                     if (estadoSeleccionado == null || estadoSeleccionado.isEmpty()) {
                         empleosPorEstado = emdao.listar(); // Listar todos los empleos
                     } else {
@@ -602,7 +602,7 @@ public class Controlador extends HttpServlet {
 
                 // REPORTERIA
                 case "BuscarPorCodigoRE":
-                    // Obtener el código ingresado por el usuario
+                    // Obtener el cÃ³digo ingresado por el usuario
                     codigoBuscar = request.getParameter("codigo");
                     empleosPorCodigo = emdao.buscarPorCodigo(codigoBuscar);
 
@@ -648,7 +648,7 @@ public class Controlador extends HttpServlet {
                     // Obtener el estado seleccionado por el usuario
                     estadoSeleccionado = request.getParameter("estado");
 
-                    // Si el estado está vacío, listamos todos los empleos
+                    // Si el estado estÃ¡ vacÃ­o, listamos todos los empleos
                     if (estadoSeleccionado == null || estadoSeleccionado.isEmpty()) {
                         empleosPorEstado = emdao.listar(); // Listar todos los empleos
                     } else {
@@ -690,7 +690,7 @@ public class Controlador extends HttpServlet {
                     List<Zona> lista = zonadao.listar();
 
                     if (lista == null || lista.isEmpty()) {
-                        System.out.println("La lista de zonas está vacía");
+                        System.out.println("La lista de zonas estÃ¡ vacÃ­a");
                     } else {
                         for (Zona zona : lista) {
                             System.out.println(zona.getCOD_ZON());
@@ -710,7 +710,7 @@ public class Controlador extends HttpServlet {
                     lista = zonadao.listarActivos();
 
                     if (lista == null || lista.isEmpty()) {
-                        System.out.println("La lista de zonas está vacía");
+                        System.out.println("La lista de zonas estÃ¡ vacÃ­a");
                     } else {
                         for (Zona zona : lista) {
                             System.out.println(zona.getCOD_ZON());
@@ -733,7 +733,7 @@ public class Controlador extends HttpServlet {
 
                     int resultado = zonadao.agregar(zona);
 
-                    // Agregar atributo según si fue éxito o error
+                    // Agregar atributo segÃºn si fue Ã©xito o error
                     if (resultado > 0) {
                         request.setAttribute("resultado", 1);
                     } else {
@@ -745,11 +745,11 @@ public class Controlador extends HttpServlet {
 
                 case "Editar":
                     System.out.println("dentro de editar zona");
-                    String zona_cod = request.getParameter("zonaCod"); // Obtener código desde la URL
+                    String zona_cod = request.getParameter("zonaCod"); // Obtener cÃ³digo desde la URL
                     System.out.println("el cod a editar es : " + zona_cod);
                     System.out.println("-------------------------------------");
 
-                    Zona z = zonadao.ListarId(zona_cod); // Llamar al método listarId en el DAO
+                    Zona z = zonadao.ListarId(zona_cod); // Llamar al mÃ©todo listarId en el DAO
 
                     request.setAttribute("zonae", z);
 
@@ -773,9 +773,9 @@ public class Controlador extends HttpServlet {
                     // Llamar al DAO para actualizar la zona en la base de datos
                     int resultadoActualizar = zonadao.actualizar(zona);
 
-                    // Verificar si la actualización fue exitosa
+                    // Verificar si la actualizaciÃ³n fue exitosa
                     if (resultadoActualizar > 0) {
-                        request.setAttribute("resultadoUpdate", 1); // Éxito
+                        request.setAttribute("resultadoUpdate", 1); // Ã‰xito
                     } else {
                         request.setAttribute("resultadoUpdate", 0); // Error
                     }
@@ -923,7 +923,7 @@ public class Controlador extends HttpServlet {
                     return;
 
                 default:
-                    System.out.println("Acción no reconocida en Zonas: " + accion);
+                    System.out.println("AcciÃ³n no reconocida en Zonas: " + accion);
                     break;
             }
         }
@@ -939,7 +939,7 @@ public class Controlador extends HttpServlet {
                     List<User> listaUsuarios = usdao.listar();
 
                     if (listaUsuarios == null || listaUsuarios.isEmpty()) {
-                        System.out.println("La lista de usuarios está vacía");
+                        System.out.println("La lista de usuarios estÃ¡ vacÃ­a");
                     } else {
                         for (User usuario : listaUsuarios) {
                             System.out.println(usuario.getUser_US());
@@ -973,7 +973,7 @@ public class Controlador extends HttpServlet {
                     List<Plan> lista = plandao.listar();
 
                     if (lista == null || lista.isEmpty()) {
-                        System.out.println("La lista de planes está vacía");
+                        System.out.println("La lista de planes estÃ¡ vacÃ­a");
                     } else {
                         for (Plan plan : lista) {
                             System.out.println(plan.getCOD_PLAN());
@@ -993,20 +993,20 @@ public class Controlador extends HttpServlet {
                     lista = plandao.listar();
 
                     if (lista == null || lista.isEmpty()) {
-                        System.out.println("La lista de planes está vacía");
+                        System.out.println("La lista de planes estÃ¡ vacÃ­a");
                     } else {
                         for (Plan plan : lista) {
                             System.out.println(plan.getCOD_PLAN());
                         }
                     }
 
-                    // Obtener el usuario de la sesión
+                    // Obtener el usuario de la sesiÃ³n
                     User usuarioLogueado = (User) request.getSession().getAttribute("usuario");
 
                     if (usuarioLogueado != null) {
                         System.out.println("=== OBTENIENDO PLAN DEL USUARIO ===");
                         System.out.println("Usuario logueado: " + usuarioLogueado.getUser_US());
-                        System.out.println("Código de usuario: " + usuarioLogueado.getCod_user());
+                        System.out.println("CÃ³digo de usuario: " + usuarioLogueado.getCod_user());
 
                         // Obtener el plan del usuario usando la consulta corregida
                         Plan planUsuario = usdao.obtenerPlanUsuario(usuarioLogueado.getCod_user());
@@ -1014,7 +1014,7 @@ public class Controlador extends HttpServlet {
                         if (planUsuario != null) {
                             System.out.println("=== PLAN DEL USUARIO ENCONTRADO ===");
                             System.out.println("Plan: " + planUsuario.getCOD_NOMB());
-                            System.out.println("Descripción: " + planUsuario.getCOD_DESC());
+                            System.out.println("DescripciÃ³n: " + planUsuario.getCOD_DESC());
                             System.out.println("Estado: " + planUsuario.getEstado());
 
                             // Enviar datos a la vista
@@ -1022,14 +1022,14 @@ public class Controlador extends HttpServlet {
                             request.setAttribute("tienePlan", true);
                             request.setAttribute("mensajeExito", "Plan cargado correctamente");
                         } else {
-                            System.out.println("⚠️ EL USUARIO NO TIENE PLAN ASIGNADO");
+                            System.out.println("âš ï¸ EL USUARIO NO TIENE PLAN ASIGNADO");
                             request.setAttribute("tienePlan", false);
                             request.setAttribute("mensajeAdvertencia", "No tienes un plan asignado. Contacta al administrador.");
                         }
 
                     } else {
-                        System.out.println("❌ NO HAY USUARIO EN SESIÓN");
-                        request.setAttribute("error", "Sesión expirada. Por favor inicia sesión nuevamente.");
+                        System.out.println("âŒ NO HAY USUARIO EN SESIÃ“N");
+                        request.setAttribute("error", "SesiÃ³n expirada. Por favor inicia sesiÃ³n nuevamente.");
                     }
 
                     // Pasar la lista a la vista
@@ -1044,7 +1044,7 @@ public class Controlador extends HttpServlet {
                     lista = plandao.listarActivos();
 
                     if (lista == null || lista.isEmpty()) {
-                        System.out.println("La lista de planes está vacía");
+                        System.out.println("La lista de planes estÃ¡ vacÃ­a");
                     } else {
                         for (Plan plan : lista) {
                             System.out.println(plan.getCOD_PLAN());
@@ -1067,7 +1067,7 @@ public class Controlador extends HttpServlet {
 
                     int resultado = plandao.agregar(plan);
 
-                    // Agregar atributo según si fue éxito o error
+                    // Agregar atributo segÃºn si fue Ã©xito o error
                     if (resultado > 0) {
                         request.setAttribute("resultado", 1);
                     } else {
@@ -1079,11 +1079,11 @@ public class Controlador extends HttpServlet {
 
                 case "Editar":
                     System.out.println("dentro de editar plan");
-                    String plan_cod = request.getParameter("planCod"); // Obtener código desde la URL
+                    String plan_cod = request.getParameter("planCod"); // Obtener cÃ³digo desde la URL
                     System.out.println("el cod a editar es : " + plan_cod);
                     System.out.println("-------------------------------------");
 
-                    Plan p = plandao.ListarId(plan_cod); // Llamar al método listarId en el DAO
+                    Plan p = plandao.ListarId(plan_cod); // Llamar al mÃ©todo listarId en el DAO
 
                     request.setAttribute("plane", p);
 
@@ -1107,9 +1107,9 @@ public class Controlador extends HttpServlet {
                     // Llamar al DAO para actualizar el plan en la base de datos
                     int resultadoActualizar = plandao.actualizar(plan);
 
-                    // Verificar si la actualización fue exitosa
+                    // Verificar si la actualizaciÃ³n fue exitosa
                     if (resultadoActualizar > 0) {
-                        request.setAttribute("resultadoUpdate", 1); // Éxito
+                        request.setAttribute("resultadoUpdate", 1); // Ã‰xito
                     } else {
                         request.setAttribute("resultadoUpdate", 0); // Error
                     }
@@ -1257,7 +1257,7 @@ public class Controlador extends HttpServlet {
                     return;
 
                 default:
-                    System.out.println("Acción no reconocida en Planes: " + accion);
+                    System.out.println("AcciÃ³n no reconocida en Planes: " + accion);
                     break;
             }
         }
@@ -1274,7 +1274,7 @@ public class Controlador extends HttpServlet {
                     List<Cliente> lista = clidao.listar();
 
                     if (lista == null || lista.isEmpty()) {
-                        System.out.println("La lista de clientes está vacía");
+                        System.out.println("La lista de clientes estÃ¡ vacÃ­a");
                     } else {
                         for (Cliente cliente : lista) {
                             System.out.println(cliente.getCOD_CLI());
@@ -1326,7 +1326,7 @@ public class Controlador extends HttpServlet {
 
                     int resultado = clidao.agregar(cli);
 
-                    // Agregar atributo según si fue éxito o error
+                    // Agregar atributo segÃºn si fue Ã©xito o error
                     if (resultado > 0) {
                         request.setAttribute("resultado", 1);
                     } else {
@@ -1342,7 +1342,7 @@ public class Controlador extends HttpServlet {
                     System.out.println("el cod a editar es : " + cli_cod);
                     System.out.println("-------------------------------------");
 
-                    Cliente c = clidao.ListarId(cli_cod); // Llamar al método listarId en el DAO
+                    Cliente c = clidao.ListarId(cli_cod); // Llamar al mÃ©todo listarId en el DAO
 
                     request.setAttribute("clientee", c);
 
@@ -1382,9 +1382,9 @@ public class Controlador extends HttpServlet {
                     // Llamar al DAO para actualizar el cliente en la base de datos
                     int resultadoActualizar = clidao.actualizar(cli);
 
-                    // Verificar si la actualización fue exitosa
+                    // Verificar si la actualizaciÃ³n fue exitosa
                     if (resultadoActualizar > 0) {
-                        request.setAttribute("resultadoUpdate", 1); // Éxito
+                        request.setAttribute("resultadoUpdate", 1); // Ã‰xito
                     } else {
                         request.setAttribute("resultadoUpdate", 0); // Error
                     }
@@ -1527,7 +1527,7 @@ public class Controlador extends HttpServlet {
                     List<User> listaUsuarios = usdao.listar();
 
                     if (listaUsuarios == null || listaUsuarios.isEmpty()) {
-                        System.out.println("La lista de usuarios está vacía");
+                        System.out.println("La lista de usuarios estÃ¡ vacÃ­a");
                     } else {
                         for (User usuario : listaUsuarios) {
                             System.out.println(usuario.getUser_US());
@@ -1680,26 +1680,26 @@ public class Controlador extends HttpServlet {
 
 //*Cotizaciones*/
     if (menu.equals("Cotizaciones")) {
-    System.out.println("=== INICIO MÓDULO COTIZACIONES ===");
+    System.out.println("=== INICIO MÃ“DULO COTIZACIONES ===");
 
-    // ✅ Obtener datos de sesión
+    // âœ… Obtener datos de sesiÃ³n
     HttpSession sesion = request.getSession();
     Integer nivelPermiso = (Integer) sesion.getAttribute("nivelPermiso");
     String codUser = (String) sesion.getAttribute("COD_USER");
     
     System.out.println("Nivel de permiso: " + nivelPermiso);
-    System.out.println("Código de usuario: " + codUser);
+    System.out.println("CÃ³digo de usuario: " + codUser);
 
-    // ✅ Si es cliente (nivel 3), obtener su COD_CLI
+    // âœ… Si es cliente (nivel 3), obtener su COD_CLI
     String codClienteLogueado = null;
     if (nivelPermiso != null && nivelPermiso == 3) {
         System.out.println("=== USUARIO ES CLIENTE ===");
         Cliente clienteLogueado = clidao.obtenerClientePorUsuario(codUser);
         if (clienteLogueado != null) {
             codClienteLogueado = clienteLogueado.getCOD_CLI();
-            System.out.println("✅ Cliente encontrado: " + codClienteLogueado);
+            System.out.println("âœ… Cliente encontrado: " + codClienteLogueado);
         } else {
-            System.out.println("❌ No se encontró cliente para el usuario: " + codUser);
+            System.out.println("âŒ No se encontrÃ³ cliente para el usuario: " + codUser);
         }
     }
 
@@ -1708,21 +1708,21 @@ public class Controlador extends HttpServlet {
             System.out.println("=== LISTAR COTIZACIONES ===");
             List<Cotizacion> listaCot = null;
 
-            // ✅ Filtrar según el nivel de usuario
+            // âœ… Filtrar segÃºn el nivel de usuario
             if (nivelPermiso != null && nivelPermiso == 3 && codClienteLogueado != null) {
-                // 🔒 CLIENTE: Solo ve sus cotizaciones
-                System.out.println("🔒 Cliente - Mostrando solo cotizaciones de: " + codClienteLogueado);
+                // ðŸ”’ CLIENTE: Solo ve sus cotizaciones
+                System.out.println("ðŸ”’ Cliente - Mostrando solo cotizaciones de: " + codClienteLogueado);
                 listaCot = cotdao.listarPorCliente(codClienteLogueado);
             } else {
-                // 🔓 Admin/Cobrador: Ve todas las cotizaciones
-                System.out.println("🔓 Admin/Cobrador - Mostrando TODAS las cotizaciones");
+                // ðŸ”“ Admin/Cobrador: Ve todas las cotizaciones
+                System.out.println("ðŸ”“ Admin/Cobrador - Mostrando TODAS las cotizaciones");
                 listaCot = cotdao.listar();
             }
 
             if (listaCot == null || listaCot.isEmpty()) {
-                System.out.println("⚠️ La lista de cotizaciones está vacía");
+                System.out.println("âš ï¸ La lista de cotizaciones estÃ¡ vacÃ­a");
             } else {
-                System.out.println("✅ Se encontraron " + listaCot.size() + " cotizaciones");
+                System.out.println("âœ… Se encontraron " + listaCot.size() + " cotizaciones");
             }
 
             // Pasar datos a la vista
@@ -1739,9 +1739,9 @@ public class Controlador extends HttpServlet {
             return;
 
         case "agregar":
-            // ✅ Solo Admin y Cobrador pueden agregar (nivel 1 y 2)
+            // âœ… Solo Admin y Cobrador pueden agregar (nivel 1 y 2)
             if (nivelPermiso != null && nivelPermiso == 3) {
-                System.out.println("❌ Cliente intentó agregar cotización");
+                System.out.println("âŒ Cliente intentÃ³ agregar cotizaciÃ³n");
                 request.setAttribute("resultado", 0);
                 request.getRequestDispatcher("Controlador?menu=Cotizaciones&accion=Listar").forward(request, response);
                 return;
@@ -1788,7 +1788,7 @@ public class Controlador extends HttpServlet {
 
         case "Editar":
             System.out.println("========================================");
-            System.out.println("=== EDITAR COTIZACIÓN - INICIO ===");
+            System.out.println("=== EDITAR COTIZACIÃ“N - INICIO ===");
             System.out.println("idCot: " + request.getParameter("idCot"));
             System.out.println("nivelPermiso: " + nivelPermiso);
             System.out.println("========================================");
@@ -1798,10 +1798,10 @@ public class Controlador extends HttpServlet {
 
             Cotizacion cotEdit = cotdao.listarPorId(idCot);
 
-            // ✅ Si es cliente, validar que la cotización le pertenece
+            // âœ… Si es cliente, validar que la cotizaciÃ³n le pertenece
             if (nivelPermiso != null && nivelPermiso == 3 && codClienteLogueado != null) {
                 if (!cotEdit.getCOD_CLI().equals(codClienteLogueado)) {
-                    System.out.println("❌ Cliente intentó editar cotización que no le pertenece");
+                    System.out.println("âŒ Cliente intentÃ³ editar cotizaciÃ³n que no le pertenece");
                     request.setAttribute("resultadoUpdate", 0);
                     request.getRequestDispatcher("Controlador?menu=Cotizaciones&accion=Listar").forward(request, response);
                     return;
@@ -1813,15 +1813,15 @@ public class Controlador extends HttpServlet {
             return;
 
         case "Actualizar":
-            // ✅ Validación de permisos
+            // âœ… ValidaciÃ³n de permisos
             String idActualizar = request.getParameter("txtId");
             int idCotActualizar = Integer.parseInt(idActualizar);
             
-            // Si es cliente, validar que la cotización le pertenece
+            // Si es cliente, validar que la cotizaciÃ³n le pertenece
             if (nivelPermiso != null && nivelPermiso == 3 && codClienteLogueado != null) {
                 Cotizacion cotValidar = cotdao.listarPorId(idCotActualizar);
                 if (!cotValidar.getCOD_CLI().equals(codClienteLogueado)) {
-                    System.out.println("❌ Cliente intentó actualizar cotización que no le pertenece");
+                    System.out.println("âŒ Cliente intentÃ³ actualizar cotizaciÃ³n que no le pertenece");
                     request.setAttribute("resultadoUpdate", 0);
                     request.getRequestDispatcher("Controlador?menu=Cotizaciones&accion=Listar").forward(request, response);
                     return;
@@ -1869,15 +1869,15 @@ public class Controlador extends HttpServlet {
             return;
 
         case "Cancelar":
-            // ✅ Solo Admin y Cobrador pueden cancelar (nivel 1 y 2)
+            // âœ… Solo Admin y Cobrador pueden cancelar (nivel 1 y 2)
             if (nivelPermiso != null && nivelPermiso == 3) {
-                System.out.println("❌ Cliente intentó cancelar cotización");
+                System.out.println("âŒ Cliente intentÃ³ cancelar cotizaciÃ³n");
                 request.setAttribute("resultadoCancelar", 0);
                 request.getRequestDispatcher("Controlador?menu=Cotizaciones&accion=Listar").forward(request, response);
                 return;
             }
 
-            System.out.println("dentro de cancelar cotización");
+            System.out.println("dentro de cancelar cotizaciÃ³n");
             String idCancelarStr = request.getParameter("idCot");
             int idCancelar = Integer.parseInt(idCancelarStr);
 
@@ -1894,16 +1894,16 @@ public class Controlador extends HttpServlet {
 
         case "BuscarPorCodCli":
             String codCliBuscar = request.getParameter("codCli");
-            System.out.println("🔍 Buscando por código cliente: " + codCliBuscar + " | Nivel: " + nivelPermiso);
+            System.out.println("ðŸ” Buscando por cÃ³digo cliente: " + codCliBuscar + " | Nivel: " + nivelPermiso);
             
             CotizacionDao cotizacionDao = new CotizacionDao();
             List<Cotizacion> cotizacionesPorCliente;
 
-            // ✅ NIVEL 3 (Cliente): Solo buscar en sus cotizaciones
+            // âœ… NIVEL 3 (Cliente): Solo buscar en sus cotizaciones
             if (nivelPermiso != null && nivelPermiso == 3 && codClienteLogueado != null) {
-                System.out.println("🔒 Búsqueda restringida a cliente: " + codClienteLogueado);
+                System.out.println("ðŸ”’ BÃºsqueda restringida a cliente: " + codClienteLogueado);
                 cotizacionesPorCliente = cotizacionDao.listarPorCliente(codClienteLogueado);
-                // Filtrar por el código buscado si se ingresó algo
+                // Filtrar por el cÃ³digo buscado si se ingresÃ³ algo
                 if (codCliBuscar != null && !codCliBuscar.trim().isEmpty()) {
                     List<Cotizacion> filtradas = new ArrayList<>();
                     for (Cotizacion c : cotizacionesPorCliente) {
@@ -1914,12 +1914,12 @@ public class Controlador extends HttpServlet {
                     cotizacionesPorCliente = filtradas;
                 }
             } else {
-                // ✅ NIVEL 1 y 2 (Admin/Cobrador): Buscar en todas
-                System.out.println("🔓 Búsqueda completa para Admin/Cobrador");
+                // âœ… NIVEL 1 y 2 (Admin/Cobrador): Buscar en todas
+                System.out.println("ðŸ”“ BÃºsqueda completa para Admin/Cobrador");
                 cotizacionesPorCliente = cotizacionDao.buscarPorCodigoCliente(codCliBuscar);
             }
 
-            System.out.println("✅ Resultados encontrados: " + cotizacionesPorCliente.size());
+            System.out.println("âœ… Resultados encontrados: " + cotizacionesPorCliente.size());
 
             StringBuilder htmlResponse = new StringBuilder();
             for (Cotizacion c : cotizacionesPorCliente) {
@@ -1942,7 +1942,7 @@ public class Controlador extends HttpServlet {
 
                 htmlResponse.append("</td>").append("<td>");
 
-                // ✅ Solo Admin y Cobrador ven botones de acción
+                // âœ… Solo Admin y Cobrador ven botones de acciÃ³n
                 if (nivelPermiso != null && nivelPermiso != 3) {
                     htmlResponse.append("<a class='btn btn-warning btn-sm' ")
                             .append("href='Controlador?menu=Cotizaciones&accion=Editar&idCot=").append(c.getID()).append("' ")
@@ -1951,7 +1951,7 @@ public class Controlador extends HttpServlet {
                     if (c.getESTADO().equals("A")) {
                         htmlResponse.append(" <a class='btn btn-danger btn-sm' ")
                                 .append("href='Controlador?menu=Cotizaciones&accion=Cancelar&idCot=").append(c.getID()).append("' ")
-                                .append("title='Cancelar' onclick='return confirm(\"¿Está seguro de cancelar esta cotización?\")'>")
+                                .append("title='Cancelar' onclick='return confirm(\"Â¿EstÃ¡ seguro de cancelar esta cotizaciÃ³n?\")'>")
                                 .append("<i class='fas fa-times-circle'></i></a>");
                     }
                 } else {
@@ -1971,14 +1971,14 @@ public class Controlador extends HttpServlet {
 
         case "BuscarPorNumCot":
             String numCotBuscar = request.getParameter("numCot");
-            System.out.println("🔍 Buscando por número cotización: " + numCotBuscar + " | Nivel: " + nivelPermiso);
+            System.out.println("ðŸ” Buscando por nÃºmero cotizaciÃ³n: " + numCotBuscar + " | Nivel: " + nivelPermiso);
             
             cotizacionDao = new CotizacionDao();
             List<Cotizacion> cotizacionesEncontradas = cotizacionDao.buscarPorNumCot(numCotBuscar);
 
             htmlResponse = new StringBuilder();
             for (Cotizacion c : cotizacionesEncontradas) {
-                // ✅ Si es cliente, validar que la cotización sea suya
+                // âœ… Si es cliente, validar que la cotizaciÃ³n sea suya
                 boolean mostrar = true;
                 if (nivelPermiso != null && nivelPermiso == 3 && codClienteLogueado != null) {
                     mostrar = c.getCOD_CLI().equals(codClienteLogueado);
@@ -2012,7 +2012,7 @@ public class Controlador extends HttpServlet {
                         if (c.getESTADO().equals("A")) {
                             htmlResponse.append(" <a class='btn btn-danger btn-sm' ")
                                     .append("href='Controlador?menu=Cotizaciones&accion=Cancelar&idCot=").append(c.getID()).append("' ")
-                                    .append("title='Cancelar' onclick='return confirm(\"¿Está seguro de cancelar esta cotización?\")'>")
+                                    .append("title='Cancelar' onclick='return confirm(\"Â¿EstÃ¡ seguro de cancelar esta cotizaciÃ³n?\")'>")
                                     .append("<i class='fas fa-times-circle'></i></a>");
                         }
                     } else {
@@ -2033,7 +2033,7 @@ public class Controlador extends HttpServlet {
 
         case "BuscarPorPeriodo":
             String periodoBuscar = request.getParameter("periodo");
-            System.out.println("🔍 Buscando por periodo: " + periodoBuscar + " | Nivel: " + nivelPermiso);
+            System.out.println("ðŸ” Buscando por periodo: " + periodoBuscar + " | Nivel: " + nivelPermiso);
             
             cotizacionDao = new CotizacionDao();
             List<Cotizacion> cotizacionesPorPeriodo;
@@ -2079,7 +2079,7 @@ public class Controlador extends HttpServlet {
                     if (c.getESTADO().equals("A")) {
                         htmlResponse.append(" <a class='btn btn-danger btn-sm' ")
                                 .append("href='Controlador?menu=Cotizaciones&accion=Cancelar&idCot=").append(c.getID()).append("' ")
-                                .append("title='Cancelar' onclick='return confirm(\"¿Está seguro de cancelar esta cotización?\")'>")
+                                .append("title='Cancelar' onclick='return confirm(\"Â¿EstÃ¡ seguro de cancelar esta cotizaciÃ³n?\")'>")
                                 .append("<i class='fas fa-times-circle'></i></a>");
                     }
                 } else {
@@ -2107,7 +2107,7 @@ case "GenerarPDF":
     
     // Verificar que existe el pago
     if (!cotdao.existePago(numCotPDF, idTransPDF)) {
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, "No se encontró el pago");
+        response.sendError(HttpServletResponse.SC_NOT_FOUND, "No se encontrÃ³ el pago");
         return;
     }
     
@@ -2125,10 +2125,10 @@ case "GenerarPDF":
                       "inline; filename=Comprobante_" + numCotPDF + ".pdf");
     
     try {
-        // Opción 1: Usar iText PDF (requiere librería iText)
+        // OpciÃ³n 1: Usar iText PDF (requiere librerÃ­a iText)
         generarPDFConIText(response.getOutputStream(), datosPago);
         
-        // Opción 2 (alternativa): Generar HTML y convertir a PDF
+        // OpciÃ³n 2 (alternativa): Generar HTML y convertir a PDF
         // generarPDFDesdeHTML(response.getOutputStream(), datosPago);
         
     } catch (Exception e) {
@@ -2139,7 +2139,7 @@ case "GenerarPDF":
     return;
         case "FiltrarPorEstado":
             String estadoFiltro = request.getParameter("estado");
-            System.out.println("🔍 Filtrando por estado: " + estadoFiltro + " | Nivel: " + nivelPermiso);
+            System.out.println("ðŸ” Filtrando por estado: " + estadoFiltro + " | Nivel: " + nivelPermiso);
             
             cotizacionDao = new CotizacionDao();
             List<Cotizacion> cotizacionesPorEstado;
@@ -2185,7 +2185,7 @@ case "GenerarPDF":
                     if (c.getESTADO().equals("A")) {
                         htmlResponse.append(" <a class='btn btn-danger btn-sm' ")
                                 .append("href='Controlador?menu=Cotizaciones&accion=Cancelar&idCot=").append(c.getID()).append("' ")
-                                .append("title='Cancelar' onclick='return confirm(\"¿Está seguro de cancelar esta cotización?\")'>")
+                                .append("title='Cancelar' onclick='return confirm(\"Â¿EstÃ¡ seguro de cancelar esta cotizaciÃ³n?\")'>")
                                 .append("<i class='fas fa-times-circle'></i></a>");
                     }
                 } else {
@@ -2206,8 +2206,8 @@ case "GenerarPDF":
 
 
         default:
-            System.out.println("❌ Acción no reconocida: " + accion);
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Acción no válida");
+            System.out.println("âŒ AcciÃ³n no reconocida: " + accion);
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "AcciÃ³n no vÃ¡lida");
             return;
     }
 }
@@ -2224,7 +2224,7 @@ case "GenerarPDF":
                     List<Empleado> lista = empdao.listar();
 
                     if (lista == null || lista.isEmpty()) {
-                        System.out.println("La lista de empleados está vacía");
+                        System.out.println("La lista de empleados estÃ¡ vacÃ­a");
                     } else {
                         for (Empleado empleado : lista) {
                             System.out.println(empleado.getCOC_EMPD());
@@ -2254,7 +2254,7 @@ case "GenerarPDF":
                     lista = empdao.listarActivos();
 
                     if (lista == null || lista.isEmpty()) {
-                        System.out.println("La lista de empleados está vacía");
+                        System.out.println("La lista de empleados estÃ¡ vacÃ­a");
                     } else {
                         for (Empleado empleado : lista) {
                             System.out.println(empleado.getCOC_EMPD());
@@ -2292,7 +2292,7 @@ case "GenerarPDF":
 
                     int resultado = empdao.agregar(emp);
 
-                    // Agregar atributo según si fue éxito o error
+                    // Agregar atributo segÃºn si fue Ã©xito o error
                     if (resultado > 0) {
                         request.setAttribute("resultado", 1);
                     } else {
@@ -2307,7 +2307,7 @@ case "GenerarPDF":
                     System.out.println("el cod a editar es : " + emp_cod);
                     System.out.println("-------------------------------------");
 
-                    Empleado e = empdao.ListarId(emp_cod); // Llamar al método listarId en el DAO
+                    Empleado e = empdao.ListarId(emp_cod); // Llamar al mÃ©todo listarId en el DAO
 
                     request.setAttribute("empleadoe", e);
 
@@ -2345,9 +2345,9 @@ case "GenerarPDF":
                     // Llamar al DAO para actualizar el empleado en la base de datos
                     int resultadoActualizar = empdao.actualizar(emp);
 
-                    // Verificar si la actualización fue exitosa
+                    // Verificar si la actualizaciÃ³n fue exitosa
                     if (resultadoActualizar > 0) {
-                        request.setAttribute("resultadoUpdate", 1); // Éxito
+                        request.setAttribute("resultadoUpdate", 1); // Ã‰xito
                     } else {
                         request.setAttribute("resultadoUpdate", 0); // Error
                     }
@@ -2366,7 +2366,7 @@ case "GenerarPDF":
                         htmlResponse.append("<tr>")
                                 .append("<td>").append(em.getId()).append("</td>")
                                 .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                                .append("<td>").append(em.getDPI()).append("</td>") // ✅ DPI agregado
+                                .append("<td>").append(em.getDPI()).append("</td>") // âœ… DPI agregado
                                 .append("<td>").append(em.getNOMBRES()).append("</td>")
                                 .append("<td>").append(em.getAPELLIDOS()).append("</td>")
                                 .append("<td>").append(em.getN_IGSS()).append("</td>")
@@ -2398,7 +2398,7 @@ case "GenerarPDF":
                         htmlResponse.append("<tr>")
                                 .append("<td>").append(em.getId()).append("</td>")
                                 .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                                .append("<td>").append(em.getDPI()).append("</td>") // ✅ DPI agregado
+                                .append("<td>").append(em.getDPI()).append("</td>") // âœ… DPI agregado
                                 .append("<td>").append(em.getNOMBRES()).append("</td>")
                                 .append("<td>").append(em.getAPELLIDOS()).append("</td>")
                                 .append("<td>").append(em.getN_IGSS()).append("</td>")
@@ -2430,7 +2430,7 @@ case "GenerarPDF":
                         htmlResponse.append("<tr>")
                                 .append("<td>").append(em.getId()).append("</td>")
                                 .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                                .append("<td>").append(em.getDPI()).append("</td>") // ✅ DPI agregado
+                                .append("<td>").append(em.getDPI()).append("</td>") // âœ… DPI agregado
                                 .append("<td>").append(em.getNOMBRES()).append("</td>")
                                 .append("<td>").append(em.getAPELLIDOS()).append("</td>")
                                 .append("<td>").append(em.getN_IGSS()).append("</td>")
@@ -2464,7 +2464,7 @@ case "GenerarPDF":
                         htmlResponse.append("<tr>")
                                 .append("<td>").append(em.getId()).append("</td>")
                                 .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                                .append("<td>").append(em.getDPI()).append("</td>") // ✅ DPI agregado
+                                .append("<td>").append(em.getDPI()).append("</td>") // âœ… DPI agregado
                                 .append("<td>").append(em.getNOMBRES()).append("</td>")
                                 .append("<td>").append(em.getAPELLIDOS()).append("</td>")
                                 .append("<td>").append(em.getN_IGSS()).append("</td>")
@@ -2491,7 +2491,7 @@ case "GenerarPDF":
                         htmlResponse.append("<tr>")
                                 .append("<td>").append(em.getId()).append("</td>")
                                 .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                                .append("<td>").append(em.getDPI()).append("</td>") // ✅ DPI agregado
+                                .append("<td>").append(em.getDPI()).append("</td>") // âœ… DPI agregado
                                 .append("<td>").append(em.getNOMBRES()).append("</td>")
                                 .append("<td>").append(em.getAPELLIDOS()).append("</td>")
                                 .append("<td>").append(em.getN_IGSS()).append("</td>")
@@ -2518,7 +2518,7 @@ case "GenerarPDF":
                         htmlResponse.append("<tr>")
                                 .append("<td>").append(em.getId()).append("</td>")
                                 .append("<td>").append(em.getCOC_EMPD()).append("</td>")
-                                .append("<td>").append(em.getDPI()).append("</td>") // ✅ DPI agregado
+                                .append("<td>").append(em.getDPI()).append("</td>") // âœ… DPI agregado
                                 .append("<td>").append(em.getNOMBRES()).append("</td>")
                                 .append("<td>").append(em.getAPELLIDOS()).append("</td>")
                                 .append("<td>").append(em.getN_IGSS()).append("</td>")
@@ -2542,9 +2542,9 @@ case "GenerarPDF":
             //request.getRequestDispatcher("VIEWS/TEMPLATES/Empleados.jsp").forward(request, response);
         }
         
-        // Agregar este método en el Controlador.java
+        // Agregar este mÃ©todo en el Controlador.java
 
-// Necesitas agregar la librería iText a tu proyecto (itextpdf-5.5.13.jar)
+// Necesitas agregar la librerÃ­a iText a tu proyecto (itextpdf-5.5.13.jar)
 
 
 
@@ -2602,26 +2602,26 @@ private void generarPDFConIText(OutputStream out, Map<String, Object> datos) thr
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     SimpleDateFormat sdfHora = new SimpleDateFormat("HH:mm:ss");
     
-    // Título
+    // TÃ­tulo
     Paragraph title = new Paragraph("COMPROBANTE DE PAGO", titleFont);
     title.setAlignment(Element.ALIGN_CENTER);
     document.add(title);
     
     document.add(new Paragraph(" ")); // Espacio
     
-    // Información de la empresa
-    Paragraph empresa = new Paragraph("PROMED INTERNET S.A.", headerFont);
+    // InformaciÃ³n de la empresa
+    Paragraph empresa = new Paragraph("SOLUCIONES.COM  S.A.", headerFont);
     empresa.setAlignment(Element.ALIGN_CENTER);
     document.add(empresa);
     
-    Paragraph dirEmpresa = new Paragraph("Dirección: Av. Principal 123, Guatemala\n" +
-                                       "Tel: +502 1234-5678 | Email: info@promed.com", normalFont);
+    Paragraph dirEmpresa = new Paragraph("DirecciÃ³n: Zona 3, en comerciales el castillo Tiquisate, Escuintla, Guatemala\n" +
+                                       "Tel: +502 502 5312-8423â€¬ | Email: solucionesscom@gmail.com", normalFont);
     dirEmpresa.setAlignment(Element.ALIGN_CENTER);
     document.add(dirEmpresa);
     
     document.add(new Paragraph(" "));
     
-    // Línea separadora
+    // LÃ­nea separadora
     document.add(new LineSeparator());
     document.add(new Paragraph(" "));
     
@@ -2631,10 +2631,10 @@ private void generarPDFConIText(OutputStream out, Map<String, Object> datos) thr
     table.setWidths(new float[]{1, 2});
     
     // Datos del comprobante
-    addTableRow(table, "Nº Referencia:", (String) datos.get("numRef"), headerFont, normalFont);
+    addTableRow(table, "NÂº Referencia:", (String) datos.get("numRef"), headerFont, normalFont);
     addTableRow(table, "Fecha de Pago:", sdf.format(datos.get("fecPago")), headerFont, normalFont);
-    addTableRow(table, "Nº Cotización:", (String) datos.get("numCot"), headerFont, normalFont);
-    addTableRow(table, "ID Transacción:", (String) datos.get("idTrans"), headerFont, normalFont);
+    addTableRow(table, "NÂº CotizaciÃ³n:", (String) datos.get("numCot"), headerFont, normalFont);
+    addTableRow(table, "ID TransacciÃ³n:", (String) datos.get("idTrans"), headerFont, normalFont);
     
     document.add(table);
     document.add(new Paragraph(" "));
@@ -2651,8 +2651,8 @@ private void generarPDFConIText(OutputStream out, Map<String, Object> datos) thr
     addTableRow(clienteTable, "Cliente:", (String) datos.get("nombreCliente"), headerFont, normalFont);
     addTableRow(clienteTable, "DPI:", (String) datos.get("dpiCliente"), headerFont, normalFont);
     addTableRow(clienteTable, "NIT:", (String) datos.get("nitCliente"), headerFont, normalFont);
-    addTableRow(clienteTable, "Dirección:", (String) datos.get("dirCliente"), headerFont, normalFont);
-    addTableRow(clienteTable, "Teléfono:", (String) datos.get("telCliente"), headerFont, normalFont);
+    addTableRow(clienteTable, "DirecciÃ³n:", (String) datos.get("dirCliente"), headerFont, normalFont);
+    addTableRow(clienteTable, "TelÃ©fono:", (String) datos.get("telCliente"), headerFont, normalFont);
     addTableRow(clienteTable, "Correo:", (String) datos.get("correoCliente"), headerFont, normalFont);
     
     document.add(clienteTable);
@@ -2674,12 +2674,12 @@ private void generarPDFConIText(OutputStream out, Map<String, Object> datos) thr
     cell.setPadding(5);
     detalleTable.addCell(cell);
     
-    cell = new PdfPCell(new Phrase("DESCRIPCIÓN", headerFont));
+    cell = new PdfPCell(new Phrase("DESCRIPCIÃ“N", headerFont));
     cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
     cell.setPadding(5);
     detalleTable.addCell(cell);
     
-    cell = new PdfPCell(new Phrase("MÉTODO", headerFont));
+    cell = new PdfPCell(new Phrase("MÃ‰TODO", headerFont));
     cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
     cell.setPadding(5);
     detalleTable.addCell(cell);
@@ -2715,15 +2715,15 @@ private void generarPDFConIText(OutputStream out, Map<String, Object> datos) thr
     
     // Estado del pago
     Font successFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, BaseColor.GREEN);
-    Paragraph estado = new Paragraph("✓ PAGO REALIZADO CON ÉXITO", successFont);
+    Paragraph estado = new Paragraph("âœ“ PAGO REALIZADO CON Ã‰XITO", successFont);
     estado.setAlignment(Element.ALIGN_CENTER);
     document.add(estado);
     
-    // Pie de página
+    // Pie de pÃ¡gina
     document.add(new Paragraph(" "));
     document.add(new Paragraph(" "));
     
-    Paragraph footer = new Paragraph("Este es un comprobante válido de pago\n" +
+    Paragraph footer = new Paragraph("Este es un comprobante vÃ¡lido de pago\n" +
                                    "Generado el " + sdf.format(new Date()) + " a las " + 
                                    sdfHora.format(new Date()), normalFont);
     footer.setAlignment(Element.ALIGN_CENTER);
@@ -2732,7 +2732,7 @@ private void generarPDFConIText(OutputStream out, Map<String, Object> datos) thr
     document.close();
 }
 
-// Método auxiliar para agregar filas a la tabla
+// MÃ©todo auxiliar para agregar filas a la tabla
 private void addTableRow(PdfPTable table, String label, String value, Font labelFont, Font valueFont) {
     PdfPCell labelCell = new PdfPCell(new Phrase(label, labelFont));
     labelCell.setBorder(Rectangle.NO_BORDER);

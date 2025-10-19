@@ -509,6 +509,7 @@
             <div class="hero-logo">
                 <i class="fas fa-globe"></i>
             </div>
+            <h1>BIENVENIDO</h1>
             <h1 class="hero-title">Soluciones.com S.A.</h1>
             <p class="hero-subtitle">Internet de Alta Calidad para tu Hogar y Negocio</p>
             <p class="hero-location">
@@ -768,9 +769,10 @@
                     Servicio de Internet para hogares y negocios en <strong>Tiquisate y zonas cercanas</strong>.<br>
                     ¿Quieres saber si tenemos cobertura en tu área? ¡Contáctanos ahora!
                 </p>
-                <button class="btn-hero btn-primary-hero mt-4" onclick="verificarCobertura()">
-                    <i class="fas fa-search-location"></i> Verificar Cobertura
-                </button>
+               <button class="btn-hero btn-primary-hero mt-4" onclick="verificarCobertura()">
+  <i class="fas fa-search-location"></i> Verificar Cobertura
+</button>
+
             </div>
         </div>
     </section>
@@ -798,7 +800,7 @@
                     <p>Para contratar este plan, contáctanos:</p>
                     <div style="margin: 20px 0;">
                         <i class="fas fa-phone" style="color: #667eea;"></i> 
-                        <strong>Teléfono:</strong> 7779-5555
+                        <strong>Teléfono:</strong> +502 5312 8423
                     </div>
                     <div style="margin: 20px 0;">
                         <i class="fas fa-envelope" style="color: #667eea;"></i> 
@@ -806,7 +808,7 @@
                     </div>
                     <div style="margin: 20px 0;">
                         <i class="fab fa-whatsapp" style="color: #25D366;"></i> 
-                        <strong>WhatsApp:</strong> +502 7779-5555
+                        <strong>WhatsApp:</strong> +502 5312 8423
                     </div>
                 `,
                 icon: 'success',
@@ -816,41 +818,133 @@
         }
 
         // Función para verificar cobertura
-        function verificarCobertura() {
-            Swal.fire({
-                title: 'Verificar Cobertura',
-                html: `
-                    <p>Ingresa tu dirección o zona:</p>
-                    <input type="text" id="direccion" class="swal2-input" placeholder="Ej: Tiquisate, Zona 1">
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Verificar',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#667eea',
-                preConfirm: () => {
-                    const direccion = document.getElementById('direccion').value;
-                    if (!direccion) {
-                        Swal.showValidationMessage('Por favor ingresa una dirección');
-                    }
-                    return direccion;
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: '¡Buenas noticias!',
-                        html: `
-                            <p>Tenemos cobertura en tu zona: <strong>${result.value}</strong></p>
-                            <p>Contáctanos para agendar tu instalación:</p>
-                            <div style="margin: 20px 0;">
-                                <i class="fas fa-phone" style="color: #667eea;"></i> 7779-5555
-                            </div>
-                        `,
-                        icon: 'success',
-                        confirmButtonColor: '#667eea'
-                    });
-                }
-            });
-        }
+       
+
+function verificarCobertura() {
+  const bannerCobertura = "📍 Actualmente brindamos servicio en <b>Tiquisate</b>, <b>Escuintla</b> y <b>sectores rurales cercanos</b>.";
+
+  const ubicaciones = [
+    "Aldea Almolonga","Aldea Caspirol","Aldea Champas de Pinula",
+    "Aldea El Arisco (solo el sector 1 y 2)","Aldea El Semillero","Aldea Huitzitzil",
+    "Aldea Las Trozas","Aldea Los Barriles (solo barriles 1)","Aldea Pinula",
+    "Aldea Playa el Semillero","Aldea San Juan la Noria","Aldea Ticanlu",
+    "Caserio Canoas","Caserio Ceiba Hueca","Caserio El Astillero","Caserio El Jordan",
+    "Caserio Floridalma","Caserio Justo Molina","Caserio La Ponderosa","Caserio Moyuta el Campesino",
+    "Caserio Rinconcito","Caserio Rocarena","Caserio Villa Lopez","Caserio Villa Ofelia",
+    "Colonia 17 de Enero","Colonia Bordas Barriles","Colonia Colonia 15 de Septiembre",
+    "Colonia Colonia 1O. de Mayo","Colonia Colonia Bartolome de las Casas","Colonia Colonia el Buen Pastor",
+    "Colonia Colonia la Fortaleza","Colonia El Prado","Colonia Jardines de Fatima","Colonia La Bendicion",
+    "Colonia Las Yardas","Colonia San Juan Jose Castillo","Colonia Sanchez","Colonia Shalom",
+    "Condominio San Carlos","Finca Santa Rosita","15 de Junio","La Pradera","Ponderosa",
+    "Poblacion Dispersa","Villa Tiquisate"
+  ];
+
+  const OPCION_NO_APARECE = "__no_aparece__";
+
+  const listItems = ubicaciones.map(function(u){
+    return '' +
+      '<label class="ubicacion-item">' +
+        '<input type="radio" name="ubicacion" value="' + u + '">' +
+        '<i class="fas fa-map-marker-alt"></i>' +
+        '<span>' + u + '</span>' +
+      '</label>';
+  }).join('') + 
+  '<label class="ubicacion-item ubicacion-no-aparece">' +
+    '<input type="radio" name="ubicacion" value="' + OPCION_NO_APARECE + '">' +
+    '<i class="fas fa-question-circle"></i>' +
+    '<span><strong>Mi ubicación no aparece</strong></span>' +
+  '</label>';
+
+  Swal.fire({
+    title: 'Verificar Cobertura',
+    html:
+      '<style>' +
+        '.banner-cobertura{background:#f5f7ff;border:1px solid #e2e6ff;color:#334;padding:10px 12px;border-radius:10px;margin-bottom:10px;text-align:left}' +
+        '.ubicacion-item{display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:8px;border:1px solid #eee;border-radius:10px;cursor:pointer;user-select:none}' +
+        '.ubicacion-item:hover{border-color:#667eea;background:#f8f9ff}' +
+        '.ubicacion-item i{color:#667eea}' +
+        '.ubicacion-item input{accent-color:#667eea}' +
+        '.ubicaciones{max-height:280px;overflow:auto;text-align:left}' +
+        '.swal2-input{margin:0 0 10px 0}' +
+        '.ubicacion-no-aparece{border-style:dashed;background:#fffdf7}' +
+        '.ubicacion-no-aparece i{color:#ff9800}' +
+      '</style>' +
+      '<div class="banner-cobertura">' + bannerCobertura + '</div>' +
+      '<input type="text" id="buscador" class="swal2-input" placeholder="Busca tu aldea, caserío o colonia..."/>' +
+      '<div class="ubicaciones" id="listaUbicaciones">' + listItems + '</div>',
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Seleccionar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#667eea',
+
+    didOpen: function() {
+      var buscador = document.getElementById('buscador');
+      var lista = document.getElementById('listaUbicaciones');
+
+      buscador.addEventListener('input', function(e) {
+        var q = e.target.value.toLowerCase();
+        Array.prototype.forEach.call(lista.querySelectorAll('.ubicacion-item'), function(li) {
+          var txt = li.querySelector('span').textContent.toLowerCase();
+          li.style.display = txt.indexOf(q) !== -1 ? 'flex' : 'none';
+        });
+      });
+
+      lista.addEventListener('click', function(e) {
+        var label = e.target.closest('.ubicacion-item');
+        if (label) label.querySelector('input').checked = true;
+      });
+    },
+
+    preConfirm: function() {
+      var seleccionado = document.querySelector('input[name="ubicacion"]:checked');
+      if (!seleccionado) {
+        Swal.showValidationMessage('Por favor selecciona una ubicación');
+        return false;
+      }
+      return seleccionado.value;
+    }
+  }).then(function(result){
+    if (!result.isConfirmed) return;
+
+    var value = result.value;
+
+    if (value === OPCION_NO_APARECE) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Lo sentimos',
+        html:
+          '<p>No encontramos tu ubicación en la lista.</p>' +
+          '<p>Puedes comunicarte con nosotros por llamada o WhatsApp al:</p>' +
+          '<p style="font-size:1.1em;margin:14px 0;">' +
+            '<a href="tel:+50253128423" style="text-decoration:none;">' +
+              '<i class="fas fa-phone" style="color:#667eea;"></i> +502 5312 8423' +
+            '</a>' +
+            '&nbsp;|&nbsp;' +
+            '<a href="https://wa.me/50253128423" target="_blank" style="text-decoration:none;">' +
+              '<i class="fab fa-whatsapp"></i> WhatsApp' +
+            '</a>' +
+          '</p>',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#667eea'
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: '¡Buenas noticias!',
+      html:
+        '<p>Tenemos cobertura en tu zona: <strong>' + value + '</strong></p>' +
+        '<p>Contáctanos para agendar tu instalación:</p>' +
+        '<div style="margin: 20px 0;">' +
+          '<i class="fas fa-phone" style="color:#667eea;"></i> +502 5312 8423' +
+        '</div>',
+      icon: 'success',
+      confirmButtonColor: '#667eea'
+    });
+  });
+}
+
 
         // Animación de scroll reveal
         function reveal() {
