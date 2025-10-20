@@ -1299,7 +1299,43 @@ public class Controlador extends HttpServlet {
 
                     request.getRequestDispatcher("VIEWS/TEMPLATES/Clientes.jsp").forward(request, response);
                     break;
+    case "ListarRE":
+            System.out.println("Clientes → ListarRE");
 
+            // Obtener clientes activos
+            List<Cliente> listaClientesRE = clidao.listar(); // o clidao.listarActivos() si existe
+            request.setAttribute("clientes", listaClientesRE);
+
+            // SIEMPRE a Reportes.jsp (navegación o AJAX)
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            request.getRequestDispatcher("VIEWS/TEMPLATES/Reportes.jsp").forward(request, response);
+            return;
+
+        // ✅ NUEVO CASO: GenerarPDF
+        case "GenerarPDF":
+            System.out.println("=== GENERANDO PDF DE CLIENTES ===");
+            
+            List<Cliente> listaClientesPDF = clidao.listar();
+            
+            if (listaClientesPDF == null || listaClientesPDF.isEmpty()) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, 
+                                  "No hay clientes para generar el reporte");
+                return;
+            }
+            
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", 
+                              "inline; filename=Reporte_Clientes.pdf");
+            
+            try {
+                generarPDFReporteClientes(response.getOutputStream(), listaClientesPDF);
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
+                                  "Error al generar el PDF");
+            }
+            return;
                 case "agregar":
                     String cod = request.getParameter("txtCod");
                     long dpi = Long.parseLong(request.getParameter("txtDpi"));
@@ -1498,6 +1534,52 @@ public class Controlador extends HttpServlet {
                     throw new AssertionError();
             }
         }
+        /*PLANES MÁS USADOS*/
+if (menu.equals("PlanesMasUsados")) {
+    System.out.println("dentro de PlanesMasUsados");
+
+    switch (accion) {
+        case "ListarRE":
+            System.out.println("PlanesMasUsados → ListarRE");
+
+            // Obtener planes más usados
+            List<Map<String, Object>> planesMasUsados = clidao.obtenerPlanesMasUsados();
+            request.setAttribute("planesMasUsados", planesMasUsados);
+
+            // SIEMPRE a Reportes.jsp (navegación o AJAX)
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            request.getRequestDispatcher("VIEWS/TEMPLATES/Reportes.jsp").forward(request, response);
+            return;
+
+        case "GenerarPDF":
+            System.out.println("=== GENERANDO PDF DE PLANES MÁS USADOS ===");
+            
+            List<Map<String, Object>> planesMasUsadosPDF = clidao.obtenerPlanesMasUsados();
+            
+            if (planesMasUsadosPDF == null || planesMasUsadosPDF.isEmpty()) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, 
+                                  "No hay datos para generar el reporte");
+                return;
+            }
+            
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", 
+                              "inline; filename=Reporte_Planes_Mas_Usados.pdf");
+            
+            try {
+                generarPDFReportePlanesMasUsados(response.getOutputStream(), planesMasUsadosPDF);
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
+                                  "Error al generar el PDF");
+            }
+            return;
+
+        default:
+            throw new AssertionError();
+    }
+}
 
         /*CHATBOT*/
  /*ChatBot*/
@@ -3112,6 +3194,216 @@ private void generarPDFReporteUsuarios(OutputStream out, List<User> usuarios) th
 private PdfPCell crearCeldaUsuariosPDF(String contenido, Font font, int alineacion) {
     PdfPCell cell = new PdfPCell(new Phrase(contenido != null ? contenido : "", font));
     cell.setPadding(5);
+    cell.setHorizontalAlignment(alineacion);
+    cell.setBorderColor(BaseColor.LIGHT_GRAY);
+    return cell;
+}
+
+
+
+//clientes
+
+// ===== MÉTODO PARA GENERAR PDF DE CLIENTES =====
+private void generarPDFReporteClientes(OutputStream out, List<Cliente> clientes) throws Exception {
+    Document document = new Document(PageSize.A4.rotate()); // Landscape
+    PdfWriter.getInstance(document, out);
+    document.open();
+    
+    // Fuentes
+    Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+    Font headerFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.WHITE);
+    Font normalFont = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
+    Font footerFont = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    SimpleDateFormat sdfHora = new SimpleDateFormat("HH:mm:ss");
+    
+    // Título
+    Paragraph title = new Paragraph("REPORTE DE CLIENTES", titleFont);
+    title.setAlignment(Element.ALIGN_CENTER);
+    document.add(title);
+    
+    // Información de la empresa
+    Paragraph empresa = new Paragraph("SOLUCIONES.COM S.A.", 
+            new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
+    empresa.setAlignment(Element.ALIGN_CENTER);
+    document.add(empresa);
+    
+    Paragraph info = new Paragraph(
+            "Generado: " + sdf.format(new Date()) + " a las " + sdfHora.format(new Date()) +
+            " | Total de clientes: " + clientes.size(), 
+            footerFont);
+    info.setAlignment(Element.ALIGN_CENTER);
+    document.add(info);
+    
+    document.add(new Paragraph(" "));
+    
+    // Tabla de clientes (13 columnas)
+    PdfPTable table = new PdfPTable(13);
+    table.setWidthPercentage(100);
+    table.setWidths(new float[]{0.4f, 0.8f, 1.2f, 1.2f, 1.2f, 0.8f, 1.5f, 1.2f, 1.0f, 0.8f, 0.8f, 0.8f, 0.6f});
+    
+    // Headers
+    String[] headers = {"#", "CÓD", "DPI", "NOMBRES", "APELLIDOS", "CEL", 
+                        "CORREO", "DIRECCIÓN", "NIT", "PLAN", "ZONA", "USER", "EST"};
+    
+    for (String header : headers) {
+        PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+        cell.setBackgroundColor(BaseColor.DARK_GRAY);
+        cell.setPadding(5);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cell);
+    }
+    
+    // Datos
+    int contador = 1;
+    for (Cliente cli : clientes) {
+        table.addCell(crearCeldaClientesPDF(String.valueOf(contador++), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaClientesPDF(cli.getCOD_CLI(), normalFont, Element.ALIGN_LEFT));
+        table.addCell(crearCeldaClientesPDF(String.valueOf(cli.getDPI()), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaClientesPDF(cli.getNOMBRES(), normalFont, Element.ALIGN_LEFT));
+        table.addCell(crearCeldaClientesPDF(cli.getAPELLIDOS(), normalFont, Element.ALIGN_LEFT));
+        table.addCell(crearCeldaClientesPDF(String.valueOf(cli.getCELULAR()), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaClientesPDF(cli.getCORREO(), normalFont, Element.ALIGN_LEFT));
+        table.addCell(crearCeldaClientesPDF(cli.getDIRECCION(), normalFont, Element.ALIGN_LEFT));
+        table.addCell(crearCeldaClientesPDF(String.valueOf(cli.getNIT()), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaClientesPDF(cli.getCOD_PLAN(), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaClientesPDF(cli.getCOD_ZONA(), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaClientesPDF(cli.getCOD_USER(), normalFont, Element.ALIGN_CENTER));
+        
+        // Celda de estado con color
+        PdfPCell estadoCell = new PdfPCell(new Phrase(
+            cli.getESTADO() != null ? cli.getESTADO() : "", normalFont));
+        BaseColor estadoColor = "A".equals(cli.getESTADO()) ? BaseColor.GREEN : BaseColor.RED;
+        estadoCell.setBackgroundColor(estadoColor);
+        estadoCell.setPadding(5);
+        estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(estadoCell);
+    }
+    
+    document.add(table);
+    
+    // Pie de página
+    document.add(new Paragraph(" "));
+    document.add(new Paragraph(" "));
+    Paragraph footer = new Paragraph(
+            "Este reporte es confidencial y está protegido.\n" +
+            "Generado por el Sistema de Gestión de Clientes",
+            footerFont);
+    footer.setAlignment(Element.ALIGN_CENTER);
+    document.add(footer);
+    
+    document.close();
+}
+
+// Método auxiliar para crear celdas del PDF de clientes
+private PdfPCell crearCeldaClientesPDF(String contenido, Font font, int alineacion) {
+    PdfPCell cell = new PdfPCell(new Phrase(contenido != null ? contenido : "", font));
+    cell.setPadding(4);
+    cell.setHorizontalAlignment(alineacion);
+    cell.setBorderColor(BaseColor.LIGHT_GRAY);
+    return cell;
+}
+
+// ===== MÉTODO PARA GENERAR PDF DE PLANES MÁS USADOS =====
+private void generarPDFReportePlanesMasUsados(OutputStream out, List<Map<String, Object>> planes) throws Exception {
+    Document document = new Document(PageSize.A4);
+    PdfWriter.getInstance(document, out);
+    document.open();
+    
+    // Fuentes
+    Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+    Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+    Font normalFont = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL);
+    Font footerFont = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    SimpleDateFormat sdfHora = new SimpleDateFormat("HH:mm:ss");
+    
+    // Título
+    Paragraph title = new Paragraph("REPORTE DE PLANES MÁS USADOS", titleFont);
+    title.setAlignment(Element.ALIGN_CENTER);
+    document.add(title);
+    
+    // Información de la empresa
+    Paragraph empresa = new Paragraph("SOLUCIONES.COM S.A.", 
+            new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
+    empresa.setAlignment(Element.ALIGN_CENTER);
+    document.add(empresa);
+    
+    Paragraph info = new Paragraph(
+            "Generado: " + sdf.format(new Date()) + " a las " + sdfHora.format(new Date()) +
+            " | Total de planes: " + planes.size(), 
+            footerFont);
+    info.setAlignment(Element.ALIGN_CENTER);
+    document.add(info);
+    
+    document.add(new Paragraph(" "));
+    
+    // Tabla de planes (4 columnas)
+    PdfPTable table = new PdfPTable(4);
+    table.setWidthPercentage(90);
+    table.setWidths(new float[]{0.5f, 1.5f, 3f, 1.2f});
+    
+    // Headers
+    String[] headers = {"#", "CÓDIGO PLAN", "DESCRIPCIÓN", "TOTAL CLIENTES"};
+    
+    for (String header : headers) {
+        PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+        cell.setBackgroundColor(BaseColor.DARK_GRAY);
+        cell.setPadding(8);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cell);
+    }
+    
+    // Datos
+    int contador = 1;
+    for (Map<String, Object> plan : planes) {
+        table.addCell(crearCeldaPlanPDF(String.valueOf(contador++), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaPlanPDF((String) plan.get("COD_PLAN"), normalFont, Element.ALIGN_LEFT));
+        
+        // Descripción (Nombre + Descripción)
+        String descripcion = plan.get("NOMBRE_PLAN") + " - " + plan.get("DESCRIPCION");
+        table.addCell(crearCeldaPlanPDF(descripcion, normalFont, Element.ALIGN_LEFT));
+        
+        // Total clientes con color de fondo según cantidad
+        Integer totalClientes = (Integer) plan.get("TOTAL_CLIENTES");
+        PdfPCell clientesCell = new PdfPCell(new Phrase(String.valueOf(totalClientes), normalFont));
+        
+        // Color según cantidad
+        if (totalClientes >= 10) {
+            clientesCell.setBackgroundColor(new BaseColor(0, 200, 0)); // Verde oscuro
+        } else if (totalClientes >= 5) {
+            clientesCell.setBackgroundColor(new BaseColor(144, 238, 144)); // Verde claro
+        } else {
+            clientesCell.setBackgroundColor(new BaseColor(255, 255, 153)); // Amarillo claro
+        }
+        
+        clientesCell.setPadding(8);
+        clientesCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        clientesCell.setBorderColor(BaseColor.LIGHT_GRAY);
+        table.addCell(clientesCell);
+    }
+    
+    document.add(table);
+    
+    // Pie de página
+    document.add(new Paragraph(" "));
+    document.add(new Paragraph(" "));
+    Paragraph footer = new Paragraph(
+            "Este reporte muestra los planes ordenados por popularidad.\n" +
+            "Generado por el Sistema de Gestión de Clientes",
+            footerFont);
+    footer.setAlignment(Element.ALIGN_CENTER);
+    document.add(footer);
+    
+    document.close();
+}
+
+// Método auxiliar para crear celdas del PDF de planes
+private PdfPCell crearCeldaPlanPDF(String contenido, Font font, int alineacion) {
+    PdfPCell cell = new PdfPCell(new Phrase(contenido != null ? contenido : "", font));
+    cell.setPadding(8);
     cell.setHorizontalAlignment(alineacion);
     cell.setBorderColor(BaseColor.LIGHT_GRAY);
     return cell;

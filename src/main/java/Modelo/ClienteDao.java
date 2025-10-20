@@ -9,7 +9,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -358,4 +360,45 @@ public Cliente obtenerClientePorUsuario(String codUser) {
     return cliente;
 }
 
+
+// ===== MÉTODO PARA OBTENER PLANES MÁS USADOS =====
+public List<Map<String, Object>> obtenerPlanesMasUsados() {
+    List<Map<String, Object>> lista = new ArrayList<>();
+    String sql = "SELECT " +
+                 "    p.COD_PLAN, " +
+                 "    p.COD_NOMB AS NOMBRE_PLAN, " +
+                 "    p.COD_DESC AS DESCRIPCION, " +
+                 "    COUNT(c.COD_CLI) AS TOTAL_CLIENTES " +
+                 "FROM " +
+                 "    PM_CLIENTES c " +
+                 "INNER JOIN " +
+                 "    PM_PLANES p ON c.COD_PLAN = p.COD_PLAN " +
+                 "GROUP BY " +
+                 "    p.COD_PLAN, p.COD_NOMB, p.COD_DESC " +
+                 "ORDER BY " +
+                 "    TOTAL_CLIENTES DESC";
+    
+    try {
+        con = cn.Conexion();
+        ps = con.prepareStatement(sql);
+        rs = ps.executeQuery();
+        
+        while (rs.next()) {
+            Map<String, Object> plan = new HashMap<>();
+            plan.put("COD_PLAN", rs.getString("COD_PLAN"));
+            plan.put("NOMBRE_PLAN", rs.getString("NOMBRE_PLAN"));
+            plan.put("DESCRIPCION", rs.getString("DESCRIPCION"));
+            plan.put("TOTAL_CLIENTES", rs.getInt("TOTAL_CLIENTES"));
+            lista.add(plan);
+        }
+        
+        System.out.println("Planes más usados obtenidos: " + lista.size());
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.out.println("Error al obtener planes más usados: " + e.getMessage());
+    }
+    
+    return lista;
+}
 }
