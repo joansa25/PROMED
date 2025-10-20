@@ -1544,6 +1544,44 @@ public class Controlador extends HttpServlet {
                     request.setAttribute("usuarios", listaUsuarios);
                     break;
 
+                      // ✅ NUEVO CASO: ListarRE para Reportes
+        case "ListarRE":
+            System.out.println("Seguridad → ListarRE");
+
+            // Obtener usuarios activos
+            List<User> listaUsuariosRE = usdao.listar(); // o usdao.listarActivos() si tienes ese método
+            request.setAttribute("usuarios", listaUsuariosRE);
+
+            // SIEMPRE a Reportes.jsp (navegación o AJAX)
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            request.getRequestDispatcher("VIEWS/TEMPLATES/Reportes.jsp").forward(request, response);
+            return;
+
+        // ✅ NUEVO CASO: GenerarPDF
+        case "GenerarPDF":
+            System.out.println("=== GENERANDO PDF DE USUARIOS ===");
+            
+            List<User> listaUsuariosPDF = usdao.listar();
+            
+            if (listaUsuariosPDF == null || listaUsuariosPDF.isEmpty()) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, 
+                                  "No hay usuarios para generar el reporte");
+                return;
+            }
+            
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", 
+                              "inline; filename=Reporte_Usuarios.pdf");
+            
+            try {
+                generarPDFReporteUsuarios(response.getOutputStream(), listaUsuariosPDF);
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
+                                  "Error al generar el PDF");
+            }
+            return;
                 case "agregar":
                     String codUser = request.getParameter("txtCodUser");
                     String userUs = request.getParameter("txtUserUs");
@@ -2975,6 +3013,103 @@ private void generarPDFReporteEmpleados(OutputStream out, List<Empleado> emplead
 
 // Método auxiliar para crear celdas del PDF de empleados
 private PdfPCell crearCeldaEmpleadosPDF(String contenido, Font font, int alineacion) {
+    PdfPCell cell = new PdfPCell(new Phrase(contenido != null ? contenido : "", font));
+    cell.setPadding(5);
+    cell.setHorizontalAlignment(alineacion);
+    cell.setBorderColor(BaseColor.LIGHT_GRAY);
+    return cell;
+}
+
+
+// ===== MÉTODO PARA GENERAR PDF DE USUARIOS =====
+private void generarPDFReporteUsuarios(OutputStream out, List<User> usuarios) throws Exception {
+    Document document = new Document(PageSize.A4.rotate()); // Landscape
+    PdfWriter.getInstance(document, out);
+    document.open();
+    
+    // Fuentes
+    Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+    Font headerFont = new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD, BaseColor.WHITE);
+    Font normalFont = new Font(Font.FontFamily.HELVETICA, 9, Font.NORMAL);
+    Font footerFont = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    SimpleDateFormat sdfHora = new SimpleDateFormat("HH:mm:ss");
+    
+    // Título
+    Paragraph title = new Paragraph("REPORTE DE USUARIOS", titleFont);
+    title.setAlignment(Element.ALIGN_CENTER);
+    document.add(title);
+    
+    // Información de la empresa
+    Paragraph empresa = new Paragraph("SOLUCIONES.COM S.A.", 
+            new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
+    empresa.setAlignment(Element.ALIGN_CENTER);
+    document.add(empresa);
+    
+    Paragraph info = new Paragraph(
+            "Generado: " + sdf.format(new Date()) + " a las " + sdfHora.format(new Date()) +
+            " | Total de usuarios: " + usuarios.size(), 
+            footerFont);
+    info.setAlignment(Element.ALIGN_CENTER);
+    document.add(info);
+    
+    document.add(new Paragraph(" "));
+    
+    // Tabla de usuarios (8 columnas)
+    PdfPTable table = new PdfPTable(8);
+    table.setWidthPercentage(100);
+    table.setWidths(new float[]{0.5f, 1.2f, 1.5f, 1.2f, 1.5f, 1.5f, 1.8f, 0.8f});
+    
+    // Headers
+    String[] headers = {"#", "CÓD. USER", "USUARIO", "ROL", "NOMBRES", "APELLIDOS", "CORREO", "ESTADO"};
+    
+    for (String header : headers) {
+        PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+        cell.setBackgroundColor(BaseColor.DARK_GRAY);
+        cell.setPadding(6);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cell);
+    }
+    
+    // Datos
+    int contador = 1;
+    for (User user : usuarios) {
+        table.addCell(crearCeldaUsuariosPDF(String.valueOf(contador++), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaUsuariosPDF(user.getCod_user(), normalFont, Element.ALIGN_LEFT));
+        table.addCell(crearCeldaUsuariosPDF(user.getUser_US(), normalFont, Element.ALIGN_LEFT));
+        table.addCell(crearCeldaUsuariosPDF(user.getRol_Us(), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaUsuariosPDF(user.getNomb_Us(), normalFont, Element.ALIGN_LEFT));
+        table.addCell(crearCeldaUsuariosPDF(user.getApe_Us(), normalFont, Element.ALIGN_LEFT));
+        table.addCell(crearCeldaUsuariosPDF(user.getCorr_Us(), normalFont, Element.ALIGN_LEFT));
+        
+        // Celda de estado con color
+        PdfPCell estadoCell = new PdfPCell(new Phrase(
+            user.getEsdado() != null ? user.getEsdado() : "", normalFont));
+        BaseColor estadoColor = "A".equals(user.getEsdado()) ? BaseColor.GREEN : BaseColor.RED;
+        estadoCell.setBackgroundColor(estadoColor);
+        estadoCell.setPadding(5);
+        estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(estadoCell);
+    }
+    
+    document.add(table);
+    
+    // Pie de página
+    document.add(new Paragraph(" "));
+    document.add(new Paragraph(" "));
+    Paragraph footer = new Paragraph(
+            "Este reporte es confidencial y está protegido.\n" +
+            "Generado por el Sistema de Gestión de Usuarios",
+            footerFont);
+    footer.setAlignment(Element.ALIGN_CENTER);
+    document.add(footer);
+    
+    document.close();
+}
+
+// Método auxiliar para crear celdas del PDF de usuarios
+private PdfPCell crearCeldaUsuariosPDF(String contenido, Font font, int alineacion) {
     PdfPCell cell = new PdfPCell(new Phrase(contenido != null ? contenido : "", font));
     cell.setPadding(5);
     cell.setHorizontalAlignment(alineacion);

@@ -7,6 +7,7 @@
                y botón de imprimir solo esa vista.
 --%>
 
+<%@page import="Modelo.User"%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.*" %>
 <%@ page import="Modelo.Empleado" %>
@@ -85,60 +86,106 @@
     </head>
     <body>
 
-        <%
-            boolean ajax = "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"));
-            String partial = request.getParameter("partial");
-            // La lista ya viene desde el Controlador cuando llamas a ListarRE
-            List<Empleado> empleados = (List<Empleado>) request.getAttribute("empleados");
+   <%
+    boolean ajax = "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"));
+    String partial = request.getParameter("partial");
+    List<Empleado> empleados = (List<Empleado>) request.getAttribute("empleados");
+    List<User> usuarios = (List<User>) request.getAttribute("usuarios");
 
-            if (ajax && "empleados".equalsIgnoreCase(partial)) {
-        %>
-        <!-- ===== FRAGMENTO: SOLO TABLA DE EMPLEADOS ===== -->
-        <h3 class="mb-3">PRUEBA — Reporte de Empleados</h3>
-        <div class="table-responsive">
-            <table class="table table-sm table-striped align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th><th>COD_EMPD</th><th>DPI</th><th>N_IGSS</th><th>NIT</th>
-                        <th>NOMBRES</th><th>APELLIDOS</th>
-                        <th>CELULAR</th><th>CORREO</th><th>ESTADO</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <%
-                        if (empleados != null) {
-                            int i = 1;
-                            for (Empleado em : empleados) {
-                    %>
-                    <tr>
-                        <td><%= i++%></td>
-                        <td><%= em.getCOC_EMPD()%></td>
-                        <td><%= em.getDPI()%></td>
-                        <td><%= em.getN_IGSS()%></td>
-                        <td><%= em.getNIT()%></td>
-                        <td><%= em.getNOMBRES()%></td>
-                        <td><%= em.getAPELLIDOS()%></td>
-                        
-                        <td><%= em.getCELULAR()%></td>
-                        <td><%= em.getCorreo()%></td>
-                        <td>
-                            <span class="badge <%= "A".equals(em.getEstado()) ? "bg-success" : "bg-secondary"%>">
-                                <%= em.getEstado()%>
-                            </span>
-                        </td>
-                    </tr>
-                    <%
-                            }
-                        }
-                    %>
-                </tbody>
-            </table>
-        </div>
-        <%
-                // ¡Muy importante! cortar aquí para que NO imprima el resto de la página.
-                return;
-            }
-        %>
+    // ===== FRAGMENTO DE EMPLEADOS =====
+    if (ajax && "empleados".equalsIgnoreCase(partial)) {
+%>
+<!-- ===== FRAGMENTO: SOLO TABLA DE EMPLEADOS ===== -->
+<h3 class="mb-3">Reporte de Empleados</h3>
+<div class="table-responsive">
+    <table class="table table-sm table-striped align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>#</th><th>COD_EMPD</th><th>DPI</th><th>N_IGSS</th><th>NIT</th>
+                <th>NOMBRES</th><th>APELLIDOS</th>
+                <th>CELULAR</th><th>CORREO</th><th>ESTADO</th>
+            </tr>
+        </thead>
+        <tbody>
+            <%
+                if (empleados != null) {
+                    int i = 1;
+                    for (Empleado em : empleados) {
+            %>
+            <tr>
+                <td><%= i++%></td>
+                <td><%= em.getCOC_EMPD()%></td>
+                <td><%= em.getDPI()%></td>
+                <td><%= em.getN_IGSS()%></td>
+                <td><%= em.getNIT()%></td>
+                <td><%= em.getNOMBRES()%></td>
+                <td><%= em.getAPELLIDOS()%></td>
+                <td><%= em.getCELULAR()%></td>
+                <td><%= em.getCorreo()%></td>
+                <td>
+                    <span class="badge <%= "A".equals(em.getEstado()) ? "bg-success" : "bg-secondary"%>">
+                        <%= em.getEstado()%>
+                    </span>
+                </td>
+            </tr>
+            <%
+                    }
+                }
+            %>
+        </tbody>
+    </table>
+</div>
+<%
+        return;
+    }
+    
+    // ===== FRAGMENTO DE USUARIOS =====
+    if (ajax && "usuarios".equalsIgnoreCase(partial)) {
+%>
+<!-- ===== FRAGMENTO: SOLO TABLA DE USUARIOS ===== -->
+<h3 class="mb-3">Reporte de Usuarios</h3>
+<div class="table-responsive">
+    <table class="table table-sm table-striped align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>#</th><th>CÓD. USER</th><th>USUARIO</th><th>ROL</th>
+                <th>NOMBRES</th><th>APELLIDOS</th><th>CORREO</th><th>ESTADO</th>
+            </tr>
+        </thead>
+        <tbody>
+            <%
+                if (usuarios != null) {
+                    int i = 1;
+                    for (User user : usuarios) {
+            %>
+            <tr>
+                <td><%= i++%></td>
+                <td><%= user.getCod_user()%></td>
+                <td><%= user.getUser_US()%></td>
+                <td><%= user.getRol_Us()%></td>
+                <td><%= user.getNomb_Us()%></td>
+                <td><%= user.getApe_Us()%></td>
+                <td><%= user.getCorr_Us()%></td>
+                <td>
+                    <span class="badge <%= "A".equals(user.getEsdado()) ? "bg-success" : "bg-secondary"%>">
+                        <%= user.getEsdado()%>
+                    </span>
+                </td>
+            </tr>
+            <%
+                    }
+                }
+            %>
+        </tbody>
+    </table>
+</div>
+<%
+        return;
+    }
+%>
+        
+        
+        
         <header class="page-header py-4 mb-2">
             <div class="container">
                 <h1 class="page-title h3 mb-1">Reportes del Sistema (Vista)</h1>
@@ -163,16 +210,18 @@
       </div>
     </div>
 
-    <!-- 2) Usuarios -->
-    <div class="col">
-      <div class="report-card p-3 d-flex gap-3 align-items-start" data-bs-toggle="modal" data-bs-target="#modalUsuarios">
-        <div class="icon-badge"><i class="fa-solid fa-users-gear"></i></div>
-        <div>
-          <div class="report-name">Usuarios</div>
-          <div class="report-desc">Cuentas, roles y estados.</div>
-        </div>
-      </div>
+  <!-- 2) Usuarios -->
+<div class="col">
+  <div class="report-card p-3 d-flex gap-3 align-items-start" 
+       data-url="Controlador?menu=Seguridad&accion=ListarRE&partial=usuarios"
+       data-bs-toggle="modal" data-bs-target="#modalUsuarios">
+    <div class="icon-badge"><i class="fa-solid fa-users-gear"></i></div>
+    <div>
+      <div class="report-name">Usuarios</div>
+      <div class="report-desc">Cuentas, roles y estados.</div>
     </div>
+  </div>
+</div>
 
     <!-- 3) Total de clientes -->
     <div class="col">
@@ -305,20 +354,37 @@
 
 
         <!-- 2 Usuarios -->
-        <div class="modal fade" id="modalUsuarios" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                <div class="modal-content">
-                    <div class="modal-header"><h5 class="modal-title">Reporte de Usuarios</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-                    <div class="modal-body">
-                        <div id="printUsuarios" class="print-area">
-                            <h3 class="mb-2">PRUEBA — Reporte de Usuarios</h3>
-                            <p class="text-muted">(Aquí irá tu tabla de usuarios)</p>
-                        </div>
-                    </div>
-                    <div class="modal-footer"><button type="button" class="btn btn-primary btn-print" data-print="#printUsuarios"><i class="fa-solid fa-print me-1"></i> Imprimir</button></div>
-                </div>
-            </div>
+     <!-- Modal Usuarios (pantalla completa) -->
+<div class="modal fade" id="modalUsuarios" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content vh-100 d-flex flex-column">
+      
+      <div class="modal-header sticky-top bg-white border-bottom">
+        <h5 class="modal-title mb-0">Reporte de Usuarios</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body flex-grow-1 overflow-auto">
+        <div id="userLoader" class="text-center py-4 d-none">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
         </div>
+        <div id="printUsuarios" class="print-area"></div>
+      </div>
+
+      <div class="modal-footer sticky-bottom bg-white border-top">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fa-solid fa-times me-1"></i> Cerrar
+        </button>
+        <button type="button" class="btn btn-primary" id="btnImprimirPDFUsuarios">
+          <i class="fa-solid fa-print me-1"></i> Generar PDF
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
         <!-- 3 Total de Clientes -->
         <div class="modal fade" id="modalTotalClientes" tabindex="-1" aria-hidden="true">
@@ -469,7 +535,38 @@
           });
         </script>
 
+<script>
+  // ✅ Cargar datos de USUARIOS en el modal
+  document.addEventListener('click', async (e) => {
+    const card = e.target.closest('.report-card[data-bs-target="#modalUsuarios"][data-url]');
+    if (!card) return;
 
+    const url = card.getAttribute('data-url');
+    const container = document.getElementById('printUsuarios');
+    const loader = document.getElementById('userLoader');
+    
+    container.innerHTML = '';
+    if (loader) loader.classList.remove('d-none');
+
+    try {
+      const resp = await fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}});
+      const html = await resp.text();
+      container.innerHTML = html;
+    } catch (err) {
+      container.innerHTML = '<div class="alert alert-danger">No se pudo cargar el reporte.</div>';
+      console.error(err);
+    } finally {
+      if (loader) loader.classList.add('d-none');
+    }
+  });
+
+  // ✅ Generar PDF de Usuarios usando el controlador
+  document.getElementById('btnImprimirPDFUsuarios')?.addEventListener('click', function() {
+    const url = 'Controlador?menu=Seguridad&accion=GenerarPDF';
+    window.open(url, '_blank');
+    console.log('Generando PDF de usuarios desde: ' + url);
+  });
+</script>
 
 
     </body>
