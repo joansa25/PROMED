@@ -2324,25 +2324,22 @@ case "GenerarPDF":
                     request.getRequestDispatcher("VIEWS/TEMPLATES/Empleados.jsp").forward(request, response);
 
                     break;
-                case "ListarRE":
-                    System.out.println("dentro de Asistencia LISTAR REPORTES");
+  case "ListarRE": {
+    System.out.println("Empleados → ListarRE");
 
-                    // Obtener la lista de empleados
-                    lista = empdao.listarActivos();
+    // Datos
+     lista = empdao.listarActivos();
+    request.setAttribute("empleados", lista);
 
-                    if (lista == null || lista.isEmpty()) {
-                        System.out.println("La lista de empleados estÃ¡ vacÃ­a");
-                    } else {
-                        for (Empleado empleado : lista) {
-                            System.out.println(empleado.getCOC_EMPD());
-                        }
-                    }
+    // SIEMPRE a Reportes.jsp (navegación o AJAX)
+    request.setCharacterEncoding("UTF-8");
+    response.setCharacterEncoding("UTF-8");
+    request.getRequestDispatcher("VIEWS/TEMPLATES/Reportes.jsp").forward(request, response);
+    return;
+}
 
-                    // Pasar la lista a la vista
-                    request.setAttribute("empleados", lista);
-                    request.getRequestDispatcher("VIEWS/TEMPLATES/REPORTES/Empleados.jsp").forward(request, response);
 
-                    return;
+
 
                 case "agregar":
                     String cod = request.getParameter("txtCod");
@@ -2616,9 +2613,36 @@ case "GenerarPDF":
                     throw new AssertionError();
             }
 
+            
+            
+            
+            
+            
+            
             //request.getRequestDispatcher("VIEWS/TEMPLATES/Empleados.jsp").forward(request, response);
         }
         
+        
+        
+        
+        
+        //MENUREPORTES
+        
+         if (menu.equals("Reportes")) {
+            System.out.println("dentro de REPORTES");
+
+            switch (accion) {
+                case "Listar":
+                    System.out.println("dentro de REPORTES LISTAR");
+
+                    
+                    request.getRequestDispatcher("VIEWS/TEMPLATES/Reportes.jsp").forward(request, response);
+
+                    break;
+               
+                default:
+                    throw new AssertionError();
+            }
         // Agregar este mÃ©todo en el Controlador.java
 
 // Necesitas agregar la librerÃ­a iText a tu proyecto (itextpdf-5.5.13.jar)
@@ -2626,6 +2650,7 @@ case "GenerarPDF":
 
 
 
+    }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
