@@ -4,6 +4,7 @@ import Config.Conexion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -503,6 +504,137 @@ public boolean existePago(String numCot, String idTrans) {
     
     return existe;
 }
-   
+   //OBTENER PERIODO ACTUAL
+public String obtenerPeriodoActual() {
+    String periodo = null;
+    try {
+        LocalDate hoy = LocalDate.now();
+        int anio = hoy.getYear();
+        int mes = hoy.getMonthValue();
+        periodo = String.format("%d-%02d", anio, mes);
+        System.out.println("Período actual calculado: " + periodo);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return periodo;
+}
+
+// Listar cotizaciones del periodo actual para todos los clientes (Admin/Cobrador)
+public List<Map<String, Object>> listarCotizacionesPeriodoActualAdmin() {
+    List<Map<String, Object>> lista = new ArrayList<>();
+    
+    // Primero obtenemos el período actual
+    String periodoActual = obtenerPeriodoActual();
+    
+    if (periodoActual == null) {
+        System.out.println("No hay período actual disponible");
+        return lista;
+    }
+    
+    String sql = "WITH ultima AS (\n" +
+                 "  SELECT *\n" +
+                 "  FROM (\n" +
+                 "    SELECT c.*,\n" +
+                 "           ROW_NUMBER() OVER (PARTITION BY c.COD_CLI ORDER BY c.FEC_EMISION DESC) AS rn\n" +
+                 "    FROM pm_cotizaciones c\n" +
+                 "  ) t\n" +
+                 "  WHERE rn = 1\n" +
+                 "),\n" +
+                 "actual AS (\n" +
+                 "  SELECT *\n" +
+                 "  FROM (\n" +
+                 "    SELECT c.*,\n" +
+                 "           ROW_NUMBER() OVER (PARTITION BY c.COD_CLI ORDER BY c.FEC_EMISION DESC) AS rn\n" +
+                 "    FROM pm_cotizaciones c\n" +
+                 "    WHERE c.PERIODO = ?\n" +
+                 "  ) t\n" +
+                 "  WHERE rn = 1\n" +
+                 ")\n" +
+                 "SELECT\n" +
+                 "  u.COD_CLI,\n" +
+                 "  ? AS periodo_actual,\n" +
+                 "  a.NUM_COT AS num_cot_periodo,\n" +
+                 "  a.ESTADO AS estado_periodo,\n" +
+                 "  a.MONTO AS monto_periodo,\n" +
+                 "  CASE WHEN a.ID IS NULL THEN 'No emitida' ELSE 'Emitida' END AS situacion_periodo,\n" +
+                 "  u.NUM_COT AS ultima_num_cot,\n" +
+                 "  u.PERIODO AS ultimo_periodo,\n" +
+                 "  u.FEC_EMISION AS ultima_emision\n" +
+                 "FROM ultima u\n" +
+                 "LEFT JOIN actual a\n" +
+                 "  ON a.COD_CLI = u.COD_CLI\n" +
+                 "ORDER BY u.COD_CLI";
+    
+    try {
+        con = cn.Conexion();
+        ps = con.prepareStatement(sql);
+        ps.setString(1, periodoActual);  // Para el WHERE c.PERIODO = ?
+        ps.setString(2, periodoActual);  // Para el SELECT ? AS periodo_actual
+        rs = ps.executeQuery();
+        
+        System.out.println("Ejecutando consulta de cotizaciones del período: " + periodoActual);
+        
+        while (rs.next()) {
+            Map<String, Object> fila = new HashMap<>();
+            fila.put("cod_cli", rs.getString("COD_CLI"));
+            fila.put("periodo_actual", rs.getString("periodo_actual"));
+            fila.put("num_cot_periodo", rs.getString("num_cot_periodo"));
+            fila.put("estado_periodo", rs.getString("estado_periodo"));
+            fila.put("monto_periodo", rs.getDouble("monto_periodo"));
+            fila.put("situacion_periodo", rs.getString("situacion_periodo"));
+            fila.put("ultima_num_cot", rs.getString("ultima_num_cot"));
+            fila.put("ultimo_periodo", rs.getString("ultimo_periodo"));
+            fila.put("ultima_emision", rs.getDate("ultima_emision"));
+            
+            lista.add(fila);
+        }
+        
+        System.out.println("Total de clientes cargados: " + lista.size());
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.out.println("Error al listar cotizaciones del periodo actual: " + e.getMessage());
+    }
+    
+    return lista;
+}
+
+// Obtener cotizaciones por cliente especifico para el modal
+public List<Cotizacion> listarPorClienteDetallado(String codCli) {
+    String sql = "SELECT ID, COD_CLI, NUM_COT, ID_TRANS, PERIODO, FEC_EMISION, FEC_VENC, MONTO, ESTADO, FEC_CREACION " +
+                 "FROM pm_cotizaciones WHERE COD_CLI = ? ORDER BY FEC_EMISION DESC";
+    List<Cotizacion> lista = new ArrayList<>();
+    try {
+        con = cn.Conexion();
+        ps = con.prepareStatement(sql);
+        ps.setString(1, codCli);
+        rs = ps.executeQuery();
+        
+        System.out.println("Cargando cotizaciones para cliente: " + codCli);
+        
+        while (rs.next()) {
+            Cotizacion cot = new Cotizacion();
+            cot.setID(rs.getInt(1));
+            cot.setCOD_CLI(rs.getString(2));
+            cot.setNUM_COT(rs.getString(3));
+            cot.setID_TRANS(rs.getString(4));
+            cot.setPERIODO(rs.getString(5));
+            cot.setFEC_EMISION(rs.getDate(6));
+            cot.setFEC_VENC(rs.getDate(7));
+            cot.setMONTO(rs.getDouble(8));
+            cot.setESTADO(rs.getString(9));
+            cot.setFEC_CREACION(rs.getDate(10));
+            lista.add(cot);
+        }
+        
+        System.out.println("Total de cotizaciones cargadas: " + lista.size());
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.out.println("Error al listar cotizaciones por cliente: " + e.getMessage());
+    }
+    
+    return lista;
+}
     
 }

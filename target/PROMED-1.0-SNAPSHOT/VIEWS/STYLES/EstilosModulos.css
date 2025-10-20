@@ -1,69 +1,285 @@
 /* Contenedor principal de la tabla */
 .table-container {
     width: 100%;
-    overflow-x: auto; /* Permite el desplazamiento horizontal */
-    border: 1px solid #ddd; /* Borde del contenedor */
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Estilo general para la tabla */
 .table {
     width: 100%;
-    border-collapse: collapse; /* Elimina el espacio entre celdas */
-    table-layout: fixed; /* Ancho fijo para columnas */
+    border-collapse: collapse;
     margin: 0;
+    background-color: #fff;
+    font-size: 0.9rem;
 }
 
 /* Encabezado de la tabla */
 .table thead {
-    display: table;
-    width: 100%;
-    table-layout: fixed; /* Asegura el mismo ancho para el encabezado */
+    background-color: #1c3d5a;
+    color: white;
 }
 
 .table thead th {
-    background-color: #e5e7eb; /* Fondo gris para el encabezado */
-    padding: 10px;
-    text-align: center;
-    border: 1px solid #ddd;
-    white-space: normal; /* Permite saltos de línea */
-    position: sticky; /* Fija el encabezado */
+    padding: 12px 10px;
+    text-align: left;
+    border: 1px solid #1c3d5a;
+    white-space: nowrap;
+    font-weight: 600;
+    font-size: 0.85rem;
+    position: sticky;
     top: 0;
     z-index: 10;
+    background-color: #1c3d5a;
+    color: white;
 }
 
-/* Cuerpo de la tabla con desplazamiento vertical */
-.scrollable-tbody {
-    display: block;
-    max-height: 300px; /* Altura máxima del cuerpo de la tabla */
-    overflow-y: auto; /* Permite desplazamiento vertical */
-    width: 100%;
-}
-
-.scrollable-tbody tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed; /* Asegura el mismo ancho para las filas del body */
-}
-
-/* Celdas del cuerpo */
+/* Cuerpo de la tabla */
 .table tbody td {
     padding: 10px;
-    text-align: center;
-    white-space: normal; /* Permite saltos de línea */
+    text-align: left;
     border: 1px solid #ddd;
-    overflow: hidden; /* Evita el desbordamiento */
-    word-wrap: break-word; /* Rompe las palabras largas */
+    white-space: nowrap;
+    vertical-align: middle;
 }
 
-/* Asegura que el ancho del encabezado y el cuerpo coincidan */
-.table thead th, .scrollable-tbody td {
-    min-width: 50px; /* Ancho mínimo para cada columna */
-    width: auto;
+/* Celdas con contenido que puede ser largo */
+.table tbody td:nth-child(3),
+.table tbody td:nth-child(4),
+.table tbody td:nth-child(5) {
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 
-/* Estilo de las filas de la tabla al pasar el mouse */
-.scrollable-tbody tr:hover {
-    background-color: #e5e7eb; /* Cambia este color según prefieras */
-    cursor: pointer; /* Cambia el cursor para indicar que la fila es interactiva */
+/* Estilos de filas */
+.table tbody tr {
+    border-bottom: 1px solid #ddd;
+    transition: background-color 0.2s ease;
 }
+
+.table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #f5f5f5;
+}
+
+/* Badges */
+.badge {
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.badge.bg-success {
+    background-color: #28a745 !important;
+    color: #fff !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+.badge.bg-info {
+    background-color: #17a2b8 !important;
+    color: #fff !important;
+}
+
+/* Botones en la tabla */
+.table .btn-sm {
+    padding: 4px 6px;
+    font-size: 0.75rem;
+    margin-right: 3px;
+}
+
+.table .btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #000;
+}
+
+.table .btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #e0a800;
+}
+
+.table .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.table .btn-danger:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+}
+
+.table .btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.table .btn-info:hover {
+    background-color: #138496;
+    border-color: #138496;
+}
+
+/* Scroll en pantallas pequeñas */
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.8rem;
+    }
+    
+    .table thead th {
+        padding: 8px 5px;
+        font-size: 0.75rem;
+    }
+    
+    .table tbody td {
+        padding: 8px 5px;
+        font-size: 0.8rem;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+
+
+/* Alineación de textos específica */
+.table tbody td:last-child {
+    text-align: center;
+    white-space: normal;
+}
+
+/* Spinner de carga */
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Texto muted */
+.text-muted {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Modal table styles */
+.modal-body .table-container {
+    margin: 0;
+    box-shadow: none;
+}
+
+.modal-body .table thead th {
+    background-color: #1c3d5a;
+    color: white;
+    position: relative;
+}
+
+/* Estilos para el alert de período actual */
+.alert-info {
+    background-color: #e7f3ff;
+    border: 1px solid #b3d9ff;
+    color: #004085;
+    border-radius: 4px;
+}
+
+/* Contenedor con scroll (vertical y horizontal si hace falta) */
+.table-container {
+  width: 100%;
+  max-height: 500px;      /* antes estaba en tbody */
+  overflow: auto;         /* el scroll ahora vive aquí */
+  margin: 20px 0;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+/* La tabla se mantiene normal (tbody NO es block) */
+.table {
+  width: 100%;
+  border-collapse: separate;   /* mejor con sticky headers */
+  border-spacing: 0;
+  margin: 0;
+  background-color: #fff;
+  font-size: 0.9rem;
+  table-layout: auto;          /* usa fixed si quieres columnas más rígidas */
+}
+
+/* Encabezado sticky y estilos */
+.table thead {
+  background-color: #1c3d5a;
+  color: white;
+}
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: #1c3d5a;
+  color: white;
+  padding: 12px 10px;
+  text-align: left;
+  border: 1px solid #1c3d5a;
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* Celdas */
+.table tbody td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+  white-space: nowrap;     /* evita saltos raros; relaja solo donde haga falta */
+  vertical-align: middle;
+}
+
+/* Permitir salto solo en columnas largas (ajusta si quieres) */
+.table tbody td:nth-child(3),
+.table tbody td:nth-child(4),
+.table tbody td:nth-child(5) {
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* (Opcional) mínimos para estabilidad de anchos */
+.table thead th:nth-child(1) { min-width: 70px; }    /* ID        */
+.table thead th:nth-child(2) { min-width: 90px; }    /* CÓDIGO    */
+.table thead th:nth-child(3) { min-width: 140px; }   /* NÚM. COT. */
+.table thead th:nth-child(4) { min-width: 160px; }   /* ID TRANS. */
+.table thead th:nth-child(5) { min-width: 90px; }    /* PERIODO   */
+.table thead th:nth-child(6),
+.table thead th:nth-child(7) { min-width: 110px; }   /* FECHAS    */
+.table thead th:nth-child(8) { min-width: 110px; }   /* MONTO     */
+.table thead th:nth-child(9) { min-width: 120px; }   /* ESTADO    */
+.table thead th:nth-child(10){ min-width: 120px; }   /* ACCIONES  */
+
+/* Hover/filas (puedes mantener tus estilos actuales) */
+.table tbody tr:hover { background-color: #f9f9f9; }
+.table tbody tr:nth-child(even) { background-color: #f5f5f5; }
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .table { font-size: 0.8rem; }
+  .table thead th, .table tbody td { padding: 8px 5px; font-size: 0.8rem; }
+}
+
 

@@ -1704,44 +1704,66 @@ public class Controlador extends HttpServlet {
     }
 
     switch (accion) {
-        case "Listar":
+          case "Listar":
             System.out.println("=== LISTAR COTIZACIONES ===");
             List<Cotizacion> listaCot = null;
+            List<Map<String, Object>> cotizacionesPeriodo = null;
+            String periodoActual = null;
 
-            // âœ… Filtrar segÃºn el nivel de usuario
+            // Si es cliente (nivel 3), obtener su COD_CLI
+           codClienteLogueado = null;
+            if (nivelPermiso != null && nivelPermiso == 3) {
+                System.out.println("=== USUARIO ES CLIENTE ===");
+                Cliente clienteLogueado = clidao.obtenerClientePorUsuario(codUser);
+                if (clienteLogueado != null) {
+                    codClienteLogueado = clienteLogueado.getCOD_CLI();
+                    System.out.println("✓ Cliente encontrado: " + codClienteLogueado);
+                } else {
+                    System.out.println("✗ No se encontró cliente para el usuario: " + codUser);
+                }
+            }
+
+            // Filtrar según el nivel de usuario
             if (nivelPermiso != null && nivelPermiso == 3 && codClienteLogueado != null) {
-                // ðŸ”’ CLIENTE: Solo ve sus cotizaciones
-                System.out.println("ðŸ”’ Cliente - Mostrando solo cotizaciones de: " + codClienteLogueado);
+                // CLIENTE: Solo ve sus cotizaciones (tabla original)
+                System.out.println("👤 Cliente - Mostrando solo cotizaciones de: " + codClienteLogueado);
                 listaCot = cotdao.listarPorCliente(codClienteLogueado);
+                
+                if (listaCot == null || listaCot.isEmpty()) {
+                    System.out.println("⚠ La lista de cotizaciones está vacía");
+                } else {
+                    System.out.println("✓ Se encontraron " + listaCot.size() + " cotizaciones");
+                }
+                
+                request.setAttribute("cotizaciones", listaCot);
+                request.setAttribute("tipoVista", "cliente");
+                
             } else {
-                // ðŸ”“ Admin/Cobrador: Ve todas las cotizaciones
-                System.out.println("ðŸ”“ Admin/Cobrador - Mostrando TODAS las cotizaciones");
-                listaCot = cotdao.listar();
-            }
-
-            if (listaCot == null || listaCot.isEmpty()) {
-                System.out.println("âš ï¸ La lista de cotizaciones estÃ¡ vacÃ­a");
-            } else {
-                System.out.println("âœ… Se encontraron " + listaCot.size() + " cotizaciones");
-            }
-
-            // Pasar datos a la vista
-            request.setAttribute("cotizaciones", listaCot);
-
-            // Solo cargar lista de clientes si NO es cliente
-            if (nivelPermiso == null || nivelPermiso != 3) {
-                List<Cliente> listaClientes = clidao.listar();
-                request.setAttribute("clientes", listaClientes);
+                // ADMIN/COBRADOR: Ve tabla especial con resumen del período actual
+                System.out.println("👨‍💼 Admin/Cobrador - Mostrando tabla de período actual");
+                cotizacionesPeriodo = cotdao.listarCotizacionesPeriodoActualAdmin();
+                periodoActual = cotdao.obtenerPeriodoActual();
+                
+                if (cotizacionesPeriodo == null || cotizacionesPeriodo.isEmpty()) {
+                    System.out.println("⚠ La lista de cotizaciones está vacía");
+                } else {
+                    System.out.println("✓ Se encontraron " + cotizacionesPeriodo.size() + " clientes");
+                }
+                
+                request.setAttribute("cotizacionesPeriodo", cotizacionesPeriodo);
+                request.setAttribute("periodoActual", periodoActual);
+                request.setAttribute("tipoVista", "admin");
             }
 
             request.setAttribute("nivelPermiso", nivelPermiso);
+            request.setAttribute("codClienteLogueado", codClienteLogueado);
             request.getRequestDispatcher("VIEWS/TEMPLATES/Cotizacion.jsp").forward(request, response);
             return;
 
         case "agregar":
-            // âœ… Solo Admin y Cobrador pueden agregar (nivel 1 y 2)
+            // Solo Admin y Cobrador pueden agregar (nivel 1 y 2)
             if (nivelPermiso != null && nivelPermiso == 3) {
-                System.out.println("âŒ Cliente intentÃ³ agregar cotizaciÃ³n");
+                System.out.println("✗ Cliente intentó agregar cotización");
                 request.setAttribute("resultado", 0);
                 request.getRequestDispatcher("Controlador?menu=Cotizaciones&accion=Listar").forward(request, response);
                 return;
@@ -1788,7 +1810,7 @@ public class Controlador extends HttpServlet {
 
         case "Editar":
             System.out.println("========================================");
-            System.out.println("=== EDITAR COTIZACIÃ“N - INICIO ===");
+            System.out.println("=== EDITAR COTIZACIÓN - INICIO ===");
             System.out.println("idCot: " + request.getParameter("idCot"));
             System.out.println("nivelPermiso: " + nivelPermiso);
             System.out.println("========================================");
@@ -1798,13 +1820,17 @@ public class Controlador extends HttpServlet {
 
             Cotizacion cotEdit = cotdao.listarPorId(idCot);
 
-            // âœ… Si es cliente, validar que la cotizaciÃ³n le pertenece
-            if (nivelPermiso != null && nivelPermiso == 3 && codClienteLogueado != null) {
-                if (!cotEdit.getCOD_CLI().equals(codClienteLogueado)) {
-                    System.out.println("âŒ Cliente intentÃ³ editar cotizaciÃ³n que no le pertenece");
-                    request.setAttribute("resultadoUpdate", 0);
-                    request.getRequestDispatcher("Controlador?menu=Cotizaciones&accion=Listar").forward(request, response);
-                    return;
+            // Si es cliente, validar que la cotización le pertenece
+            String codUserSession = (String) sesion.getAttribute("COD_USER");
+            if (nivelPermiso != null && nivelPermiso == 3) {
+                Cliente clienteLogueadoEdit = clidao.obtenerClientePorUsuario(codUserSession);
+                if (clienteLogueadoEdit != null) {
+                    if (!cotEdit.getCOD_CLI().equals(clienteLogueadoEdit.getCOD_CLI())) {
+                        System.out.println("✗ Cliente intentó editar cotización que no le pertenece");
+                        request.setAttribute("resultadoUpdate", 0);
+                        request.getRequestDispatcher("Controlador?menu=Cotizaciones&accion=Listar").forward(request, response);
+                        return;
+                    }
                 }
             }
 
@@ -1813,15 +1839,16 @@ public class Controlador extends HttpServlet {
             return;
 
         case "Actualizar":
-            // âœ… ValidaciÃ³n de permisos
+            // Validación de permisos
             String idActualizar = request.getParameter("txtId");
             int idCotActualizar = Integer.parseInt(idActualizar);
             
-            // Si es cliente, validar que la cotizaciÃ³n le pertenece
-            if (nivelPermiso != null && nivelPermiso == 3 && codClienteLogueado != null) {
+            String codUserActualizar = (String) sesion.getAttribute("COD_USER");
+            if (nivelPermiso != null && nivelPermiso == 3) {
                 Cotizacion cotValidar = cotdao.listarPorId(idCotActualizar);
-                if (!cotValidar.getCOD_CLI().equals(codClienteLogueado)) {
-                    System.out.println("âŒ Cliente intentÃ³ actualizar cotizaciÃ³n que no le pertenece");
+                Cliente clienteLogueadoVal = clidao.obtenerClientePorUsuario(codUserActualizar);
+                if (clienteLogueadoVal != null && !cotValidar.getCOD_CLI().equals(clienteLogueadoVal.getCOD_CLI())) {
+                    System.out.println("✗ Cliente intentó actualizar cotización que no le pertenece");
                     request.setAttribute("resultadoUpdate", 0);
                     request.getRequestDispatcher("Controlador?menu=Cotizaciones&accion=Listar").forward(request, response);
                     return;
@@ -1869,15 +1896,15 @@ public class Controlador extends HttpServlet {
             return;
 
         case "Cancelar":
-            // âœ… Solo Admin y Cobrador pueden cancelar (nivel 1 y 2)
+            // Solo Admin y Cobrador pueden cancelar (nivel 1 y 2)
             if (nivelPermiso != null && nivelPermiso == 3) {
-                System.out.println("âŒ Cliente intentÃ³ cancelar cotizaciÃ³n");
+                System.out.println("✗ Cliente intentó cancelar cotización");
                 request.setAttribute("resultadoCancelar", 0);
                 request.getRequestDispatcher("Controlador?menu=Cotizaciones&accion=Listar").forward(request, response);
                 return;
             }
 
-            System.out.println("dentro de cancelar cotizaciÃ³n");
+            System.out.println("dentro de cancelar cotización");
             String idCancelarStr = request.getParameter("idCot");
             int idCancelar = Integer.parseInt(idCancelarStr);
 
@@ -1892,34 +1919,78 @@ public class Controlador extends HttpServlet {
             request.getRequestDispatcher("Controlador?menu=Cotizaciones&accion=Listar").forward(request, response);
             return;
 
+        case "ObtenerCotizacionesCliente":
+            System.out.println("=== OBTENER COTIZACIONES DEL CLIENTE ===");
+            String codCliModal = request.getParameter("codCli");
+            System.out.println("Código de cliente: " + codCliModal);
+            
+            List<Cotizacion> cotizacionesCliente = cotdao.listarPorClienteDetallado(codCliModal);
+            
+            // Construir respuesta JSON
+            StringBuilder jsonResponse = new StringBuilder();
+            jsonResponse.append("{\"cotizaciones\": [");
+            
+            if (cotizacionesCliente != null && !cotizacionesCliente.isEmpty()) {
+                for (int i = 0; i < cotizacionesCliente.size(); i++) {
+                    Cotizacion cotJSON = cotizacionesCliente.get(i);
+                    jsonResponse.append("{")
+                            .append("\"ID\": ").append(cotJSON.getID()).append(", ")
+                            .append("\"NUM_COT\": \"").append(cotJSON.getNUM_COT()).append("\", ")
+                            .append("\"ID_TRANS\": \"").append(cotJSON.getID_TRANS()).append("\", ")
+                            .append("\"PERIODO\": \"").append(cotJSON.getPERIODO()).append("\", ")
+                            .append("\"FEC_EMISION\": \"").append(cotJSON.getFEC_EMISION()).append("\", ")
+                            .append("\"FEC_VENC\": \"").append(cotJSON.getFEC_VENC()).append("\", ")
+                            .append("\"MONTO\": ").append(cotJSON.getMONTO()).append(", ")
+                            .append("\"ESTADO\": \"").append(cotJSON.getESTADO()).append("\"")
+                            .append("}");
+                    
+                    if (i < cotizacionesCliente.size() - 1) {
+                        jsonResponse.append(",");
+                    }
+                }
+            }
+            
+            jsonResponse.append("]}");
+            
+            response.setContentType("application/json; charset=UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(jsonResponse.toString());
+            return;
+
         case "BuscarPorCodCli":
             String codCliBuscar = request.getParameter("codCli");
-            System.out.println("ðŸ” Buscando por cÃ³digo cliente: " + codCliBuscar + " | Nivel: " + nivelPermiso);
+            System.out.println("Buscando por código cliente: " + codCliBuscar + " | Nivel: " + nivelPermiso);
             
             CotizacionDao cotizacionDao = new CotizacionDao();
             List<Cotizacion> cotizacionesPorCliente;
 
-            // âœ… NIVEL 3 (Cliente): Solo buscar en sus cotizaciones
-            if (nivelPermiso != null && nivelPermiso == 3 && codClienteLogueado != null) {
-                System.out.println("ðŸ”’ BÃºsqueda restringida a cliente: " + codClienteLogueado);
-                cotizacionesPorCliente = cotizacionDao.listarPorCliente(codClienteLogueado);
-                // Filtrar por el cÃ³digo buscado si se ingresÃ³ algo
-                if (codCliBuscar != null && !codCliBuscar.trim().isEmpty()) {
-                    List<Cotizacion> filtradas = new ArrayList<>();
-                    for (Cotizacion c : cotizacionesPorCliente) {
-                        if (c.getCOD_CLI().toLowerCase().contains(codCliBuscar.toLowerCase())) {
-                            filtradas.add(c);
+            // NIVEL 3 (Cliente): Solo buscar en sus cotizaciones
+            String codUserBuscar = (String) sesion.getAttribute("COD_USER");
+            if (nivelPermiso != null && nivelPermiso == 3) {
+                Cliente clienteLogueadoBuscar = clidao.obtenerClientePorUsuario(codUserBuscar);
+                if (clienteLogueadoBuscar != null) {
+                    System.out.println("Búsqueda restringida a cliente: " + clienteLogueadoBuscar.getCOD_CLI());
+                    cotizacionesPorCliente = cotizacionDao.listarPorCliente(clienteLogueadoBuscar.getCOD_CLI());
+                    // Filtrar por el código buscado si se ingresó algo
+                    if (codCliBuscar != null && !codCliBuscar.trim().isEmpty()) {
+                        List<Cotizacion> filtradas = new ArrayList<>();
+                        for (Cotizacion c : cotizacionesPorCliente) {
+                            if (c.getCOD_CLI().toLowerCase().contains(codCliBuscar.toLowerCase())) {
+                                filtradas.add(c);
+                            }
                         }
+                        cotizacionesPorCliente = filtradas;
                     }
-                    cotizacionesPorCliente = filtradas;
+                } else {
+                    cotizacionesPorCliente = new ArrayList<>();
                 }
             } else {
-                // âœ… NIVEL 1 y 2 (Admin/Cobrador): Buscar en todas
-                System.out.println("ðŸ”“ BÃºsqueda completa para Admin/Cobrador");
+                // NIVEL 1 y 2 (Admin/Cobrador): Buscar en todas
+                System.out.println("Búsqueda completa para Admin/Cobrador");
                 cotizacionesPorCliente = cotizacionDao.buscarPorCodigoCliente(codCliBuscar);
             }
 
-            System.out.println("âœ… Resultados encontrados: " + cotizacionesPorCliente.size());
+            System.out.println("Resultados encontrados: " + cotizacionesPorCliente.size());
 
             StringBuilder htmlResponse = new StringBuilder();
             for (Cotizacion c : cotizacionesPorCliente) {
@@ -1942,7 +2013,7 @@ public class Controlador extends HttpServlet {
 
                 htmlResponse.append("</td>").append("<td>");
 
-                // âœ… Solo Admin y Cobrador ven botones de acciÃ³n
+                // Solo Admin y Cobrador ven botones de acción
                 if (nivelPermiso != null && nivelPermiso != 3) {
                     htmlResponse.append("<a class='btn btn-warning btn-sm' ")
                             .append("href='Controlador?menu=Cotizaciones&accion=Editar&idCot=").append(c.getID()).append("' ")
@@ -1951,7 +2022,7 @@ public class Controlador extends HttpServlet {
                     if (c.getESTADO().equals("A")) {
                         htmlResponse.append(" <a class='btn btn-danger btn-sm' ")
                                 .append("href='Controlador?menu=Cotizaciones&accion=Cancelar&idCot=").append(c.getID()).append("' ")
-                                .append("title='Cancelar' onclick='return confirm(\"Â¿EstÃ¡ seguro de cancelar esta cotizaciÃ³n?\")'>")
+                                .append("title='Cancelar' onclick='return confirm(\"¿Estás seguro de cancelar esta cotización?\")'>")
                                 .append("<i class='fas fa-times-circle'></i></a>");
                     }
                 } else {
@@ -1963,25 +2034,26 @@ public class Controlador extends HttpServlet {
 
             response.setContentType("text/html; charset=UTF-8");
             response.setCharacterEncoding("UTF-8");
-            PrintWriter out = response.getWriter();
-            out.print(htmlResponse.toString());
-            out.flush();
-            out.close();
+            response.getWriter().write(htmlResponse.toString());
             return;
 
         case "BuscarPorNumCot":
             String numCotBuscar = request.getParameter("numCot");
-            System.out.println("ðŸ” Buscando por nÃºmero cotizaciÃ³n: " + numCotBuscar + " | Nivel: " + nivelPermiso);
+            System.out.println("Buscando por número cotización: " + numCotBuscar + " | Nivel: " + nivelPermiso);
             
             cotizacionDao = new CotizacionDao();
             List<Cotizacion> cotizacionesEncontradas = cotizacionDao.buscarPorNumCot(numCotBuscar);
 
             htmlResponse = new StringBuilder();
             for (Cotizacion c : cotizacionesEncontradas) {
-                // âœ… Si es cliente, validar que la cotizaciÃ³n sea suya
+                // Si es cliente, validar que la cotización sea suya
                 boolean mostrar = true;
-                if (nivelPermiso != null && nivelPermiso == 3 && codClienteLogueado != null) {
-                    mostrar = c.getCOD_CLI().equals(codClienteLogueado);
+                String codUserNumCot = (String) sesion.getAttribute("COD_USER");
+                if (nivelPermiso != null && nivelPermiso == 3) {
+                    Cliente clienteLogueadoNum = clidao.obtenerClientePorUsuario(codUserNumCot);
+                    if (clienteLogueadoNum != null) {
+                        mostrar = c.getCOD_CLI().equals(clienteLogueadoNum.getCOD_CLI());
+                    }
                 }
 
                 if (mostrar) {
@@ -2012,7 +2084,7 @@ public class Controlador extends HttpServlet {
                         if (c.getESTADO().equals("A")) {
                             htmlResponse.append(" <a class='btn btn-danger btn-sm' ")
                                     .append("href='Controlador?menu=Cotizaciones&accion=Cancelar&idCot=").append(c.getID()).append("' ")
-                                    .append("title='Cancelar' onclick='return confirm(\"Â¿EstÃ¡ seguro de cancelar esta cotizaciÃ³n?\")'>")
+                                    .append("title='Cancelar' onclick='return confirm(\"¿Estás seguro de cancelar esta cotización?\")'>")
                                     .append("<i class='fas fa-times-circle'></i></a>");
                         }
                     } else {
@@ -2025,26 +2097,29 @@ public class Controlador extends HttpServlet {
 
             response.setContentType("text/html; charset=UTF-8");
             response.setCharacterEncoding("UTF-8");
-            out = response.getWriter();
-            out.print(htmlResponse.toString());
-            out.flush();
-            out.close();
+            response.getWriter().write(htmlResponse.toString());
             return;
 
         case "BuscarPorPeriodo":
             String periodoBuscar = request.getParameter("periodo");
-            System.out.println("ðŸ” Buscando por periodo: " + periodoBuscar + " | Nivel: " + nivelPermiso);
+            System.out.println("Buscando por periodo: " + periodoBuscar + " | Nivel: " + nivelPermiso);
             
             cotizacionDao = new CotizacionDao();
             List<Cotizacion> cotizacionesPorPeriodo;
 
-            if (nivelPermiso != null && nivelPermiso == 3 && codClienteLogueado != null) {
-                List<Cotizacion> todas = cotizacionDao.listarPorPeriodo(periodoBuscar);
-                cotizacionesPorPeriodo = new ArrayList<>();
-                for (Cotizacion cotizacion : todas) {
-                    if (cotizacion.getCOD_CLI().equals(codClienteLogueado)) {
-                        cotizacionesPorPeriodo.add(cotizacion);
+            String codUserPeriodo = (String) sesion.getAttribute("COD_USER");
+            if (nivelPermiso != null && nivelPermiso == 3) {
+                Cliente clienteLogueadoPeriodo = clidao.obtenerClientePorUsuario(codUserPeriodo);
+                if (clienteLogueadoPeriodo != null) {
+                    List<Cotizacion> todas = cotizacionDao.listarPorPeriodo(periodoBuscar);
+                    cotizacionesPorPeriodo = new ArrayList<>();
+                    for (Cotizacion cotizacion : todas) {
+                        if (cotizacion.getCOD_CLI().equals(clienteLogueadoPeriodo.getCOD_CLI())) {
+                            cotizacionesPorPeriodo.add(cotizacion);
+                        }
                     }
+                } else {
+                    cotizacionesPorPeriodo = new ArrayList<>();
                 }
             } else {
                 cotizacionesPorPeriodo = cotizacionDao.listarPorPeriodo(periodoBuscar);
@@ -2079,7 +2154,7 @@ public class Controlador extends HttpServlet {
                     if (c.getESTADO().equals("A")) {
                         htmlResponse.append(" <a class='btn btn-danger btn-sm' ")
                                 .append("href='Controlador?menu=Cotizaciones&accion=Cancelar&idCot=").append(c.getID()).append("' ")
-                                .append("title='Cancelar' onclick='return confirm(\"Â¿EstÃ¡ seguro de cancelar esta cotizaciÃ³n?\")'>")
+                                .append("title='Cancelar' onclick='return confirm(\"¿Estás seguro de cancelar esta cotización?\")'>")
                                 .append("<i class='fas fa-times-circle'></i></a>");
                     }
                 } else {
@@ -2091,10 +2166,76 @@ public class Controlador extends HttpServlet {
 
             response.setContentType("text/html; charset=UTF-8");
             response.setCharacterEncoding("UTF-8");
-            out = response.getWriter();
-            out.print(htmlResponse.toString());
-            out.flush();
-            out.close();
+            response.getWriter().write(htmlResponse.toString());
+            return;
+
+        case "FiltrarPorEstado":
+            String estadoFiltro = request.getParameter("estado");
+            System.out.println("Filtrando por estado: " + estadoFiltro + " | Nivel: " + nivelPermiso);
+            
+            cotizacionDao = new CotizacionDao();
+            List<Cotizacion> cotizacionesPorEstado;
+
+            String codUserEstado = (String) sesion.getAttribute("COD_USER");
+            if (nivelPermiso != null && nivelPermiso == 3) {
+                Cliente clienteLogueadoEst = clidao.obtenerClientePorUsuario(codUserEstado);
+                if (clienteLogueadoEst != null) {
+                    List<Cotizacion> todasCliente = cotizacionDao.listarPorCliente(clienteLogueadoEst.getCOD_CLI());
+                    cotizacionesPorEstado = new ArrayList<>();
+                    for (Cotizacion cotizacion : todasCliente) {
+                        if (cotizacion.getESTADO().equals(estadoFiltro)) {
+                            cotizacionesPorEstado.add(cotizacion);
+                        }
+                    }
+                } else {
+                    cotizacionesPorEstado = new ArrayList<>();
+                }
+            } else {
+                cotizacionesPorEstado = cotizacionDao.filtrarPorEstado(estadoFiltro);
+            }
+
+            htmlResponse = new StringBuilder();
+            for (Cotizacion c : cotizacionesPorEstado) {
+                htmlResponse.append("<tr>")
+                        .append("<td>").append(c.getID()).append("</td>")
+                        .append("<td>").append(c.getCOD_CLI()).append("</td>")
+                        .append("<td>").append(c.getNUM_COT()).append("</td>")
+                        .append("<td>").append(c.getID_TRANS()).append("</td>")
+                        .append("<td>").append(c.getPERIODO()).append("</td>")
+                        .append("<td>").append(c.getFEC_EMISION()).append("</td>")
+                        .append("<td>").append(c.getFEC_VENC()).append("</td>")
+                        .append("<td>Q ").append(c.getMONTO()).append("</td>")
+                        .append("<td>");
+
+                if (c.getESTADO().equals("A")) {
+                    htmlResponse.append("<span class='badge bg-danger'>Pendiente de Pago</span>");
+                } else {
+                    htmlResponse.append("<span class='badge bg-success'>Cancelado</span>");
+                }
+
+                htmlResponse.append("</td>").append("<td>");
+
+                if (nivelPermiso != null && nivelPermiso != 3) {
+                    htmlResponse.append("<a class='btn btn-warning btn-sm' ")
+                            .append("href='Controlador?menu=Cotizaciones&accion=Editar&idCot=").append(c.getID()).append("' ")
+                            .append("title='Editar'><i class='fas fa-edit'></i></a>");
+
+                    if (c.getESTADO().equals("A")) {
+                        htmlResponse.append(" <a class='btn btn-danger btn-sm' ")
+                                .append("href='Controlador?menu=Cotizaciones&accion=Cancelar&idCot=").append(c.getID()).append("' ")
+                                .append("title='Cancelar' onclick='return confirm(\"¿Estás seguro de cancelar esta cotización?\")'>")
+                                .append("<i class='fas fa-times-circle'></i></a>");
+                    }
+                } else {
+                    htmlResponse.append("<span class='text-muted' style='font-size: 0.85rem;'>-</span>");
+                }
+
+                htmlResponse.append("</td>").append("</tr>");
+            }
+
+            response.setContentType("text/html; charset=UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(htmlResponse.toString());
             return;
 case "GenerarPDF":
     System.out.println("entro a case GENERAR PDF");
@@ -2137,71 +2278,7 @@ case "GenerarPDF":
                           "Error al generar el PDF");
     }
     return;
-        case "FiltrarPorEstado":
-            String estadoFiltro = request.getParameter("estado");
-            System.out.println("ðŸ” Filtrando por estado: " + estadoFiltro + " | Nivel: " + nivelPermiso);
-            
-            cotizacionDao = new CotizacionDao();
-            List<Cotizacion> cotizacionesPorEstado;
 
-            if (nivelPermiso != null && nivelPermiso == 3 && codClienteLogueado != null) {
-                List<Cotizacion> todasCliente = cotizacionDao.listarPorCliente(codClienteLogueado);
-                cotizacionesPorEstado = new ArrayList<>();
-                for (Cotizacion cotizacion : todasCliente) {
-                    if (cotizacion.getESTADO().equals(estadoFiltro)) {
-                        cotizacionesPorEstado.add(cotizacion);
-                    }
-                }
-            } else {
-                cotizacionesPorEstado = cotizacionDao.filtrarPorEstado(estadoFiltro);
-            }
-
-            htmlResponse = new StringBuilder();
-            for (Cotizacion c : cotizacionesPorEstado) {
-                htmlResponse.append("<tr>")
-                        .append("<td>").append(c.getID()).append("</td>")
-                        .append("<td>").append(c.getCOD_CLI()).append("</td>")
-                        .append("<td>").append(c.getNUM_COT()).append("</td>")
-                        .append("<td>").append(c.getID_TRANS()).append("</td>")
-                        .append("<td>").append(c.getPERIODO()).append("</td>")
-                        .append("<td>").append(c.getFEC_EMISION()).append("</td>")
-                        .append("<td>").append(c.getFEC_VENC()).append("</td>")
-                        .append("<td>Q ").append(c.getMONTO()).append("</td>")
-                        .append("<td>");
-
-                if (c.getESTADO().equals("A")) {
-                    htmlResponse.append("<span class='badge bg-danger'>Pendiente de Pago</span>");
-                } else {
-                    htmlResponse.append("<span class='badge bg-success'>Cancelado</span>");
-                }
-
-                htmlResponse.append("</td>").append("<td>");
-
-                if (nivelPermiso != null && nivelPermiso != 3) {
-                    htmlResponse.append("<a class='btn btn-warning btn-sm' ")
-                            .append("href='Controlador?menu=Cotizaciones&accion=Editar&idCot=").append(c.getID()).append("' ")
-                            .append("title='Editar'><i class='fas fa-edit'></i></a>");
-
-                    if (c.getESTADO().equals("A")) {
-                        htmlResponse.append(" <a class='btn btn-danger btn-sm' ")
-                                .append("href='Controlador?menu=Cotizaciones&accion=Cancelar&idCot=").append(c.getID()).append("' ")
-                                .append("title='Cancelar' onclick='return confirm(\"Â¿EstÃ¡ seguro de cancelar esta cotizaciÃ³n?\")'>")
-                                .append("<i class='fas fa-times-circle'></i></a>");
-                    }
-                } else {
-                    htmlResponse.append("<span class='text-muted' style='font-size: 0.85rem;'>-</span>");
-                }
-
-                htmlResponse.append("</td>").append("</tr>");
-            }
-
-            response.setContentType("text/html; charset=UTF-8");
-            response.setCharacterEncoding("UTF-8");
-            out = response.getWriter();
-            out.print(htmlResponse.toString());
-            out.flush();
-            out.close();
-            return;
             // Agregar en el switch de Cotizaciones en el Controlador
 
 
