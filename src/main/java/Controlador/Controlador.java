@@ -452,7 +452,8 @@ public class Controlador extends HttpServlet {
                     request.getRequestDispatcher("VIEWS/TEMPLATES/REPORTES/Empleos.jsp").forward(request, response);
 
                     return;
-                case "agregar":
+                    
+   case "agregar":
                     // Obtener los parÃ¡metros del formulario
                     String codEmp = request.getParameter("txtCod_emp");
                     String nombreEmp = request.getParameter("txtNom_emp");
@@ -2337,7 +2338,32 @@ case "GenerarPDF":
     request.getRequestDispatcher("VIEWS/TEMPLATES/Reportes.jsp").forward(request, response);
     return;
 }
-
+case "GenerarPDF":
+    System.out.println("=== GENERANDO PDF DE EMPLEADOS ===");
+    
+    // Obtener la lista de empleados para el PDF
+    List<Empleado> listaEmpleadosPDF = empdao.listar();
+    
+    if (listaEmpleadosPDF == null || listaEmpleadosPDF.isEmpty()) {
+        response.sendError(HttpServletResponse.SC_NOT_FOUND, 
+                          "No hay empleados para generar el reporte");
+        return;
+    }
+    
+    // Configurar respuesta para PDF
+    response.setContentType("application/pdf");
+    response.setHeader("Content-Disposition", 
+                      "inline; filename=Reporte_Empleados.pdf");
+    
+    try {
+        generarPDFReporteEmpleados(response.getOutputStream(), listaEmpleadosPDF);
+    } catch (Exception e) {
+        e.printStackTrace();
+        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
+                          "Error al generar el PDF");
+    }
+    return;    
+             
 
 
 
@@ -2653,6 +2679,16 @@ case "GenerarPDF":
     }
     }
 
+
+
+// Método auxiliar para crear celdas de tabla
+private PdfPCell crearCeldaTabla(String contenido, Font font, int alineacion) {
+    PdfPCell cell = new PdfPCell(new Phrase(contenido != null ? contenido : "", font));
+    cell.setPadding(5);
+    cell.setHorizontalAlignment(alineacion);
+    cell.setBorderColor(BaseColor.LIGHT_GRAY);
+    return cell;
+}
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -2845,5 +2881,104 @@ private void addTableRow(PdfPTable table, String label, String value, Font label
     valueCell.setBorder(Rectangle.NO_BORDER);
     valueCell.setPadding(5);
     table.addCell(valueCell);
+}
+
+// ===== MÉTODO PARA GENERAR PDF DE EMPLEADOS =====
+private void generarPDFReporteEmpleados(OutputStream out, List<Empleado> empleados) throws Exception {
+    Document document = new Document(PageSize.A4.rotate()); // Landscape para más columnas
+    PdfWriter.getInstance(document, out);
+    document.open();
+    
+    // Fuentes
+    Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+    Font headerFont = new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD, BaseColor.WHITE);
+    Font normalFont = new Font(Font.FontFamily.HELVETICA, 9, Font.NORMAL);
+    Font footerFont = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    SimpleDateFormat sdfHora = new SimpleDateFormat("HH:mm:ss");
+    
+    // Título
+    Paragraph title = new Paragraph("REPORTE DE EMPLEADOS", titleFont);
+    title.setAlignment(Element.ALIGN_CENTER);
+    document.add(title);
+    
+    // Información de la empresa
+    Paragraph empresa = new Paragraph("SOLUCIONES.COM S.A.", 
+            new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
+    empresa.setAlignment(Element.ALIGN_CENTER);
+    document.add(empresa);
+    
+    Paragraph info = new Paragraph(
+            "Generado: " + sdf.format(new Date()) + " a las " + sdfHora.format(new Date()) +
+            " | Total de empleados: " + empleados.size(), 
+            footerFont);
+    info.setAlignment(Element.ALIGN_CENTER);
+    document.add(info);
+    
+    document.add(new Paragraph(" "));
+    
+    // Tabla de empleados
+    PdfPTable table = new PdfPTable(11); // 11 columnas
+    table.setWidthPercentage(100);
+    table.setWidths(new float[]{0.5f, 1.2f, 1.2f, 1.5f, 1.5f, 1.2f, 1.2f, 1.2f, 1.5f, 1.5f, 0.8f});
+    
+    // Headers
+    String[] headers = {"#", "COD_EMPD", "DPI", "N_IGSS", "NIT", "NOMBRES", "APELLIDOS", 
+                        "COD_EMP", "CELULAR", "CORREO", "ESTADO"};
+    
+    for (String header : headers) {
+        PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+        cell.setBackgroundColor(BaseColor.DARK_GRAY);
+        cell.setPadding(6);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cell);
+    }
+    
+    // Datos
+    int contador = 1;
+    for (Empleado em : empleados) {
+        table.addCell(crearCeldaEmpleadosPDF(String.valueOf(contador++), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaEmpleadosPDF(em.getCOC_EMPD(), normalFont, Element.ALIGN_LEFT));
+        table.addCell(crearCeldaEmpleadosPDF(String.valueOf(em.getDPI()), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaEmpleadosPDF(String.valueOf(em.getN_IGSS()), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaEmpleadosPDF(String.valueOf(em.getNIT()), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaEmpleadosPDF(em.getNOMBRES(), normalFont, Element.ALIGN_LEFT));
+        table.addCell(crearCeldaEmpleadosPDF(em.getAPELLIDOS(), normalFont, Element.ALIGN_LEFT));
+        table.addCell(crearCeldaEmpleadosPDF(em.getCOD_EMP(), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaEmpleadosPDF(String.valueOf(em.getCELULAR()), normalFont, Element.ALIGN_CENTER));
+        table.addCell(crearCeldaEmpleadosPDF(em.getCorreo(), normalFont, Element.ALIGN_LEFT));
+        
+        // Celda de estado con color de fondo
+        PdfPCell estadoCell = new PdfPCell(new Phrase(em.getEstado() != null ? em.getEstado() : "", normalFont));
+        BaseColor estadoColor = "A".equals(em.getEstado()) ? BaseColor.GREEN : BaseColor.RED;
+        estadoCell.setBackgroundColor(estadoColor);
+        estadoCell.setPadding(5);
+        estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(estadoCell);
+    }
+    
+    document.add(table);
+    
+    // Pie de página
+    document.add(new Paragraph(" "));
+    document.add(new Paragraph(" "));
+    Paragraph footer = new Paragraph(
+            "Este reporte es confidencial y está protegido.\n" +
+            "Generado por el Sistema de Gestión de Empleados",
+            footerFont);
+    footer.setAlignment(Element.ALIGN_CENTER);
+    document.add(footer);
+    
+    document.close();
+}
+
+// Método auxiliar para crear celdas del PDF de empleados
+private PdfPCell crearCeldaEmpleadosPDF(String contenido, Font font, int alineacion) {
+    PdfPCell cell = new PdfPCell(new Phrase(contenido != null ? contenido : "", font));
+    cell.setPadding(5);
+    cell.setHorizontalAlignment(alineacion);
+    cell.setBorderColor(BaseColor.LIGHT_GRAY);
+    return cell;
 }
 }

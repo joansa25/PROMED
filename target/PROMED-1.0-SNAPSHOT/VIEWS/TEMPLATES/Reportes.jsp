@@ -264,13 +264,14 @@
         <!-- Utilidad: plantilla de modal -->
         <!-- Para evitar repetir estilos, todas comparten la misma estructura -->
 
- <!-- Modal Empleados (pantalla completa y con header/footer fijos) -->
+<!-- Modal Empleados (pantalla completa y con header/footer fijos) -->
+<!-- Modal Empleados (pantalla completa y con header/footer fijos) -->
 <div class="modal fade" id="modalEmpleados" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
   <div class="modal-dialog modal-fullscreen">
-    <div class="modal-content vh-100 d-flex">
+    <div class="modal-content vh-100 d-flex flex-column">
       
       <!-- Header fijo -->
-      <div class="modal-header sticky-top bg-white">
+      <div class="modal-header sticky-top bg-white border-bottom">
         <h5 class="modal-title mb-0">Reporte de Empleados</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
@@ -278,22 +279,29 @@
       <!-- Body ocupa todo el alto restante con scroll interno -->
       <div class="modal-body flex-grow-1 overflow-auto">
         <!-- Loader -->
-        <div id="empLoader" class="text-center py-4 d-none">Cargando...</div>
+        <div id="empLoader" class="text-center py-4 d-none">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
         <!-- Aquí se inyecta el fragmento del controlador -->
         <div id="printEmpleados" class="print-area"></div>
       </div>
 
-      <!-- Footer fijo -->
-      <div class="modal-footer sticky-bottom bg-white">
-        <button type="button" class="btn btn-primary btn-print" data-print="#printEmpleados">
-          <i class="fa-solid fa-print me-1"></i> Imprimir
+      <!-- Footer fijo con botones -->
+      <div class="modal-footer sticky-bottom bg-white border-top">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fa-solid fa-times me-1"></i> Cerrar
+        </button>
+        <!-- BOTÓN DE IMPRESIÓN: Abre el diálogo de impresión del navegador -->
+        <button type="button" class="btn btn-primary" id="btnImprimirPDF">
+          <i class="fa-solid fa-print me-1"></i> Imprimir PDF
         </button>
       </div>
 
     </div>
   </div>
 </div>
-
 
 
         <!-- 2 Usuarios -->
@@ -427,122 +435,41 @@
         <!-- JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+         <!-- ✅ SCRIPT CORRECTO PARA EL BOTÓN DE PDF -->
         <script>
-            (function () {
-                // Cargamos Bootstrap en la ventana de impresión y esperamos a que TERMINE de cargar
-                const BOOTSTRAP_CSS = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css";
-                const PRINT_CSS = `
-            @page { size: A4; margin: 12mm; }
-            html, body { height: 100%; }
-            body { margin: 0; padding: 0; }
-            .print-container { padding: 8px 12px; }
-            h3, h4, h5 { margin-top: 0; }
-            table { width: 100%; border-collapse: collapse; }
-            thead th { position: sticky; top: 0; background: #f8f9fa; }
-            .table { font-size: 12px; }
-          `;
+          // Cargar datos en el modal al hacer clic en la tarjeta
+          document.addEventListener('click', async (e) => {
+            const card = e.target.closest('.report-card[data-bs-target="#modalEmpleados"][data-url]');
+            if (!card) return;
 
-                function printSection(selector, title) {
-                    const area = document.querySelector(selector);
-                    if (!area) {
-                        alert("No se encontró el contenido a imprimir.");
-                        return;
-                    }
-                    if (!area.innerHTML.trim()) {
-                        alert("El reporte aún no tiene contenido.");
-                        return;
-                    }
+            const url = card.getAttribute('data-url');
+            const container = document.getElementById('printEmpleados');
+            const loader = document.getElementById('empLoader');
+            
+            container.innerHTML = '';
+            if (loader) loader.classList.remove('d-none');
 
-                    // 1) Abrimos una ventana vacía
-                    const w = window.open("", "_blank");
-                    const doc = w.document;
+            try {
+              const resp = await fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}});
+              const html = await resp.text();
+              container.innerHTML = html;
+            } catch (err) {
+              container.innerHTML = '<div class="alert alert-danger">No se pudo cargar el reporte.</div>';
+              console.error(err);
+            } finally {
+              if (loader) loader.classList.add('d-none');
+            }
+          });
 
-                    // 2) Esqueleto del documento (sin document.write)
-                    const html = doc.documentElement;
-                    const head = doc.head || doc.getElementsByTagName("head")[0];
-                    const body = doc.body || doc.getElementsByTagName("body")[0];
-
-                    // Título
-                    doc.title = title ? ("Imprimir - " + title) : "Imprimir";
-
-                    // 3) Cargar Bootstrap y nuestro CSS. Imprimir SOLO cuando haya cargado el CSS.
-                    const link = doc.createElement("link");
-                    link.rel = "stylesheet";
-                    link.href = BOOTSTRAP_CSS;
-
-                    const style = doc.createElement("style");
-                    style.textContent = PRINT_CSS;
-
-                    head.appendChild(link);
-                    head.appendChild(style);
-
-                    // 4) Clonamos el contenido de la modal y lo adoptamos en la nueva ventana
-                    const wrapper = doc.createElement("div");
-                    wrapper.className = "print-container container";
-                    // Importa el nodo con todos sus hijos (true)
-                    const clone = area.cloneNode(true);
-                    // Asegúrate de que el clon sea adoptado por el nuevo documento
-                    wrapper.appendChild(doc.importNode(clone, true));
-                    body.appendChild(wrapper);
-
-                    // 5) Esperar a que cargue Bootstrap antes de imprimir (link.onload es clave)
-                    link.onload = () => {
-                        // Un pequeño delay ayuda a que el motor renderice antes de abrir la vista de impresión
-                        setTimeout(() => {
-                            w.focus();
-                            w.print();
-                        }, 100);
-                    };
-
-                    // Fallback: si por alguna razón no dispara onload (cache etc.), imprime tras 800ms
-                    setTimeout(() => {
-                        try {
-                            w.focus();
-                            w.print();
-                        } catch (_) {
-                        }
-                    }, 800);
-                }
-
-                // Un solo listener para TODAS las modales
-                document.addEventListener("click", (e) => {
-                    const btn = e.target.closest(".btn-print");
-                    if (!btn)
-                        return;
-                    const sel = btn.getAttribute("data-print");
-                    const modal = btn.closest(".modal-content");
-                    const title = modal?.querySelector(".modal-title")?.textContent?.trim() || "Reporte";
-                    printSection(sel, title);
-                });
-            })();
+          // ✅ Generar PDF usando el controlador (iText)
+          document.getElementById('btnImprimirPDF')?.addEventListener('click', function() {
+            const url = 'Controlador?menu=Empleados&accion=GenerarPDF';
+            window.open(url, '_blank');
+            console.log('Generando PDF desde: ' + url);
+          });
         </script>
 
-        <script>
-            document.addEventListener('click', async (e) => {
-                const card = e.target.closest('.report-card[data-bs-target="#modalEmpleados"][data-url]');
-                if (!card)
-                    return;
 
-                const url = card.getAttribute('data-url');
-                const container = document.getElementById('printEmpleados');
-                const loader = document.getElementById('empLoader');
-                container.innerHTML = '';
-                if (loader)
-                    loader.classList.remove('d-none');
-
-                try {
-                    const resp = await fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}});
-                    const html = await resp.text();
-                    container.innerHTML = html;
-                } catch (err) {
-                    container.innerHTML = '<div class="alert alert-danger">No se pudo cargar el reporte.</div>';
-                    console.error(err);
-                } finally {
-                    if (loader)
-                        loader.classList.add('d-none');
-                }
-            });
-        </script>
 
 
     </body>
