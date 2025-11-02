@@ -637,4 +637,64 @@ public List<Cotizacion> listarPorClienteDetallado(String codCli) {
     return lista;
 }
     
+// ===== MÉTODO PARA OBTENER PAGOS POR FECHA =====
+public List<Map<String, Object>> obtenerPagosPorFecha(String fecha) {
+    List<Map<String, Object>> lista = new ArrayList<>();
+    
+    String sql = "SELECT " +
+                 "    DATE(p.FEC_PAGO) AS FECHA, " +
+                 "    TIME(p.FEC_PAGO) AS HORA, " +
+                 "    p.NUM_COT, " +
+                 "    p.ID_TRANS, " +
+                 "    cli.COD_CLI, " +
+                 "    CONCAT(cli.NOM_CLI, ' ', cli.APE_CLI) AS CLIENTE, " +
+                 "    p.METODO_PAGO, " +
+                 "    p.NUM_REF, " +
+                 "    p.MONTO_PAGADO, " +
+                 "    p.REGISTRADO_POR " +
+                 "FROM pm_pagos p " +
+                 "INNER JOIN pm_cotizaciones ctz " +
+                 "    ON p.NUM_COT = ctz.NUM_COT " +
+                 "INNER JOIN pm_clientes cli " +
+                 "    ON ctz.COD_CLI = cli.COD_CLI " +
+                 "WHERE p.FEC_PAGO BETWEEN ? AND ? " +
+                 "ORDER BY p.FEC_PAGO ASC";
+    
+    try {
+        con = cn.Conexion();
+        ps = con.prepareStatement(sql);
+        
+        // Establecer rango del día completo
+        ps.setString(1, fecha + " 00:00:00");
+        ps.setString(2, fecha + " 23:59:59");
+        
+        rs = ps.executeQuery();
+        
+        System.out.println("Ejecutando consulta de pagos para la fecha: " + fecha);
+        
+        while (rs.next()) {
+            Map<String, Object> pago = new HashMap<>();
+            pago.put("FECHA", rs.getDate("FECHA"));
+            pago.put("HORA", rs.getTime("HORA"));
+            pago.put("NUM_COT", rs.getString("NUM_COT"));
+            pago.put("ID_TRANS", rs.getString("ID_TRANS"));
+            pago.put("COD_CLI", rs.getString("COD_CLI"));
+            pago.put("CLIENTE", rs.getString("CLIENTE"));
+            pago.put("METODO_PAGO", rs.getString("METODO_PAGO"));
+            pago.put("NUM_REF", rs.getString("NUM_REF"));
+            pago.put("MONTO_PAGADO", rs.getDouble("MONTO_PAGADO"));
+            pago.put("REGISTRADO_POR", rs.getString("REGISTRADO_POR"));
+            
+            lista.add(pago);
+        }
+        
+        System.out.println("Total de pagos encontrados: " + lista.size());
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.out.println("Error al obtener pagos por fecha: " + e.getMessage());
+    }
+    
+    return lista;
+}
 }

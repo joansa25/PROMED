@@ -280,6 +280,79 @@ if (ajax && "planesmasusados".equalsIgnoreCase(partial)) {
 <%
         return;
     }
+// ===== FRAGMENTO DE PAGOS POR FECHA =====
+if (ajax && "pagosporfecha".equalsIgnoreCase(partial)) {
+%>
+<!-- ===== FRAGMENTO: SOLO TABLA DE PAGOS POR FECHA ===== -->
+<h3 class="mb-3">Reporte de Pagos por Fecha</h3>
+
+
+
+<div class="table-responsive">
+    <table class="table table-sm table-striped align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>HORA</th>
+                <th>NUM_COT</th>
+                <th>ID_TRANS</th>
+                <th>CÓD_CLI</th>
+                <th>CLIENTE</th>
+                <th>MÉTODO PAGO</th>
+                <th>NUM_REF</th>
+                <th>MONTO</th>
+                <th>REGISTRADO POR</th>
+            </tr>
+        </thead>
+        <tbody>
+            <%
+                List<Map<String, Object>> pagosPorFecha = 
+                    (List<Map<String, Object>>) request.getAttribute("pagosPorFecha");
+                
+                double totalMonto = 0.0;
+                
+                if (pagosPorFecha != null && !pagosPorFecha.isEmpty()) {
+                    for (Map<String, Object> pago : pagosPorFecha) {
+                        Double monto = (Double) pago.get("MONTO_PAGADO");
+                        totalMonto += monto;
+            %>
+            <tr>
+                <td><%= pago.get("HORA")%></td>
+                <td><%= pago.get("NUM_COT")%></td>
+                <td><%= pago.get("ID_TRANS")%></td>
+                <td><%= pago.get("COD_CLI")%></td>
+                <td><%= pago.get("CLIENTE")%></td>
+                <td><%= pago.get("METODO_PAGO")%></td>
+                <td><%= pago.get("NUM_REF")%></td>
+                <td class="text-end fw-bold">Q <%= String.format("%.2f", monto)%></td>
+                <td><%= pago.get("REGISTRADO_POR")%></td>
+            </tr>
+            <%
+                    }
+                } else {
+            %>
+            <tr>
+                <td colspan="9" class="text-center text-muted">No se encontraron pagos para la fecha seleccionada</td>
+            </tr>
+            <%
+                }
+            %>
+        </tbody>
+        <% if (pagosPorFecha != null && !pagosPorFecha.isEmpty()) { %>
+        <tfoot>
+            <tr class="table-dark">
+                <td colspan="7" class="text-end fw-bold">TOTAL:</td>
+                <td class="text-end fw-bold">Q <%= String.format("%.2f", totalMonto)%></td>
+                <td></td>
+            </tr>
+        </tfoot>
+        <% } %>
+    </table>
+</div>
+
+
+<%
+        return;
+    }
 %>
  
         
@@ -360,16 +433,18 @@ if (ajax && "planesmasusados".equalsIgnoreCase(partial)) {
   </div>
 </div>
 
-    <!-- 6) Pagos por fechas -->
-    <div class="col">
-      <div class="report-card p-3 d-flex gap-3 align-items-start" data-bs-toggle="modal" data-bs-target="#modalPagosFechas">
-        <div class="icon-badge"><i class="fa-solid fa-money-check-dollar"></i></div>
-        <div>
-          <div class="report-name">Pagos por fechas</div>
-          <div class="report-desc">Movimientos por periodo.</div>
-        </div>
-      </div>
+<!-- 6) Pagos por fechas -->
+<div class="col">
+  <div class="report-card p-3 d-flex gap-3 align-items-start" 
+       data-url="Controlador?menu=PagosPorFecha&accion=ListarRE&partial=pagosporfecha"
+       data-bs-toggle="modal" data-bs-target="#modalPagosFechas">
+    <div class="icon-badge"><i class="fa-solid fa-money-check-dollar"></i></div>
+    <div>
+      <div class="report-name">Pagos por fechas</div>
+      <div class="report-desc">Movimientos por periodo.</div>
     </div>
+  </div>
+</div>
 
     <!-- 7) Pagos por cliente -->
     <div class="col">
@@ -561,21 +636,52 @@ if (ajax && "planesmasusados".equalsIgnoreCase(partial)) {
   </div>
 </div>
 
-        <!-- 6 Pagos por Fechas -->
-        <div class="modal fade" id="modalPagosFechas" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                <div class="modal-content">
-                    <div class="modal-header"><h5 class="modal-title">Reporte de Pagos por Fechas</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-                    <div class="modal-body">
-                        <div id="printPagosFechas" class="print-area">
-                            <h3 class="mb-2">PRUEBA — Reporte de Pagos por Fechas</h3>
-                            <p class="text-muted">(Aquí irá el detalle por periodo)</p>
-                        </div>
-                    </div>
-                    <div class="modal-footer"><button type="button" class="btn btn-primary btn-print" data-print="#printPagosFechas"><i class="fa-solid fa-print me-1"></i> Imprimir</button></div>
-                </div>
-            </div>
+<!-- Modal Pagos por Fechas (pantalla completa) -->
+
+<div class="modal fade" id="modalPagosFechas" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content vh-100 d-flex flex-column">
+      
+      <div class="modal-header sticky-top bg-white border-bottom">
+        <h5 class="modal-title mb-0">Reporte de Pagos por Fechas</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body flex-grow-1 overflow-auto">
+        <!-- AGREGAR SELECTOR DE FECHA AQUÍ -->
+        <div class="mb-3 d-flex align-items-center gap-2 p-3 bg-light rounded">
+            <label for="fechaPagoModal" class="form-label mb-0 fw-bold">Seleccionar Fecha:</label>
+            <!-- En el modal de Pagos por Fechas -->
+<input type="date" id="fechaPagoModal" class="form-control" style="width:auto;">
+<button type="button" id="btnBuscarPorFechaModal" class="btn btn-primary">
+  <i class="fa-solid fa-search me-1"></i> Buscar
+</button>
+
         </div>
+        
+        <div id="pagosLoader" class="text-center py-4 d-none">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+        <div id="printPagosFechas" class="print-area"></div>
+      </div>
+
+      <div class="modal-footer sticky-bottom bg-white border-top">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fa-solid fa-times me-1"></i> Cerrar
+        </button>
+        <button type="button" class="btn btn-primary" id="btnImprimirPDFPagos">
+          <i class="fa-solid fa-print me-1"></i> Generar PDF
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
 
         <!-- 7 Pagos por Cliente (JOINs) -->
         <div class="modal fade" id="modalPagosCliente" tabindex="-1" aria-hidden="true">
@@ -745,5 +851,78 @@ if (ajax && "planesmasusados".equalsIgnoreCase(partial)) {
     console.log('Generando PDF de planes más usados desde: ' + url);
   });
 </script>
+
+
+
+<script>
+// 1) Precarga al abrir la tarjeta de "Pagos por fecha"
+document.addEventListener('click', async (e) => {
+  // La tarjeta/botón que abre el modal de Pagos por Fecha debe tener este data-bs-target
+  const card = e.target.closest('.report-card[data-bs-target="#modalPagosFechas"][data-url]');
+  if (!card) return;
+
+  const fechaInput = document.getElementById('fechaPagoModal');
+  // Si no hay fecha, usar hoy
+  if (fechaInput && !fechaInput.value) {
+    const hoy = new Date().toISOString().split('T')[0];
+    fechaInput.value = hoy;
+  }
+
+  const fecha = fechaInput ? fechaInput.value : new Date().toISOString().split('T')[0];
+  const url = card.getAttribute('data-url') + '&fecha=' + encodeURIComponent(fecha);
+
+  const container = document.getElementById('printPagosFechas');
+  const loader    = document.getElementById('pagosLoader');
+
+  container.innerHTML = '';
+  if (loader) loader.classList.remove('d-none');
+
+  try {
+    const resp = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    container.innerHTML = await resp.text();
+  } catch (err) {
+    container.innerHTML = '<div class="alert alert-danger">Error al cargar los pagos.</div>';
+    console.error(err);
+  } finally {
+    if (loader) loader.classList.add('d-none');
+  }
+});
+
+// 2) Botón Buscar dentro del modal
+document.getElementById('btnBuscarPorFechaModal')?.addEventListener('click', async () => {
+  const fechaInput = document.getElementById('fechaPagoModal');
+  const fecha = (fechaInput?.value || '').trim();
+  if (!fecha) { alert('Selecciona una fecha'); return; }
+
+  const url = 'Controlador?menu=PagosPorFecha&accion=ListarRE&partial=pagosporfecha&fecha=' + encodeURIComponent(fecha);
+
+  const container = document.getElementById('printPagosFechas');
+  const loader    = document.getElementById('pagosLoader');
+
+  container.innerHTML = '';
+  if (loader) loader.classList.remove('d-none');
+
+  try {
+    const resp = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    container.innerHTML = await resp.text();
+  } catch (err) {
+    container.innerHTML = '<div class="alert alert-danger">Error al cargar los pagos.</div>';
+    console.error(err);
+  } finally {
+    if (loader) loader.classList.add('d-none');
+  }
+});
+
+// 3) Botón Generar PDF
+document.getElementById('btnImprimirPDFPagos')?.addEventListener('click', () => {
+  const fecha = document.getElementById('fechaPagoModal')?.value || '';
+  if (!fecha) { alert('Selecciona una fecha'); return; }
+  const url = 'Controlador?menu=PagosPorFecha&accion=GenerarPDF&fecha=' + encodeURIComponent(fecha);
+  window.open(url, '_blank');
+});
+</script>
+
+
+
     </body>
 </html>

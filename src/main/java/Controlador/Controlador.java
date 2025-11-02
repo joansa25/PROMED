@@ -43,6 +43,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -1580,6 +1581,176 @@ if (menu.equals("PlanesMasUsados")) {
             throw new AssertionError();
     }
 }
+// CÓDIGO MEJORADO PARA EL CONTROLADOR - SECCIÓN PagosPorFecha
+// Reemplaza tu case "ListarRE" actual con este código que incluye más logs
+
+/*PAGOS POR FECHA*/
+if (menu.equals("PagosPorFecha")) {
+    System.out.println("========================================");
+    System.out.println("=== ENTRANDO A PagosPorFecha ===");
+    System.out.println("========================================");
+    
+    // Imprimir TODOS los parámetros recibidos
+    System.out.println("TODOS LOS PARÁMETROS RECIBIDOS:");
+    Enumeration<String> parameterNames = request.getParameterNames();
+    while (parameterNames.hasMoreElements()) {
+        String paramName = parameterNames.nextElement();
+        String paramValue = request.getParameter(paramName);
+        System.out.println("  - " + paramName + " = " + paramValue);
+    }
+    
+    // Imprimir headers importantes
+    System.out.println("HEADERS:");
+    System.out.println("  - X-Requested-With: " + request.getHeader("X-Requested-With"));
+    System.out.println("  - Content-Type: " + request.getContentType());
+    
+    switch (accion) {
+        case "ListarRE":
+            System.out.println(">>> Acción: ListarRE");
+            
+            // Obtener el parámetro fecha de múltiples formas para asegurar
+            String fechaBusqueda = request.getParameter("fecha");
+            
+            System.out.println("------es para esta fecha:::::::::::::::::::::::: " + fechaBusqueda);
+            
+            // Si no viene el parámetro, intentar obtenerlo del query string
+            if (fechaBusqueda == null || fechaBusqueda.isEmpty()) {
+                String queryString = request.getQueryString();
+                System.out.println(">>> Query String completo: " + queryString);
+                
+                if (queryString != null && queryString.contains("fecha=")) {
+                    // Extraer fecha del query string manualmente
+                    int startIndex = queryString.indexOf("fecha=") + 6;
+                    int endIndex = queryString.indexOf("&", startIndex);
+                    if (endIndex == -1) endIndex = queryString.length();
+                    
+                    if (startIndex < queryString.length()) {
+                        fechaBusqueda = queryString.substring(startIndex, endIndex);
+                        System.out.println(">>> Fecha extraída del query string: " + fechaBusqueda);
+                    }
+                }
+            }
+            
+            // Si aún no hay fecha, usar la fecha actual
+            if (fechaBusqueda == null || fechaBusqueda.isEmpty()) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                fechaBusqueda = sdf.format(new Date());
+                System.out.println(">>> No se recibió fecha, usando fecha actual: " + fechaBusqueda);
+            } else {
+                System.out.println(">>> FECHA RECIBIDA CORRECTAMENTE: " + fechaBusqueda);
+            }
+            
+            // Validar formato de fecha
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                sdf.setLenient(false);
+                Date fechaValida = sdf.parse(fechaBusqueda);
+                System.out.println(">>> Fecha válida parseada: " + fechaValida);
+            } catch (ParseException e) {
+                System.out.println(">>> ERROR: Formato de fecha inválido: " + fechaBusqueda);
+                e.printStackTrace();
+            }
+            
+            System.out.println(">>> Llamando a cotdao.obtenerPagosPorFecha con fecha: " + fechaBusqueda);
+            
+            // Obtener pagos por fecha
+            List<Map<String, Object>> pagosPorFecha = cotdao.obtenerPagosPorFecha(fechaBusqueda);
+            
+            System.out.println(">>> Pagos encontrados: " + (pagosPorFecha != null ? pagosPorFecha.size() : "NULL"));
+            
+            if (pagosPorFecha != null && !pagosPorFecha.isEmpty()) {
+                System.out.println(">>> Primer pago encontrado:");
+                Map<String, Object> primerPago = pagosPorFecha.get(0);
+                for (Map.Entry<String, Object> entry : primerPago.entrySet()) {
+                    System.out.println("    - " + entry.getKey() + ": " + entry.getValue());
+                }
+            }
+            
+            // Establecer atributos
+            //nueva linea
+            request.setAttribute("pagosPorFecha", pagosPorFecha);
+
+            
+            // ya calculaste fechaBusqueda arriba
+request.setAttribute("fechaSeleccionada", fechaBusqueda);
+request.getSession().setAttribute("fechaPagosSeleccionada", fechaBusqueda); // <—
+
+            
+            System.out.println(">>> Atributos establecidos en el request");
+            System.out.println(">>> Redirigiendo a Reportes.jsp");
+            
+            // Configurar encoding
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            
+            // Verificar si es petición AJAX
+            boolean esAjax = "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"));
+            System.out.println(">>> ¿Es petición AJAX? " + esAjax);
+            
+            // Forward a la JSP
+            request.getRequestDispatcher("VIEWS/TEMPLATES/Reportes.jsp").forward(request, response);
+            
+            System.out.println(">>> Forward completado");
+            System.out.println("========================================");
+            return;
+
+        case "GenerarPDF":
+            System.out.println(">>> Acción: GenerarPDF");
+
+String fechaPDF = request.getParameter("fecha");
+System.out.println(">>> Fecha para PDF (param): " + fechaPDF);
+
+// Respaldo: tomar la última fecha consultada en la modal
+if (fechaPDF == null || fechaPDF.isEmpty()) {
+    Object f = request.getSession().getAttribute("fechaPagosSeleccionada");
+    if (f != null) {
+        fechaPDF = String.valueOf(f);
+        System.out.println(">>> Usando fecha de sesión para PDF: " + fechaPDF);
+    }
+}
+
+// Último fallback: hoy
+if (fechaPDF == null || fechaPDF.isEmpty()) {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    fechaPDF = sdf.format(new Date());
+    System.out.println(">>> Usando fecha actual para PDF: " + fechaPDF);
+}
+
+// Consulta y genera PDF
+List<Map<String, Object>> pagosPorFechaPDF = cotdao.obtenerPagosPorFecha(fechaPDF);
+System.out.println(">>> Pagos para PDF: " + (pagosPorFechaPDF != null ? pagosPorFechaPDF.size() : 0));
+
+            if (pagosPorFechaPDF == null || pagosPorFechaPDF.isEmpty()) {
+                System.out.println(">>> ERROR: No hay pagos para generar el PDF");
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, 
+                                  "No hay pagos para generar el reporte en la fecha seleccionada");
+                return;
+            }
+            
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", 
+                              "inline; filename=Reporte_Pagos_" + fechaPDF + ".pdf");
+            
+            try {
+                System.out.println(">>> Generando PDF...");
+                generarPDFReportePagosPorFecha(response.getOutputStream(), pagosPorFechaPDF, fechaPDF);
+                System.out.println(">>> PDF generado exitosamente");
+            } catch (Exception e) {
+                System.out.println(">>> ERROR al generar PDF:");
+                e.printStackTrace();
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
+                                  "Error al generar el PDF");
+            }
+            return;
+
+        default:
+            System.out.println(">>> Acción no reconocida: " + accion);
+            throw new AssertionError();
+    }
+}
+
+// NOTA: También asegúrate de agregar este import al inicio del archivo si no lo tienes:
+// import java.util.Enumeration;
 
         /*CHATBOT*/
  /*ChatBot*/
@@ -3408,4 +3579,123 @@ private PdfPCell crearCeldaPlanPDF(String contenido, Font font, int alineacion) 
     cell.setBorderColor(BaseColor.LIGHT_GRAY);
     return cell;
 }
+
+// ===== MÉTODO PARA GENERAR PDF DE PAGOS POR FECHA =====
+private void generarPDFReportePagosPorFecha(OutputStream out, List<Map<String, Object>> pagos, String fecha) throws Exception {
+    Document document = new Document(PageSize.A4.rotate()); // Landscape
+    PdfWriter.getInstance(document, out);
+    document.open();
+
+    // Fuentes
+    Font titleFont  = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+    Font headerFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.WHITE);
+    Font normalFont = new Font(Font.FontFamily.HELVETICA, 9, Font.NORMAL);
+    Font footerFont = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
+
+    SimpleDateFormat sdfDisplay = new SimpleDateFormat("dd/MM/yyyy");
+    SimpleDateFormat sdfHora    = new SimpleDateFormat("HH:mm:ss");
+    SimpleDateFormat sdfParse   = new SimpleDateFormat("yyyy-MM-dd");
+
+    // Título
+    Paragraph title = new Paragraph("REPORTE DE PAGOS DEL DÍA", titleFont);
+    title.setAlignment(Element.ALIGN_CENTER);
+    document.add(title);
+
+    // Información de la empresa
+    Paragraph empresa = new Paragraph("SOLUCIONES.COM S.A.",
+            new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
+    empresa.setAlignment(Element.ALIGN_CENTER);
+    document.add(empresa);
+
+    // Fecha del reporte
+    Date fechaReporte = sdfParse.parse(fecha);
+    Paragraph fechaPara = new Paragraph("Fecha: " + sdfDisplay.format(fechaReporte),
+            new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
+    fechaPara.setAlignment(Element.ALIGN_CENTER);
+    document.add(fechaPara);
+
+    Paragraph info = new Paragraph(
+            "Generado: " + sdfDisplay.format(new Date()) + " a las " + sdfHora.format(new Date()) +
+            " | Total de pagos: " + pagos.size(),
+            footerFont);
+    info.setAlignment(Element.ALIGN_CENTER);
+    document.add(info);
+
+    document.add(new Paragraph(" "));
+
+    // Calcular total (robusto a tipos)
+    double totalMonto = 0.0;
+    for (Map<String, Object> pago : pagos) {
+        Object montoObj = pago.get("MONTO_PAGADO");
+        double val = (montoObj instanceof Number) ? ((Number) montoObj).doubleValue() : 0.0;
+        totalMonto += val;
+    }
+
+   // Tabla de pagos (9 columnas)
+PdfPTable table = new PdfPTable(9);
+table.setWidthPercentage(100);
+//                 HORA  NUM_COT ID_TR  COD   CLIENTE  MET   REF   MONTO  REG
+table.setWidths(new float[]{1.0f, 1.5f, 1.8f, 1.0f, 2.2f, 1.2f, 1.6f, 1.0f, 1.2f});
+
+// Headers (9)
+String[] headers = {"HORA", "NUM_COT", "ID_TRANS", "CÓD_CLI", "CLIENTE",
+                    "MÉTODO", "NUM_REF", "MONTO", "REGISTRADO_POR"};
+for (String header : headers) {
+    PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+    cell.setBackgroundColor(BaseColor.DARK_GRAY);
+    cell.setPadding(6);
+    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+    table.addCell(cell);
+}
+
+// Datos (9 celdas por fila)
+for (Map<String, Object> pago : pagos) {
+    java.sql.Time hora = (java.sql.Time) pago.get("HORA");
+    table.addCell(crearCeldaPagosPDF(hora != null ? hora.toString() : "", normalFont, Element.ALIGN_CENTER));
+    table.addCell(crearCeldaPagosPDF((String) pago.get("NUM_COT"), normalFont, Element.ALIGN_LEFT));
+    table.addCell(crearCeldaPagosPDF((String) pago.get("ID_TRANS"), normalFont, Element.ALIGN_LEFT));
+    table.addCell(crearCeldaPagosPDF((String) pago.get("COD_CLI"), normalFont, Element.ALIGN_CENTER));
+    table.addCell(crearCeldaPagosPDF((String) pago.get("CLIENTE"), normalFont, Element.ALIGN_LEFT));
+    table.addCell(crearCeldaPagosPDF((String) pago.get("METODO_PAGO"), normalFont, Element.ALIGN_CENTER));
+    table.addCell(crearCeldaPagosPDF((String) pago.get("NUM_REF"), normalFont, Element.ALIGN_LEFT));
+    Double monto = (Double) pago.get("MONTO_PAGADO");
+    table.addCell(crearCeldaPagosPDF("Q " + String.format("%.2f", monto != null ? monto : 0.0), normalFont, Element.ALIGN_RIGHT));
+    table.addCell(crearCeldaPagosPDF((String) pago.get("REGISTRADO_POR"), normalFont, Element.ALIGN_CENTER));
+}
+document.add(table);
+
+
+    // Total
+    document.add(new Paragraph(" "));
+    Paragraph total = new Paragraph("TOTAL RECAUDADO: Q " + String.format("%.2f", totalMonto),
+            new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD));
+    total.setAlignment(Element.ALIGN_RIGHT);
+    document.add(total);
+
+    // Pie
+    document.add(new Paragraph(" "));
+    document.add(new Paragraph(" "));
+    Paragraph footer = new Paragraph(
+            "Este reporte muestra todos los pagos registrados en la fecha seleccionada.\n" +
+            "Generado por el Sistema de Gestión de Pagos",
+            footerFont);
+    footer.setAlignment(Element.ALIGN_CENTER);
+    document.add(footer);
+
+    document.close();
+}
+
+private static String nvl(String s) {
+    return (s == null) ? "" : s;
+}
+
+// Método auxiliar para crear celdas del PDF de pagos
+private PdfPCell crearCeldaPagosPDF(String contenido, Font font, int alineacion) {
+    PdfPCell cell = new PdfPCell(new Phrase(contenido != null ? contenido : "", font));
+    cell.setPadding(5);
+    cell.setHorizontalAlignment(alineacion);
+    cell.setBorderColor(BaseColor.LIGHT_GRAY);
+    return cell;
+}
+
 }
